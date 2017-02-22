@@ -243,9 +243,19 @@ These are roughly in order of importance, I guess.
   has waited long enough without having to type a new syllable first
 
 * `[ ]` "escape shortcut" to release any grabs and stop producing output.
-  press again to re-enable the qweyboard
+  press again to re-enable the qweyboard (does this require refactoring? probably)
 
-* `[ ]` Backspace should erase last typed syllable?
+* `[ ]` make it possible to type X (K+Z) and Q (C+F). might require rethinking
+  the whole layer idea?
+
+* `[ ]` Backspace should
+
+    1. Clear currently pressed
+    2. Erase last space (?)
+    3. Erase last syllable
+
+  Requires the qweyboard package to move away from outputting a string...
+  (or possibly outputting something like "Either BackSpace String")
 
 * `[ ]` include symbols and numbers in layout
 
