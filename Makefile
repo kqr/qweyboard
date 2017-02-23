@@ -1,14 +1,26 @@
+ifeq ($(shell uname),Linux)
+PLATFORM=x11
+else
+$(error Linux is currently the only supported platform)
+endif
 
-CC=gnatmake
+BIN=qweyboard
+BINDIR=bin
 SRCDIR=src
 BUILDDIR=build
-BINDIR=bin
+
+CC=gnatmake
 LANGVARIANT=-gnatW8
 CFLAGS=-D $(BUILDDIR)
+
+ifeq ($(PLATFORM),x11)
 LIBS=-lX11 -lXi -lXtst
+else
+LIBS=
+endif
 
 all:
-	$(CC) $(CFLAGS) $(LANGVARIANT) -o $(BINDIR)/qweyboard src/main -largs $(LIBS)
+	$(CC) -aI$(SRCDIR)/$(PLATFORM) $(CFLAGS) $(LANGVARIANT) -o $(BINDIR)/$(BIN) $(SRCDIR)/main -largs $(LIBS)
 
 clean:
-	$(RM) $(BUILDDIR)/*.o $(BUILDDIR)/*.ali $(BINDIR)/main
+	$(RM) $(BUILDDIR)/*.o $(BUILDDIR)/*.ali $(BINDIR)/$(BIN)

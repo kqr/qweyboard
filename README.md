@@ -47,15 +47,17 @@ languages where you don't have a stenographic dictionary available.
 Dependencies
 ------------
 
-If it doesn't want to run or build (undefined symbol, linker errors or whatnot), install the prerequisite dependencies:
+If it doesn't want to run or build (undefined symbol, linker errors or
+whatnot), install the prerequisite dependencies:
 
- * Xlib
- * XInput2
- * XTest
+ * GNAT (Ada compiler)
+ * Xlib (X11 client programming library)
+ * XInput2 (support for more advanced input in X11)
+ * XTest (extension that enables clients to create input events as if from a real device)
 
 On Debian, these are installed with
 
-   $ sudo apt-get install libx11-6 libx11-dev libxtst-6 libxtst-dev libxi-6 libxi-dev
+    $ sudo gnat apt-get install libx11-6 libx11-dev libxtst-6 libxtst-dev libxi-6 libxi-dev
 
 
 Key map

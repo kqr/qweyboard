@@ -1,11 +1,10 @@
 with Ada.Text_IO;
 with Ada.Command_Line;
 with Qweyboard;
-with Linux_X11_Backend;
+with Backend;
 
 procedure Main is
    use Ada.Text_IO;
-   package Backend renames Linux_X11_Backend;
    package CLI renames Ada.Command_Line;
 
    function Get (Count : Natural; Language : in out Qweyboard.Language_Variant) return Boolean is

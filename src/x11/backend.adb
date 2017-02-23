@@ -1,12 +1,9 @@
-package body Linux_X11_Backend Is
+with X11;
+
+package body Backend Is
    package Keycode_Mapping is new Ada.Containers.Ordered_Maps (Key_Type => X11.Keycode, Element_Type => Qweyboard.Softkey, "=" => Qweyboard."=");
    From_Keycode : Keycode_Mapping.Map;
 
-   procedure Output (Text : String) is
-   begin
-      X11.Thread.Output (Text);
-   end;
-   
    task body Input is
       use type X11.Event_Variant_Type, X11.Key_Event_Variant_Type;
       Event : X11.Event;
@@ -30,6 +27,11 @@ package body Linux_X11_Backend Is
          end if;
       end loop;
    end Input;
+
+   procedure Output (Text : String) is
+   begin
+      X11.Thread.Output (Text);
+   end Output;
 begin
    From_Keycode.Insert (12, Qweyboard.LP);
    From_Keycode.Insert (13, Qweyboard.LK);
@@ -74,4 +76,4 @@ begin
       end loop;
       X11.Thread.Capture_Keys (Keycodes);
    end;
-end Linux_X11_Backend;
+end Backend;
