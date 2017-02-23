@@ -29,7 +29,7 @@ package body X11 is
       Display : constant Display_Access := Open_Display;
       XInput_Opcode : C.Int := Query_Extension (Display, "XInputExtension");
       XTest_Opcode : C.Int := Query_Extension (Display, "XTEST");
-      Keyboard_Array : constant Device_Array := Real_Keyboards (Query_Devices (Display));
+      Keyboard_Array : constant XIDeviceInfo_Array := Real_Keyboards (Query_Devices (Display));
       I : C.Int := XSync (Display, 0);
       Keyboards : Device_Vectors.Vector;
       Keys : Keycode_Vectors.Vector;
@@ -51,26 +51,11 @@ package body X11 is
    end Setup_Keygrabs_Body;
    
    function Open_Display return Display_Access is
-      function XOpenDisplay (Display_Name : C.Strings.Chars_Ptr) return Display_Access;
-      pragma Import (C, XOpenDisplay, "XOpenDisplay");
-      function XInitThreads return C.Int;
-      pragma Import (C, XInitThreads, "XInitThreads");
-      I : C.Int := XInitThreads;
    begin
-      if I = 0 then
-         raise CONSTRAINT_ERROR with "could not init thread support in xlib";
-      end if;
       return XOpenDisplay (C.Strings.Null_Ptr);
    end Open_Display;
    
    function Query_Extension (Display : Display_Access; Name : String) return C.Int is
-      function XQueryExtension
-        (Display : Display_Access;
-         Name : C.Strings.Chars_Ptr;
-         Major_Opcode : in out C.Int;
-         Event : in out C.Int;
-         Error : in out C.Int) return C.Int;
-      pragma Import (C, XQueryExtension, "XQueryExtension");
       Opcode, Ev, Err : C.Int := 0;
    begin
       if XQueryExtension (Display, C.Strings.New_String (Name), Opcode, Ev, Err) = 0 then
@@ -81,32 +66,16 @@ package body X11 is
 
 
    function Default_Root_Window (Display : Display_Access) return Window is
-      function XDefaultRootWindow (Display : Display_Access) return C.Unsigned_Long;
-      pragma Import (C, XDefaultRootWindow, "XDefaultRootWindow");
    begin
       return Window (XDefaultRootWindow (Display));
    end Default_Root_Window;
 
 
-   function Query_Devices (Display : Display_Access) return Device_Array is
-      package XIDeviceInfo_Accesses is new C.Pointers
-        (Index => Natural,
-         Element => XIDeviceInfo,
-         Element_Array => Device_Array,
-         Default_Terminator => (Name => C.Strings.Null_Ptr, Classes => null, others => 0));
-
-      function XIQueryDevice
-        (Display : Display_Access; 
-         Device_ID : C.Int;
-         Num_Devices : in out C.Int) return XIDeviceInfo_Accesses.Pointer;
-      pragma Import (C, XIQueryDevice, "XIQueryDevice");
-
-      procedure XIFreeDeviceInfo (XIDeviceInfo_Ptr : XIDeviceInfo_Accesses.Pointer);
-      pragma Import (C, XIFreeDeviceInfo, "XIFreeDeviceInfo");
+   function Query_Devices (Display : Display_Access) return XIDeviceInfo_Array is
 
       Num_Devices : C.Int := 0;
       XIDeviceInfo_Ptr : constant XIDeviceInfo_Accesses.Pointer := XIQueryDevice (Display, XIAllDevices, Num_Devices);
-      Devices : constant Device_Array := XIDeviceInfo_Accesses.Value (XIDeviceInfo_Ptr, C.Ptrdiff_T (Num_Devices));
+      Devices : constant XIDeviceInfo_Array := XIDeviceInfo_Accesses.Value (XIDeviceInfo_Ptr, C.Ptrdiff_T (Num_Devices));
       I : C.Int;
    begin
       XIFreeDeviceInfo (XIDeviceInfo_Ptr);
@@ -115,7 +84,7 @@ package body X11 is
    end Query_Devices;
    
 
-   function Real_Keyboards (Devices : Device_Array) return Device_Array is
+   function Real_Keyboards (Devices : XIDeviceInfo_Array) return XIDeviceInfo_Array is
       function Is_Real_Keyboard (Device : XIDeviceInfo) return Boolean is
          Device_Classes : XIAnyClassInfo_Access_Array := XIAnyClassInfo_Access_Accesses.Value (Device.Classes, C.Ptrdiff_T (Device.Num_Classes));
          Is_Keyboard : Boolean := Device.Use_Type = XISlaveKeyboard;
@@ -132,7 +101,7 @@ package body X11 is
          return False;
       end Is_Real_Keyboard;
 
-      Keyboards : Device_Array (Devices'Range);
+      Keyboards : XIDeviceInfo_Array (Devices'Range);
       Keyboard_Count : Natural := 0;
    begin
       for Device of Devices loop
@@ -145,19 +114,7 @@ package body X11 is
    end Real_Keyboards;
    
 
-   procedure Grab_Keycodes (Display : Display_Access; Devices : Device_Array; Keys : Keycode_Array) is
-      function XIGrabKeycode
-        (Display : Display_Access;
-         Device_ID : C.Int;
-         X_Keycode : C.Int;
-         Grab_Window : Window;
-         Grab_Mode : C.Int;
-         Paired_Device_Mode : C.Int;
-         Owner_Events : C.Int;
-         Mask : in out XIEventMask;
-         Num_Modifiers : C.Int;
-         Modifiers : in out XIGrabModifiers) return C.Int;
-      pragma Import (C, XIGrabKeycode, "XIGrabKeycode");
+   procedure Grab_Keycodes (Display : Display_Access; Devices : XIDeviceInfo_Array; Keys : Keycode_Array) is
       
       Root : constant Window := Default_Root_Window (Display);
       use type Interfaces.Unsigned_8;
@@ -180,9 +137,7 @@ package body X11 is
    end Grab_Keycodes;
    
    
-   procedure Select_Events (Display : Display_Access; Devices : Device_Array) is
-      function XISelectEvents (Display : Display_Access; Win : Window; Mask : in out XIEventMask; Num_Masks : C.Int) return C.Int;
-      pragma Import (C, XISelectEvents, "XISelectEvents");
+   procedure Select_Events (Display : Display_Access; Devices : XIDeviceInfo_Array) is
 
       Root : constant Window := Default_Root_Window (Display);
       use type Interfaces.Unsigned_8;
@@ -249,12 +204,8 @@ package body X11 is
 
 
    procedure Fake_Input_String_Body (Params : Parameters; Text : String) is
-      function XChangeKeyboardMapping (Display : Display_Access; Keycode : C.Int; Keysyms_Per_Key : C.Int; KeySyms : in out C.Unsigned_Long; Num_Codes : C.Int) return C.Int;
-      pragma Import (C, XChangeKeyboardMapping, "XChangeKeyboardMapping");
 
       procedure Fake_Press (Key : C.Int) is
-         function XTestFakeKeyEvent (Display : Display_Access; Keycode : C.Int; Is_Press : C.Int; After_Delay : C.Unsigned_Long) return C.Int;
-         pragma Import (C, XTestFakeKeyEvent, "XTestFakeKeyEvent");
          XTestRelease : constant C.Int := 0;
          XTestPress : constant C.Int := 1;
          I : C.Int;
@@ -269,13 +220,7 @@ package body X11 is
          No_Symbol : C.Unsigned_Long := 0;
          Min_Keycode : C.Int := 0;
          Max_Keycode : C.Int := 0;
-         procedure XDisplayKeycodes (Display : Display_Access; Min : in out C.Int; Max : in out C.Int);
-         pragma Import (C, XDisplayKeycodes, "XDisplayKeycodes");
 
-         type Keysym_Array is array (C.Unsigned range <>) of aliased C.Unsigned_Long;
-         package Keysym_Accesses is new C.Pointers (Index => C.Unsigned, Element => C.Unsigned_Long, Element_Array => Keysym_Array, Default_Terminator => 0);
-         function XGetKeyboardMapping (Display : Display_Access; Key : C.Int; Keycode_Count : C.Int; Keysyms_Count : in out C.Int) return Keysym_Accesses.Pointer;
-         pragma Import (C, XGetKeyboardMapping, "XGetKeyboardMapping");
       begin
          XDisplayKeycodes (Params.Display, Min_Keycode, Max_Keycode);
          declare
