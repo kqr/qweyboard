@@ -1,5 +1,7 @@
 with X11;
 
+--  X11 specific implementation of the universal backend interface specified
+--  by backend.ads.
 package body Backend Is
    package Keycode_Mapping is new Ada.Containers.Ordered_Maps (Key_Type => X11.Keycode, Element_Type => Qweyboard.Softkey, "=" => Qweyboard."=");
    From_Keycode : Keycode_Mapping.Map;

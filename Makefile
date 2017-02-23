@@ -15,7 +15,7 @@ CFLAGS=-D $(BUILDDIR)
 
 ifeq ($(PLATFORM),x11)
 LIBS=-lX11 -lXi -lXtst
-MKDIR=mkdir
+MKDIR=mkdir -p
 else
 LIBS=
 MKDIR=
