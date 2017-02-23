@@ -58,12 +58,12 @@ begin
    end if;
 
    declare
-      Softboard : Qweyboard.Softboard := Qweyboard.Make_Softboard (Language, Timeout);
+      Softboard : Qweyboard.Softboard := Qweyboard.Make_Softboard (Language);
       Event : Qweyboard.Key_Event;
    begin
       loop
          select
-            Backend.Input_Backend.Next_Key (Event);
+            Backend.Input.Get_Key_Event (Event);
             Qweyboard.Handle (Softboard, Event);
          or
             delay 0.5;

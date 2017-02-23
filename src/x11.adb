@@ -3,36 +3,34 @@ package body X11 is
       Thread_Params : Parameters;
    begin
       select
-         accept Setup_Keygrabs (Key_Array : Keycode_Array) do
-            Setup_Keygrabs_Body (Thread_Params, Key_Array);
-         end Setup_Keygrabs;
+         accept Capture_Keys (Key_Array : Keycode_Array) do
+            Initialise (Thread_Params);
+            Setup_Keygrabs (Thread_Params, Key_Array);
+         end Capture_KeyS;
       or
          terminate;
       end select;
       loop
          select
             when XPending (Thread_Params.Display) > 0 =>
-               accept Next_Event (The_Event : out Event) do
-                  The_Event := Next_Event_Body (Thread_Params);
-               end Next_Event;
+               accept Get_Key_Event (The_Event : out Event) do
+                  The_Event := Next_Event (Thread_Params);
+               end Get_Key_Event;
          or
-            accept Fake_Input_String (Text : String) do
-               Fake_Input_String_Body (Thread_Params, Text);
-            end Fake_Input_String;
+            accept Output (Text : String) do
+               Fake_Input_String (Thread_Params, Text);
+            end Output;
          or
             terminate;
          end select;
       end loop;
    end Thread;
    
-   procedure Setup_Keygrabs_Body (Params : in out Parameters; Key_Array : Keycode_Array) is
+   procedure Initialise (Params : in out Parameters) is
       Ev : C.Int;
       Err : C.Int;
-      I : C.Int;
-      Select_Event_Mask : XIEventMask;
    begin
       Params.Display := XOpenDisplay (C.Strings.Null_Ptr);
-      Register_Real_Keyboards (Params);
 
       if XQueryExtension (Params.Display, C.Strings.New_String ("XInputExtension"), Params.XInput_Opcode, Ev, Err) = 0 then
          raise CONSTRAINT_ERROR with "XInputExtension not available";
@@ -40,6 +38,14 @@ package body X11 is
       if XQueryExtension (Params.Display, C.Strings.New_String ("XTEST"), Params.XTest_Opcode, Ev, Err) = 0 then
          raise CONSTRAINT_ERROR with "XTest not available";
       end if;
+   end Initialise;
+
+   procedure Setup_Keygrabs (Params : in out Parameters; Key_Array : Keycode_Array) is
+      I : C.Int;
+      Select_Event_Mask : XIEventMask;
+   begin
+      Params.Display := XOpenDisplay (C.Strings.Null_Ptr);
+      Register_Real_Keyboards (Params);
 
       Select_Event_Mask := Key_Event_Mask (XIAllDevices);
       if XISelectEvents (Params.Display, XDefaultRootWindow (Params.Display), Select_Event_Mask, 1) /= 0 then
@@ -49,7 +55,7 @@ package body X11 is
       Grab_Keys (Params, Key_Array);
 
       I := XSync (Params.Display, 0);
-   end Setup_Keygrabs_Body;
+   end Setup_Keygrabs;
    
 
 
@@ -115,7 +121,7 @@ package body X11 is
    
 
 
-   function Next_Event_Body (Params : Parameters) return Event is
+   function Next_Event (Params : Parameters) return Event is
       function Correct_Device (Device_Id : C.Int) return Boolean is
       begin
          for Device of Params.Devices loop
@@ -155,8 +161,7 @@ package body X11 is
                      if Correct_Device (Device_Event.SourceID) and Correct_Key (Device_Event.Detail) then return 
                           (Event_Variant => Key_Event,
                            Key => Keycode (Device_Event.Detail),
-                           Key_Event_Variant => (if Device_Event.Evtype = XIKeyPress then Key_Press else Key_Release),
-                           Time => Timestamp (Device_Event.The_Time));
+                           Key_Event_Variant => (if Device_Event.Evtype = XIKeyPress then Key_Press else Key_Release));
                      end if;
                   end if;
                end;
@@ -164,10 +169,10 @@ package body X11 is
          end;
       end if;
       return (Event_Variant => Other_Event);
-   end Next_Event_Body;
+   end Next_Event;
 
 
-   procedure Fake_Input_String_Body (Params : Parameters; Text : String) is
+   procedure Fake_Input_String (Params : Parameters; Text : String) is
       procedure Fake_Press (Key : C.Int) is
          XTestRelease : constant C.Int := 0;
          XTestPress : constant C.Int := 1;
@@ -244,7 +249,7 @@ package body X11 is
             I := XSync (Params.Display, 0);
          end;
       end loop;
-   end Fake_Input_String_Body;
+   end Fake_Input_String;
 
 
    function "<" (A : XIDeviceInfo; B : XIDeviceInfo) return Boolean is

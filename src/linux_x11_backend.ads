@@ -4,11 +4,8 @@ with Qweyboard;
 with Ada.Text_IO;
 
 package Linux_X11_Backend Is
-   task Input_Backend is
-      entry Next_Key (Out_Event : out Qweyboard.Key_Event);
-   end Input_Backend;
+   task Input is
+      entry Get_Key_Event (Out_Event : out Qweyboard.Key_Event);
+   end Input;
    procedure Output (Text : String);
-private
-   function From_Keycode (Key : X11.Keycode) return Qweyboard.Softkey;
-   function Keycodes return X11.Keycode_Array;
 end Linux_X11_Backend;

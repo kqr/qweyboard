@@ -14,8 +14,6 @@ package X11 is
    subtype Keycode is Long_Long_Integer range 0 .. 2**32;
    type Keycode_Array is array (Positive range <>) of X11.Keycode;
 
-   subtype Timestamp is Long_Long_Integer range 0 .. 2**32;
-   
    type Event_Variant_Type is (Key_Event, Other_Event);
    type Key_Event_Variant_Type is (Key_Press, Key_Release);
    type Event (Event_Variant : Event_Variant_Type := Other_Event) is record
@@ -23,16 +21,15 @@ package X11 is
          when Key_Event =>
             Key : Keycode;
             Key_Event_Variant : Key_Event_Variant_Type;
-            Time : Timestamp;
          when Other_Event =>
             null;
       end case;
    end record;
    
    task Thread is
-      entry Setup_Keygrabs (Key_Array : Keycode_Array);
-      entry Next_Event (The_Event : out Event);
-      entry Fake_Input_String (Text : String);
+      entry Capture_Keys (Key_Array : Keycode_Array);
+      entry Get_Key_Event (The_Event : out Event);
+      entry Output (Text : String);
    end Thread;
 private
    package C renames Interfaces.C;
@@ -52,12 +49,13 @@ private
       Keys : Keycode_Sets.Set;
    end record;
 
+   procedure Initialise (Params : in out Parameters);
    procedure Register_Real_Keyboards (Params : in out Parameters);
    procedure Grab_Keys (Params : in out Parameters; Keys : Keycode_Array);
 
-   procedure Setup_Keygrabs_Body (Params : in out Parameters; Key_Array : Keycode_Array);
-   function Next_Event_Body (Params : Parameters) return Event;
-   procedure Fake_Input_String_Body (Params : Parameters; Text : String);
+   procedure Setup_Keygrabs (Params : in out Parameters; Key_Array : Keycode_Array);
+   function Next_Event (Params : Parameters) return Event;
+   procedure Fake_Input_String (Params : Parameters; Text : String);
 
    function Key_Event_Mask (Device_Id : C.Int) return XIEventMask;
 end X11;

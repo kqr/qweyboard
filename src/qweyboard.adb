@@ -1,8 +1,6 @@
 package body Qweyboard is
-   function Make_Softboard (Language : Language_Variant; Timeout : Natural) return Softboard is
+   function Make_Softboard (Language : Language_Variant) return Softboard is
    begin
-      Timeout_Delta := Key_Event_Timestamp (Timeout);
-
       -- Local layout modifications for language variants
       case Language is
          when Standard =>

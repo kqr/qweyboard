@@ -248,6 +248,8 @@ These are roughly in order of importance, I guess.
 
 * `[ ]` Switch makefile to build script that considers platform?
 
+* `[ ]` Figure out how to make the timeout a part of the qweyboard rather than the surrounding scaffolding main
+
 * `[ ]` "escape shortcut" to release any grabs and stop producing output.
   press again to re-enable the qweyboard (does this require refactoring? probably)
 

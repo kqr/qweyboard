@@ -12,17 +12,15 @@ package Qweyboard is
    
    type Language_Variant is (Standard, Swedish);
   
-   subtype Key_Event_Timestamp is Long_Long_Integer range 0 .. 2**32;
    type Key_Event_Variant_Type is (Key_Press, Key_Release);
    type Key_Event is record
       Key : Softkey;
       Key_Event_Variant : Key_Event_Variant_Type;
-      Time : Key_Event_Timestamp;
    end record;
    
    type Softboard is Private;
 
-   function Make_Softboard (Language : Language_Variant; Timeout : Natural) return Softboard;
+   function Make_Softboard (Language : Language_Variant) return Softboard;
    procedure Handle (Board : in out Softboard; Event : Key_Event);
    function Timeout (Board : in out Softboard) return String;
 private
@@ -33,7 +31,6 @@ private
    type Key_Layer_Array is array (Key_Layer_Type) of Key_Map.Map;
 
    Layer : Key_Layer_Array;
-   Timeout_Delta : Key_Event_Timestamp;
 
    type Softboard is record
       Pressed : Key_Set.Set;
