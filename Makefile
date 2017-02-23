@@ -15,11 +15,15 @@ CFLAGS=-D $(BUILDDIR)
 
 ifeq ($(PLATFORM),x11)
 LIBS=-lX11 -lXi -lXtst
+MKDIR=mkdir
 else
 LIBS=
+MKDIR=
 endif
 
 all:
+	$(MKDIR) build
+	$(MKDIR) bin
 	$(CC) -aI$(SRCDIR)/$(PLATFORM) $(CFLAGS) $(LANGVARIANT) -o $(BINDIR)/$(BIN) $(SRCDIR)/main -largs $(LIBS)
 
 clean:

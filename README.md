@@ -244,7 +244,7 @@ These are roughly in order of importance, I guess.
 * `[x]` Introduce tasking so that the keyboard can output a syllable after it
   has waited long enough without having to type a new syllable first
 
-* `[ ]` General cleaning up of code
+* `[x]` General cleaning up of code
 
 * `[ ]` Ensure proper exceptions are raised in the right places
 
