@@ -25,16 +25,10 @@ package body Qweyboard is
    begin
       case Event.Key_Event_Variant is
          when Key_Press =>
-            if not Board.Pressed.Contains (Event.Key) then
-               Board.Pressed.Insert (Event.Key);
-            end if;
+            Board.Pressed.Include (Event.Key);
          when Key_Release =>
-            if Board.Pressed.Contains (Event.Key) then
-               Board.Pressed.Delete (Event.Key);
-            end if;
-            if not Board.Released.Contains (Event.Key) then
-               Board.Released.Insert (Event.Key);
-            end if;
+            Board.Pressed.Exclude (Event.Key);
+            Board.Released.Include (Event.Key);
       end case;
    end Handle;
 

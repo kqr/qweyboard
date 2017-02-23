@@ -242,6 +242,12 @@ These are roughly in order of importance, I guess.
 * `[x]` Introduce tasking so that the keyboard can output a syllable after it
   has waited long enough without having to type a new syllable first
 
+* `[ ]` General cleaning up of code
+
+* `[ ]` Ensure proper exceptions are raised in the right places
+
+* `[ ]` Switch makefile to build script that considers platform?
+
 * `[ ]` "escape shortcut" to release any grabs and stop producing output.
   press again to re-enable the qweyboard (does this require refactoring? probably)
 
@@ -266,8 +272,6 @@ These are roughly in order of importance, I guess.
 
 * `[ ]` Some sort of expansion dictionaries? "LF LS LL MA RJ RC => FSLAG =>
   förslag"
-
-* `[ ]` General cleaning up of code
 
 * `[ ]` Get a better picture of key presses and releases (to be able to detect
   things such as double tapping?)

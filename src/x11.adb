@@ -4,7 +4,7 @@ package body X11 is
    begin
       select
          accept Setup_Keygrabs (Key_Array : Keycode_Array) do
-            Thread_Params := Setup_Keygrabs_Body (Key_Array);
+            Setup_Keygrabs_Body (Thread_Params, Key_Array);
          end Setup_Keygrabs;
       or
          terminate;
@@ -25,66 +25,35 @@ package body X11 is
       end loop;
    end Thread;
    
-   function Setup_Keygrabs_Body (Key_Array : Keycode_Array) return Parameters is
-      Display : constant Display_Access := Open_Display;
-      XInput_Opcode : C.Int := Query_Extension (Display, "XInputExtension");
-      XTest_Opcode : C.Int := Query_Extension (Display, "XTEST");
-      Keyboard_Array : constant XIDeviceInfo_Array := Real_Keyboards (Query_Devices (Display));
-      I : C.Int := XSync (Display, 0);
-      Keyboards : Device_Vectors.Vector;
-      Keys : Keycode_Vectors.Vector;
+   procedure Setup_Keygrabs_Body (Params : in out Parameters; Key_Array : Keycode_Array) is
+      Ev : C.Int;
+      Err : C.Int;
+      I : C.Int;
+      Select_Event_Mask : XIEventMask;
    begin
-      Grab_Keycodes (Display, Keyboard_Array, Key_Array);
-      Select_Events (Display, Keyboard_Array);
-      for Keyboard of Keyboard_Array loop
-         Keyboards.Append (Keyboard);
-      end loop;
-      for Key of Key_Array loop
-         Keys.Append (Key);
-      end loop;
-      I := XSync (Display, 0);
-      return
-        (Display => Display,
-         XInput_Opcode => XInput_Opcode,
-         Devices => Keyboards,
-         Keys => Keys);
+      Params.Display := XOpenDisplay (C.Strings.Null_Ptr);
+      Register_Real_Keyboards (Params);
+
+      if XQueryExtension (Params.Display, C.Strings.New_String ("XInputExtension"), Params.XInput_Opcode, Ev, Err) = 0 then
+         raise CONSTRAINT_ERROR with "XInputExtension not available";
+      end if;
+      if XQueryExtension (Params.Display, C.Strings.New_String ("XTEST"), Params.XTest_Opcode, Ev, Err) = 0 then
+         raise CONSTRAINT_ERROR with "XTest not available";
+      end if;
+
+      Select_Event_Mask := Key_Event_Mask (XIAllDevices);
+      if XISelectEvents (Params.Display, XDefaultRootWindow (Params.Display), Select_Event_Mask, 1) /= 0 then
+         raise CONSTRAINT_ERROR with "Could not select events!";
+      end if;
+
+      Grab_Keys (Params, Key_Array);
+
+      I := XSync (Params.Display, 0);
    end Setup_Keygrabs_Body;
    
-   function Open_Display return Display_Access is
-   begin
-      return XOpenDisplay (C.Strings.Null_Ptr);
-   end Open_Display;
-   
-   function Query_Extension (Display : Display_Access; Name : String) return C.Int is
-      Opcode, Ev, Err : C.Int := 0;
-   begin
-      if XQueryExtension (Display, C.Strings.New_String (Name), Opcode, Ev, Err) = 0 then
-         raise CONSTRAINT_ERROR with Name & " not available";
-      end if;
-      return Opcode;
-   end Query_Extension;
 
 
-   function Default_Root_Window (Display : Display_Access) return Window is
-   begin
-      return Window (XDefaultRootWindow (Display));
-   end Default_Root_Window;
-
-
-   function Query_Devices (Display : Display_Access) return XIDeviceInfo_Array is
-
-      Num_Devices : C.Int := 0;
-      XIDeviceInfo_Ptr : constant XIDeviceInfo_Accesses.Pointer := XIQueryDevice (Display, XIAllDevices, Num_Devices);
-      Devices : constant XIDeviceInfo_Array := XIDeviceInfo_Accesses.Value (XIDeviceInfo_Ptr, C.Ptrdiff_T (Num_Devices));
-      I : C.Int;
-   begin
-      XIFreeDeviceInfo (XIDeviceInfo_Ptr);
-      I := XSync (Display, 0);
-      return Devices;
-   end Query_Devices;
-   
-
-   function Real_Keyboards (Devices : XIDeviceInfo_Array) return XIDeviceInfo_Array is
+   procedure Register_Real_Keyboards (Params : in out Parameters) is
       function Is_Real_Keyboard (Device : XIDeviceInfo) return Boolean is
          Device_Classes : XIAnyClassInfo_Access_Array := XIAnyClassInfo_Access_Accesses.Value (Device.Classes, C.Ptrdiff_T (Device.Num_Classes));
          Is_Keyboard : Boolean := Device.Use_Type = XISlaveKeyboard;
@@ -101,54 +70,49 @@ package body X11 is
          return False;
       end Is_Real_Keyboard;
 
-      Keyboards : XIDeviceInfo_Array (Devices'Range);
-      Keyboard_Count : Natural := 0;
+      Num_Devices : C.Int;
+      XIDeviceInfo_Ptr : XIDeviceInfo_Accesses.Pointer;
    begin
-      for Device of Devices loop
-         if Is_Real_Keyboard (Device) then
-            Keyboard_Count := Keyboard_Count + 1;
-            Keyboards (Keyboard_Count) := Device;
-         end if;
-      end loop;
-      return Keyboards (1 .. Keyboard_Count);
-   end Real_Keyboards;
+      XIDeviceInfo_Ptr := XIQueryDevice (Params.Display, XIAllDevices, Num_Devices);
+      declare
+         Devices : XIDeviceInfo_Array := XIDeviceInfo_Accesses.Value (XIDeviceInfo_Ptr, C.Ptrdiff_T (Num_Devices));
+      begin
+         for Device of Devices loop
+            if Is_Real_Keyboard (Device) then
+               Params.Devices.Include (Device);
+            end if;
+         end loop;
+      end;
+      XIFreeDeviceInfo (XIDeviceInfo_Ptr);
+   end Register_Real_Keyboards;
    
-
-   procedure Grab_Keycodes (Display : Display_Access; Devices : XIDeviceInfo_Array; Keys : Keycode_Array) is
-      
-      Root : constant Window := Default_Root_Window (Display);
+   function Key_Event_Mask (Device_Id : C.Int) return XIEventMask is
       use type Interfaces.Unsigned_8;
-      Mask_Bytes : constant C.Char_Array (0..0) := (others => C.To_C (Character'Val (XIKeyPressMask or XIKeyREleaseMask)));
+      Mask_Bytes : C.Char_Array (0..0) := (others => C.To_C (Character'Val (XIKeyPressMask or XIKeyREleaseMask)));
+   begin
+      return (Device_ID, Mask_Bytes'Length, C.Strings.New_Char_Array (Mask_Bytes));
+   end;
+
+   procedure Grab_Keys (Params : in out Parameters; Keys : Keycode_Array) is
+      use type Interfaces.Unsigned_8;
       I : C.Int;
    begin
       for Key of Keys loop
-         for Device of Devices loop
+         for Device of Params.Devices loop
             declare
-               Mask : XIEventMask := (Device.Device_ID, Mask_Bytes'Length, C.Strings.New_Char_Array (Mask_Bytes));
                Grab_Modifiers : XIGrabModifiers := (0,0);
+               Mask : XIEventMask := Key_Event_Mask (Device.Device_ID);
             begin
-               I := XIGrabKeycode (Display, Device.Device_ID, C.Int (Key), Root, XIGrabModeAsync, XIGrabModeAsync, 1, Mask, 1, Grab_Modifiers);
+               I := XIGrabKeycode (Params.Display, Device.Device_ID, C.Int (Key), XDefaultRootWindow (Params.Display), XIGrabModeAsync, XIGrabModeAsync, 1, Mask, 1, Grab_Modifiers);
                if I /= 0 then
                   raise CONSTRAINT_ERROR with "Could not establish grab!";
                end if;
             end;
          end loop;
+         Params.Keys.Include (Key);
       end loop;
-   end Grab_Keycodes;
+   end Grab_Keys;
    
-   
-   procedure Select_Events (Display : Display_Access; Devices : XIDeviceInfo_Array) is
-
-      Root : constant Window := Default_Root_Window (Display);
-      use type Interfaces.Unsigned_8;
-      Mask_Bytes : constant C.Char_Array (0..0) := (others => C.To_C (Character'Val (XIKeyPressMask or XIKeyReleaseMask)));
-      Mask : XIEventMask := (XIAllDevices, Mask_Bytes'Length, C.Strings.New_Char_Array (Mask_Bytes));
-      I : C.Int := XISelectEvents (Display, Root, Mask, 1);
-   begin
-      if I /= 0 then
-         raise CONSTRAINT_ERROR with "Could not select events!";
-      end if;
-   end Select_Events;
 
 
    function Next_Event_Body (Params : Parameters) return Event is
@@ -204,7 +168,6 @@ package body X11 is
 
 
    procedure Fake_Input_String_Body (Params : Parameters; Text : String) is
-
       procedure Fake_Press (Key : C.Int) is
          XTestRelease : constant C.Int := 0;
          XTestPress : constant C.Int := 1;
@@ -282,4 +245,10 @@ package body X11 is
          end;
       end loop;
    end Fake_Input_String_Body;
+
+
+   function "<" (A : XIDeviceInfo; B : XIDeviceInfo) return Boolean is
+   begin
+      return A.Device_ID < B.Device_ID;
+   end;
 end X11;

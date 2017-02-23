@@ -1,14 +1,8 @@
-with Interfaces;
-with Interfaces.C;
 with Interfaces.C.Strings;
 with Interfaces.C.Pointers;
-with System.Address_To_Access_Conversions;
-with Ada.Containers.Vectors;
 with XLib_H; use XLib_H;
 
 package XInput2_H is
-   package C renames Interfaces.C;
-
    XIAllDevices : constant C.Int := 0;
    XISlaveKeyboard : constant C.Int := 4;
    XIKeyClass : constant C.Int := 0;
@@ -17,9 +11,9 @@ package XInput2_H is
    XIKeyPress : constant C.Int := 2;
    XIKeyRelease : constant C.Int := 3;
    XIKeyPressMask : constant Interfaces.Unsigned_8 :=
-     Interfaces.Shift_Left (1, Integer (XIKeyPress));
+      Interfaces.Shift_Left (1, Integer (XIKeyPress));
    XIKeyReleaseMask : constant Interfaces.Unsigned_8 :=
-     Interfaces.Shift_Left (1, Integer (XIKeyRelease));
+      Interfaces.Shift_Left (1, Integer (XIKeyRelease));
 
    type XIAnyClassInfo is record
       Class_Type : C.Int;
@@ -55,7 +49,7 @@ package XInput2_H is
    function XIQueryDevice
      (Display : Display_Access; 
       Device_ID : C.Int;
-      Num_Devices : in out C.Int) return XIDeviceInfo_Accesses.Pointer;
+      Num_Devices : out C.Int) return XIDeviceInfo_Accesses.Pointer;
    pragma Import (C, XIQueryDevice, "XIQueryDevice");
 
    type XIEventMask is record
