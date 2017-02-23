@@ -11,6 +11,10 @@ private with XInput2_H;
 private with XTest_H;
 
 package X11 is
+   EXTENSION_MISSING, HARDWARE_PROBLEM : exception;
+   GENERAL_X11_ERROR : exception;
+   ENCODING_ERROR : exception;
+
    subtype Keycode is Long_Long_Integer range 0 .. 2**32;
    type Keycode_Array is array (Positive range <>) of X11.Keycode;
 

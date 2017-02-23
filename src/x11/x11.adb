@@ -33,10 +33,10 @@ package body X11 is
       Params.Display := XOpenDisplay (C.Strings.Null_Ptr);
 
       if XQueryExtension (Params.Display, C.Strings.New_String ("XInputExtension"), Params.XInput_Opcode, Ev, Err) = 0 then
-         raise CONSTRAINT_ERROR with "XInputExtension not available";
+         raise EXTENSION_MISSING with "XInputExtension not available, cannot continue";
       end if;
       if XQueryExtension (Params.Display, C.Strings.New_String ("XTEST"), Params.XTest_Opcode, Ev, Err) = 0 then
-         raise CONSTRAINT_ERROR with "XTest not available";
+         raise EXTENSION_MISSING with "XTest not available, cannot continue";
       end if;
    end Initialise;
 
@@ -49,7 +49,7 @@ package body X11 is
 
       Select_Event_Mask := Key_Event_Mask (XIAllDevices);
       if XISelectEvents (Params.Display, XDefaultRootWindow (Params.Display), Select_Event_Mask, 1) /= 0 then
-         raise CONSTRAINT_ERROR with "Could not select events!";
+         raise HARDWARE_PROBLEM with "Unable to select events, cannot continue";
       end if;
 
       Grab_Keys (Params, Key_Array);
@@ -111,7 +111,7 @@ package body X11 is
             begin
                I := XIGrabKeycode (Params.Display, Device.Device_ID, C.Int (Key), XDefaultRootWindow (Params.Display), XIGrabModeAsync, XIGrabModeAsync, 1, Mask, 1, Grab_Modifiers);
                if I /= 0 then
-                  raise CONSTRAINT_ERROR with "Could not establish grab!";
+                  raise HARDWARE_PROBLEM with "Unable to establish key grabs, unable to continue";
                end if;
             end;
          end loop;
@@ -215,7 +215,7 @@ package body X11 is
                end;
             end loop;
             if Scratch_Key = 0 then
-               raise CONSTRAINT_ERROR with "no empty key available for binding";
+               raise GENERAL_X11_ERROR with "No empty key available as scratch space. This is technically not a problem but so unusual that I haven't bothered to code for this scenario...";
             end if;
             declare
                I : C.Int := 0;
@@ -235,7 +235,7 @@ package body X11 is
    begin
       for Letter of Text loop
          if not Is_Basic_Latin1 (Letter) then
-            raise CONSTRAINT_ERROR with "Invalid character in string";
+            raise ENCODING_ERROR with "Invalid character in string. Only basic Latin 1 has a simple mapping to Keysyms and that's as much as I'm prepared to deal with right now. Pull requests welcome!";
          end if;
          
          declare

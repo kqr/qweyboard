@@ -246,9 +246,9 @@ These are roughly in order of importance, I guess.
 
 * `[x]` General cleaning up of code
 
-* `[ ]` Ensure proper exceptions are raised in the right places
+* `[x]` Ensure makefile considers which platform it builds on
 
-* `[ ]` Switch makefile to build script that considers platform?
+* `[x]` Ensure proper exceptions are raised in the right places
 
 * `[ ]` Figure out how to make the timeout a part of the qweyboard rather than the surrounding scaffolding main
 
