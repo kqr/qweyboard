@@ -11,9 +11,10 @@ procedure Main is
    Settings : Configuration.Settings;
 begin
    Configuration.Get_Settings (Settings);
+   Configuration.Load_Layout (Settings);
 
    declare
-      Softboard : Qweyboard.Softboard := Qweyboard.Make_Softboard (Settings.Language);
+      Softboard : Qweyboard.Softboard := Qweyboard.Make_Softboard (Settings.Layout);
       Event : Qweyboard.Key_Event;
    begin
       loop

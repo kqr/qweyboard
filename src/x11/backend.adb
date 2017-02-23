@@ -38,6 +38,7 @@ begin
    From_Keycode.Insert (12, Qweyboard.LP);
    From_Keycode.Insert (13, Qweyboard.LK);
    From_Keycode.Insert (14, Qweyboard.LI);
+   From_Keycode.Insert (15, Qweyboard.MAPO);
    From_Keycode.Insert (16, Qweyboard.RO);
    From_Keycode.Insert (17, Qweyboard.RK);
    From_Keycode.Insert (18, Qweyboard.RP);
@@ -66,6 +67,9 @@ begin
    From_Keycode.Insert (56, Qweyboard.MY);
    From_Keycode.Insert (57, Qweyboard.RN);
    From_Keycode.Insert (58, Qweyboard.RL);
+--   From_Keycode.Insert (22, Qweyboard.BS);
+   From_Keycode.Insert (50, Qweyboard.MSHI);
+   From_Keycode.Insert (62, Qweyboard.MSHI);
    From_Keycode.Insert (65, Qweyboard.NOSP);
 
    declare
