@@ -136,7 +136,6 @@ package body Qweyboard is
       end if;
    end Apply;
 begin
-   Layer (Left) := Key_Maps.Empty_Map;
    Layer (Left).Insert (LZ, 'Z');
    Layer (Left).Insert (LF, 'F');
    Layer (Left).Insert (LS, 'S');
@@ -152,12 +151,10 @@ begin
    Layer (Left).Insert (LE, 'E');
    Layer (Left).Insert (LN, 'N');
 
-   Layer (Middle) := Key_Maps.Empty_Map;
    Layer (Middle).Insert (MU, 'U');
    Layer (Middle).Insert (MA, 'A');
    Layer (Middle).Insert (MY, 'Y');
 
-   Layer (Right) := Key_Maps.Empty_Map;
    Layer (Right).Insert (RO, 'O');
    Layer (Right).Insert (RI, 'I');
    Layer (Right).Insert (RE, 'E');
@@ -173,7 +170,6 @@ begin
    Layer (Right).Insert (RS, 'S');
    Layer (Right).Insert (RZ, 'Z');
    
-   Layer (J) := Key_Maps.Empty_Map;
    Layer (J).Insert (LP, 'B');
    Layer (J).Insert (LT, 'D');
    Layer (J).Insert (LC, 'G');
@@ -185,7 +181,6 @@ begin
    Layer (J).Insert (RT, 'D');
    Layer (J).Insert (RC, 'G');
 
-   Layer (R) := Key_Maps.Empty_Map;
    Layer (R).Insert (LL, 'V');
    Layer (R).Insert (LN, 'M');
    Layer (R).Insert (RN, 'M');
