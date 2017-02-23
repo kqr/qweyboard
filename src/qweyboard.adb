@@ -16,7 +16,7 @@ package body Qweyboard is
       Layer (Normal) := Union (Layer (Normal), Layer (Middle));
       Layer (Normal) := Union (Layer (Normal), Layer (Right));
 
-      return (others => Key_Set.Empty_Set);
+      return (others => Key_Sets.Empty_Set);
    end;
 
    procedure Handle (Board : in out Softboard; Event : Key_Event) is
@@ -31,7 +31,7 @@ package body Qweyboard is
    end Handle;
 
    function Timeout (Board : in out Softboard) return String is
-      Final_Pressed : Key_Set.Set := Key_Set.Empty_Set;
+      Final_Pressed : Key_Sets.Set := Key_Sets.Empty_Set;
    begin
       if Board.Pressed.Is_Empty then
          Final_Pressed := Board.Released;
@@ -42,40 +42,40 @@ package body Qweyboard is
    
 
 
-   function Union (A : Key_Map.Map; B : Key_Map.Map) return Key_Map.Map is
-      Ret : Key_Map.Map := A.Copy;
+   function Union (A : Key_Maps.Map; B : Key_Maps.Map) return Key_Maps.Map is
+      Ret : Key_Maps.Map := A.Copy;
    begin
       for C in B.Iterate loop
-         if not Ret.Contains (Key_Map.Key (C)) then
-            Ret.Insert (Key_Map.Key (C), Key_Map.Element (C));
+         if not Ret.Contains (Key_Maps.Key (C)) then
+            Ret.Insert (Key_Maps.Key (C), Key_Maps.Element (C));
          end if;
       end loop;
       return Ret;
    end Union;
 
-   function Intersection (A : Key_Map.Map; B : Key_Map.Map) return Key_Map.Map is
-      Ret : Key_Map.Map := Key_Map.Empty_Map;
+   function Intersection (A : Key_Maps.Map; B : Key_Maps.Map) return Key_Maps.Map is
+      Ret : Key_Maps.Map := Key_Maps.Empty_Map;
    begin
       for C in B.Iterate loop
-         if A.Contains (Key_Map.Key (C)) then
-            Ret.Insert (Key_Map.Key (C), Key_Map.Element (C));
+         if A.Contains (Key_Maps.Key (C)) then
+            Ret.Insert (Key_Maps.Key (C), Key_Maps.Element (C));
          end if;
       end loop;
       return Ret;
    end Intersection;
 
-   function Difference (A : Key_Map.Map; B : Key_Map.Map) return Key_Map.Map is
-      Ret : Key_Map.Map := A.Copy;
+   function Difference (A : Key_Maps.Map; B : Key_Maps.Map) return Key_Maps.Map is
+      Ret : Key_Maps.Map := A.Copy;
    begin
       for C in B.Iterate loop
-         if Ret.Contains (Key_Map.Key (C)) then
-            Ret.Exclude (Key_Map.Key (C));
+         if Ret.Contains (Key_Maps.Key (C)) then
+            Ret.Exclude (Key_Maps.Key (C));
          end if;
       end loop;
       return Ret;
    end Difference;
    
-   function Mod_Layer (Final_Presses : Key_Map.Map; Key : Softkey) return Key_Map.Map is
+   function Mod_Layer (Final_Presses : Key_Maps.Map; Key : Softkey) return Key_Maps.Map is
    begin
       if Final_Presses.Contains (Key) then
          case Key is
@@ -86,11 +86,11 @@ package body Qweyboard is
             when others => null;
          end case;
       end if;
-      return Key_Map.Empty_Map;
+      return Key_Maps.Empty_Map;
    end Mod_Layer;
 
-   procedure Current_Mod_Map (Final_Presses : in out Key_Map.Map; Key : Softkey) is
-      Modded : Key_Map.Map := Intersection (Final_Presses, Mod_Layer (Final_Presses, Key));
+   procedure Current_Mod_Map (Final_Presses : in out Key_Maps.Map; Key : Softkey) is
+      Modded : Key_Maps.Map := Intersection (Final_Presses, Mod_Layer (Final_Presses, Key));
    begin
       Final_Presses := Union (Modded, Final_Presses);
       if not Modded.Is_Empty then
@@ -98,27 +98,27 @@ package body Qweyboard is
       end if;
    end Current_Mod_Map;
 
-   function Virtual_Layer (Pressed : Key_Set.Set) return Key_Map.Map is
-      Final_Presses : Key_Map.Map := Key_Map.Empty_Map;
+   function Virtual_Layer (Pressed : Key_Sets.Set) return Key_Maps.Map is
+      Final_Presses : Key_Maps.Map := Key_Maps.Empty_Map;
    begin
       for C in Pressed.Iterate loop
-         Final_Presses.Insert (Key_Set.Element (C), Layer (Normal).Element (Key_Set.Element (C)));
+         Final_Presses.Insert (Key_Sets.Element (C), Layer (Normal).Element (Key_Sets.Element (C)));
       end loop;
       for C in Pressed.Iterate loop
-         Current_Mod_Map (Final_Presses, Key_Set.Element (C));
+         Current_Mod_Map (Final_Presses, Key_Sets.Element (C));
       end loop;
       return Final_Presses;
    end Virtual_Layer;
 
-   function Apply (Pressed : Key_Set.Set) return String is
-      function Only_Letter_Keys (Keys : Key_Set.Set) return Key_Set.Set is
-         Ret : Key_Set.Set := Keys.Copy;
+   function Apply (Pressed : Key_Sets.Set) return String is
+      function Only_Letter_Keys (Keys : Key_Sets.Set) return Key_Sets.Set is
+         Ret : Key_Sets.Set := Keys.Copy;
       begin
          Ret.Exclude (NOSP);
          return Ret;
       end Only_Letter_Keys;
 
-      Final_Presses : Key_Map.Map := Virtual_Layer (Only_Letter_Keys (Pressed));
+      Final_Presses : Key_Maps.Map := Virtual_Layer (Only_Letter_Keys (Pressed));
       Ret : String (1 .. Natural (Final_Presses.Length));
       I : Positive := 1;
    begin
@@ -126,7 +126,7 @@ package body Qweyboard is
       -- the implementation of Ordered_(Sets|Maps) means this iteration happens
       -- in precisely the order we need it to...
       for C in Final_Presses.Iterate loop
-         Ret (I) := Key_Map.Element (C);
+         Ret (I) := Key_Maps.Element (C);
          I := I + 1;
       end loop;
       if Final_Presses.Is_Empty or Pressed.Contains (NOSP) then
@@ -136,7 +136,7 @@ package body Qweyboard is
       end if;
    end Apply;
 begin
-   Layer (Left) := Key_Map.Empty_Map;
+   Layer (Left) := Key_Maps.Empty_Map;
    Layer (Left).Insert (LZ, 'Z');
    Layer (Left).Insert (LF, 'F');
    Layer (Left).Insert (LS, 'S');
@@ -152,12 +152,12 @@ begin
    Layer (Left).Insert (LE, 'E');
    Layer (Left).Insert (LN, 'N');
 
-   Layer (Middle) := Key_Map.Empty_Map;
+   Layer (Middle) := Key_Maps.Empty_Map;
    Layer (Middle).Insert (MU, 'U');
    Layer (Middle).Insert (MA, 'A');
    Layer (Middle).Insert (MY, 'Y');
 
-   Layer (Right) := Key_Map.Empty_Map;
+   Layer (Right) := Key_Maps.Empty_Map;
    Layer (Right).Insert (RO, 'O');
    Layer (Right).Insert (RI, 'I');
    Layer (Right).Insert (RE, 'E');
@@ -173,7 +173,7 @@ begin
    Layer (Right).Insert (RS, 'S');
    Layer (Right).Insert (RZ, 'Z');
    
-   Layer (J) := Key_Map.Empty_Map;
+   Layer (J) := Key_Maps.Empty_Map;
    Layer (J).Insert (LP, 'B');
    Layer (J).Insert (LT, 'D');
    Layer (J).Insert (LC, 'G');
@@ -185,7 +185,7 @@ begin
    Layer (J).Insert (RT, 'D');
    Layer (J).Insert (RC, 'G');
 
-   Layer (R) := Key_Map.Empty_Map;
+   Layer (R) := Key_Maps.Empty_Map;
    Layer (R).Insert (LL, 'V');
    Layer (R).Insert (LN, 'M');
    Layer (R).Insert (RN, 'M');

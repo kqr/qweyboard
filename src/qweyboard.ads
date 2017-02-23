@@ -24,25 +24,25 @@ package Qweyboard is
    procedure Handle (Board : in out Softboard; Event : Key_Event);
    function Timeout (Board : in out Softboard) return String;
 private
-   package Key_Set is new Ada.Containers.Ordered_Sets (Element_Type => Softkey);
-   package Key_Map is new Ada.Containers.Ordered_Maps (Key_Type => Softkey, Element_Type => Character);
+   package Key_Sets is new Ada.Containers.Ordered_Sets (Element_Type => Softkey);
+   package Key_Maps is new Ada.Containers.Ordered_Maps (Key_Type => Softkey, Element_Type => Character);
    
    type Key_Layer_Type is (Normal, Left, Middle, Right, J, R);
-   type Key_Layer_Array is array (Key_Layer_Type) of Key_Map.Map;
+   type Key_Layer_Array is array (Key_Layer_Type) of Key_Maps.Map;
 
    Layer : Key_Layer_Array;
 
    type Softboard is record
-      Pressed : Key_Set.Set;
-      Released : Key_Set.Set;
+      Pressed : Key_Sets.Set;
+      Released : Key_Sets.Set;
    end record;
    
-   function Union (A : Key_Map.Map; B : Key_Map.Map) return Key_Map.Map;
-   function Intersection (A : Key_Map.Map; B : Key_Map.Map) return Key_Map.Map;
-   function Difference (A : Key_Map.Map; B : Key_Map.Map) return Key_Map.Map;
+   function Union (A : Key_Maps.Map; B : Key_Maps.Map) return Key_Maps.Map;
+   function Intersection (A : Key_Maps.Map; B : Key_Maps.Map) return Key_Maps.Map;
+   function Difference (A : Key_Maps.Map; B : Key_Maps.Map) return Key_Maps.Map;
 
-   function Mod_Layer (Final_Presses : Key_Map.Map; Key : Softkey) return Key_Map.Map;
-   procedure Current_Mod_Map (Final_Presses : in out Key_Map.Map; Key : Softkey);
-   function Virtual_Layer (Pressed : Key_Set.Set) return Key_Map.Map;
-   function Apply (Pressed : Key_Set.Set) return String;
+   function Mod_Layer (Final_Presses : Key_Maps.Map; Key : Softkey) return Key_Maps.Map;
+   procedure Current_Mod_Map (Final_Presses : in out Key_Maps.Map; Key : Softkey);
+   function Virtual_Layer (Pressed : Key_Sets.Set) return Key_Maps.Map;
+   function Apply (Pressed : Key_Sets.Set) return String;
 end Qweyboard;
