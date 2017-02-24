@@ -2,22 +2,35 @@ package body X11 is
    task body Thread is
       Thread_Params : Parameters;
    begin
-      select
-         accept Capture_Keys (Key_Array : Keycode_Array) do
-            Initialise (Thread_Params);
-            Setup_Keygrabs (Thread_Params, Key_Array);
-         end Capture_KeyS;
-      or
-         terminate;
-      end select;
+      select accept Capture_Keys (Key_Array : Keycode_Array) do
+         Log.Chat ("[X11] Initialising thread params");
+         Initialise (Thread_Params);
+         Log.Chat ("[X11] Setting up key grabs and event selects");
+         Setup_Keygrabs (Thread_Params, Key_Array);
+         Log.Chat ("[X11] Grabbing keys");
+         Grab_Keys (Thread_Params);
+      end Capture_Keys; or terminate; end select;
+
       loop
          select
+            accept Disable_Grabs do
+               Log.Chat ("[X11] Asked to disable grabs");
+               Grab_Keys (Thread_Params, Ungrab => True);
+            end Disable_Grabs;
+         or
+            accept Enable_Grabs do
+               Log.Chat ("[X11] Asked to enable grabs");
+               Grab_Keys (Thread_Params);
+            end Enable_Grabs;
+         or
             when XPending (Thread_Params.Display) > 0 =>
                accept Get_Key_Event (The_Event : out Event) do
+                  Log.Chat ("[X11] Asked to fetch the next event");
                   The_Event := Next_Event (Thread_Params);
                end Get_Key_Event;
          or
             accept Output (Text : String) do
+               Log.Chat ("[X11] Outputting text");
                Fake_Input_String (Thread_Params, Text);
             end Output;
          or
@@ -50,13 +63,13 @@ package body X11 is
       if XISelectEvents (Params.Display, XDefaultRootWindow (Params.Display), Select_Event_Mask, 1) /= 0 then
          raise HARDWARE_PROBLEM with "Unable to select events, cannot continue";
       end if;
-
-      Grab_Keys (Params, Key_Array);
+      
+      for Key of Key_Array loop
+         Params.Keys.Include (Key);
+      end loop;
 
       I := XSync (Params.Display, 0);
    end Setup_Keygrabs;
-   
-
 
    procedure Register_Real_Keyboards (Params : in out Parameters) is
       function Is_Real_Keyboard (Device : XIDeviceInfo) return Boolean is
@@ -98,74 +111,74 @@ package body X11 is
       return (Device_ID, Mask_Bytes'Length, C.Strings.New_Char_Array (Mask_Bytes));
    end;
 
-   procedure Grab_Keys (Params : in out Parameters; Keys : Keycode_Array) is
+   procedure Grab_Keys (Params : in out Parameters; Ungrab : Boolean := False) is
       use type Interfaces.Unsigned_8;
       I : C.Int;
    begin
-      for Key of Keys loop
+      for Key of Params.Keys loop
          for Device of Params.Devices loop
             declare
                Grab_Modifiers : XIGrabModifiers := (0,0);
                Mask : XIEventMask := Key_Event_Mask (Device.Device_ID);
             begin
-               I := XIGrabKeycode (Params.Display, Device.Device_ID, C.Int (Key), XDefaultRootWindow (Params.Display), XIGrabModeAsync, XIGrabModeAsync, 1, Mask, 1, Grab_Modifiers);
+               if Ungrab then
+                  I := XIUngrabKeycode (Params.Display, Device.Device_ID, C.Int (Key), XDefaultRootWindow (Params.Display), 1, Grab_Modifiers);
+               else
+                  I := XIGrabKeycode (Params.Display, Device.Device_ID, C.Int (Key), XDefaultRootWindow (Params.Display), XIGrabModeAsync, XIGrabModeAsync, 1, Mask, 1, Grab_Modifiers);
+               end if;
                if I /= 0 then
                   raise HARDWARE_PROBLEM with "Unable to establish key grabs, unable to continue";
                end if;
             end;
          end loop;
-         Params.Keys.Include (Key);
       end loop;
    end Grab_Keys;
    
 
 
    function Next_Event (Params : Parameters) return Event is
-      function Correct_Device (Device_Id : C.Int) return Boolean is
+      package CastDeviceEvent is new System.Address_To_Access_Conversions (Object => XEvent.XIDeviceEvent);
+      subtype XIDeviceEvent_Access is CastDeviceEvent.Object_Pointer;
+
+      function Correct_Device (Event : XIDeviceEvent_Access) return Boolean is
       begin
          for Device of Params.Devices loop
-            if Device.Device_Id = Device_Id then
+            if Device.Device_Id = Event.SourceID then
                return True;
             end if;
          end loop;
          return False;
       end Correct_Device;
 
-      function Correct_Key (Keycode : C.Int) return Boolean is
-      begin
-         for Key of Params.Keys loop
-            if C.Int (Key) = Keycode then
-               return True;
-            end if;
-         end loop;
-         return False;
-      end Correct_Key;
-
       Any_Event : XEvent.Event;
+      Event_Cookie : XEvent.XGenericEventCookie;
+      Device_Event : XIDeviceEvent_Access;
       I : C.Int;
    begin
+      Log.Chat ("[X11] Trying to get next event from xlib");
       I := XEvent.XNextEvent (Params.Display.all'Address, Any_Event);
+      Log.Chat ("[X11] Checking if event is a generic event");
       if Any_Event.C_type = GenericEvent then
-         declare
-            Event_Cookie : XEvent.XGenericEventCookie := Any_Event.XCookie;
-         begin
-            I := XEvent.XGetEventData (Params.Display.all'Address, Event_Cookie);
-            if I /= 0 and Event_Cookie.Extension = Params.XInput_Opcode then
-               declare
-                  package CastDeviceEvent is new System.Address_To_Access_Conversions (Object => XEvent.XIDeviceEvent);
-                  subtype XIDeviceEvent_Access is CastDeviceEvent.Object_Pointer;
-                  Device_Event : XIDeviceEvent_Access := CastDeviceEvent.To_Pointer (Event_Cookie.Data);
-               begin
-                  if Device_Event.Evtype = XIKeyPress or Device_Event.Evtype = XIKeyRelease then
-                     if Correct_Device (Device_Event.SourceID) and Correct_Key (Device_Event.Detail) then return 
-                          (Event_Variant => Key_Event,
-                           Key => Keycode (Device_Event.Detail),
-                           Key_Event_Variant => (if Device_Event.Evtype = XIKeyPress then Key_Press else Key_Release));
-                     end if;
-                  end if;
-               end;
+         Event_Cookie := Any_Event.XCookie;
+         Log.Chat ("[X11] Loading the extra xcookie data");
+         I := XEvent.XGetEventData (Params.Display.all'Address, Event_Cookie);
+         if I /= 0 and Event_Cookie.Extension = Params.XInput_Opcode then
+            Log.Chat ("[X11] discovered xinput2 event, attempting to treat as device event");
+            Device_Event := CastDeviceEvent.To_Pointer (Event_Cookie.Data);
+            if Device_Event.Evtype = XIKeyPress or Device_Event.Evtype = XIKeyRelease then
+               Log.Chat ("[X11] it is a key event!");
+               if Correct_Device (Device_Event) then
+                  Log.Chat ("[X11] device event is from a valid device, returning");
+                  declare
+                     Variant : Key_Event_Variant_Type := (if Device_Event.Evtype = XIKeyPress then Key_Press else Key_Release);
+                     Key : Keycode := Keycode (Device_Event.Detail);
+                     Mods : Modifier_Set := Modifier_Set (Device_Event.Mods.Base);
+                  begin
+                     return (Event_Variant => Key_Event, Key_Variant => Variant, Key => Key, Modifiers => Mods);
+                  end;
+               end if;
             end if;
-         end;
+         end if;
       end if;
       return (Event_Variant => Other_Event);
    end Next_Event;
@@ -231,12 +244,7 @@ package body X11 is
       begin
          return Character'Pos (Letter) >= 16#20# and Character'Pos (Letter) <= 16#fe#;
       end Is_Basic_Latin1;
-      
-      use Logging;
    begin
-      if Text = "" then
-         return;
-      end if;
       Log.Info ("[X11] Outputting <" & Text & ">");
       for Letter of Text loop
          if not Is_Basic_Latin1 (Letter) then
@@ -256,6 +264,17 @@ package body X11 is
       end loop;
    end Fake_Input_String;
 
+
+   function Shift_Pressed (Modifiers : Modifier_Set) return Boolean is
+      use type Interfaces.Unsigned_8;
+   begin
+      return (Interfaces.Unsigned_8 (Modifiers) and ShiftMask) > 0;
+   end;
+   function Control_Pressed (Modifiers : Modifier_Set) return Boolean is
+      use type Interfaces.Unsigned_8;
+   begin
+      return (Interfaces.Unsigned_8 (Modifiers) and ControlMask) > 0;
+   end;
 
    function "<" (A : XIDeviceInfo; B : XIDeviceInfo) return Boolean is
    begin

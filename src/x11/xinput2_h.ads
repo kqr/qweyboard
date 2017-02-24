@@ -10,10 +10,14 @@ package XInput2_H is
    XIGrabModeAsync : constant C.Int := 1;
    XIKeyPress : constant C.Int := 2;
    XIKeyRelease : constant C.Int := 3;
-   XIKeyPressMask : constant Interfaces.Unsigned_8 :=
-      Interfaces.Shift_Left (1, Integer (XIKeyPress));
-   XIKeyReleaseMask : constant Interfaces.Unsigned_8 :=
-      Interfaces.Shift_Left (1, Integer (XIKeyRelease));
+   XIKeyPressMask : constant Interfaces.Unsigned_8 := Interfaces.Shift_Left (1, Integer (XIKeyPress));
+   XIKeyReleaseMask : constant Interfaces.Unsigned_8 := Interfaces.Shift_Left (1, Integer (XIKeyRelease));
+   
+   ShiftMask : constant Interfaces.Unsigned_8 := Interfaces.Shift_Left (1, 0);
+   ControlMask : constant Interfaces.Unsigned_8 := Interfaces.Shift_Left (1, 2);
+   Mod1Mask : constant Interfaces.Unsigned_8 := Interfaces.Shift_Left (1, 3);
+   Mod2Mask : constant Interfaces.Unsigned_8 := Interfaces.Shift_Left (1, 4);
+   Mod3Mask : constant Interfaces.Unsigned_8 := Interfaces.Shift_Left (1, 5);
 
    type XIAnyClassInfo is record
       Class_Type : C.Int;
@@ -76,6 +80,15 @@ package XInput2_H is
       Num_Modifiers : C.Int;
       Modifiers : in out XIGrabModifiers) return C.Int;
    pragma Import (C, XIGrabKeycode, "XIGrabKeycode");
+
+   function XIUngrabKeycode
+     (Display : Display_Access;
+      Device_ID : C.Int;
+      X_Keycode : C.Int;
+      Grab_Window : Window;
+      Num_Modifiers : C.Int;
+      Modifiers : in out XIGrabModifiers) return C.Int;
+   pragma Import (C, XIUngrabKeycode, "XIUngrabKeycode");
 
    function XISelectEvents (Display : Display_Access; Win : Window; Mask : in out XIEventMask; Num_Masks : C.Int) return C.Int;
    pragma Import (C, XISelectEvents, "XISelectEvents");

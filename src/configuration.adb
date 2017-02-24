@@ -8,6 +8,7 @@ package body Configuration is
          elsif Get_Argument (I, "-d", Config.Dictionary_File_Name) then null;
          elsif Get_Argument (I, "-v", Config.Log_Level) then null;
          elsif Get_Argument (I, "-vv", Config.Log_Level) then null;
+         elsif Get_Argument (I, "-vvv", Config.Log_Level) then null;
          else
             raise ARGUMENTS_ERROR;
          end if;
@@ -135,6 +136,8 @@ package body Configuration is
          Verbosity := Logging.Log_Warning;
       elsif Flag = "-vv" then
          Verbosity := Logging.Log_Info;
+      elsif Flag = "-vvv" then
+         Verbosity := Logging.Log_Chatty;
       else
          return False;
       end if;

@@ -10,6 +10,8 @@ package XLib_H is
    type Display is null record;
    type Display_Access is access all Display;
    
+   subtype Keycode is C.Int;
+   
    subtype XID is C.Unsigned_Long;
    subtype Window is XID;
    subtype Keysym is XID;

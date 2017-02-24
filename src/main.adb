@@ -13,15 +13,22 @@ procedure Main is
    Event : Qweyboard.Key_Event;
 begin
    Configuration.Get_Settings (Settings);
+   Log.Set_Verbosity (Settings.Log_Level);
+   Log.Chat ("[Main] Got settings and set log verbosity");
+
+   Log.Chat ("[Main] Loading layout");
    Configuration.Load_Layout (Settings);
 
-   Log.Set_Verbosity (Settings.Log_Level);
 
+   Log.Chat ("[Main] Making softboard");
    Softboard := Qweyboard.Make_Softboard (Settings.Layout);
+   Log.Chat ("[Main] Starting capture on backend");
    Backend.Input.Start_Capture;
+   Log.Chat ("[Main] Entering main loop");
    loop
       select
          Backend.Input.Get_Key_Event (Event);
+         Log.Chat ("[Main] Got a key event from input backend");
          Qweyboard.Handle (Softboard, Event);
       or
          delay 0.5;
