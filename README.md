@@ -257,16 +257,12 @@ I'm glad to assist.
 
 * `[x]` include symbols and numbers in layout
 
-* `[ ]` config should be done at the command line with arguments:
+* `[x]` config should be done at the command line with arguments:
 
     * `-t <delay>` how long to wait for consecutive presses (0 = nkro only)
     * `-l <layout file>` file containing layout modifications over standard layout?
     * `-d <dictionary file>` for abbreviations?
     * `-v` enables logging warning, `-vv` logs info too?
-
-* `[ ]` qweyboard becomes task which can select accept event or delay accept
-    output, which takes the timeout bit out of main. main must select qw.event or
-    qw.output in the loop though
 
 * `[ ]` "escape shortcut" to release any grabs and stop producing output.
   press again to re-enable the qweyboard (default key = ctrl shift x?)
@@ -291,12 +287,13 @@ I'm glad to assist.
                  amount : positive
 
     backspace also requires the keyboard to keep some modest amount of history
-      
 
 * `[ ]` Recognise "new sentence" (double tap space?) and allow
   auto-capitalisation
 
-* `[ ]` Config files for things like customized layout, escape shortcut etc...
+* `[ ]` Actually read layout files...
+
+* `[ ]` Escape shortcut should be configurable with something like `-e <escape shortcut>`?
 
 * `[ ]` Some sort of expansion dictionaries? "LF LS LL MA RJ RC => FSLAG =>
   förslag"

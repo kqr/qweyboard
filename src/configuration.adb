@@ -1,17 +1,17 @@
 package body Configuration is
    procedure Get_Settings (Config : out Settings) is
+      I : Positive := 1;
    begin
-      if CLI.Argument_Count = 0 then
-         null;
-      elsif CLI.Argument_Count = 2 and (Get_Argument (1, Config.Layout_File_Name) or Get_Argument (1, Config.Timeout)) then
-         null;
-      elsif CLI.Argument_Count = 4 and Get_Argument (1, Config.Layout_File_Name) and Get_Argument (3, Config.Timeout) then
-         null;
-      elsif CLI.Argument_Count = 4 and Get_Argument (3, Config.Layout_File_Name) and Get_Argument (1, Config.Timeout) then
-         null;
-      else
-         raise ARGUMENTS_ERROR; 
-      end if;
+      while I <= CLI.Argument_Count loop
+         if Get_Argument (I, "-t", Config.Timeout) then null;
+         elsif Get_Argument (I, "-l", Config.Layout_File_Name) then null;
+         elsif Get_Argument (I, "-d", Config.Dictionary_File_Name) then null;
+         elsif Get_Argument (I, "-v", Config.Log_Level) then null;
+         elsif Get_Argument (I, "-vv", Config.Log_Level) then null;
+         else
+            raise ARGUMENTS_ERROR;
+         end if;
+      end loop;
    end Get_Settings;
 
 
@@ -103,25 +103,43 @@ package body Configuration is
    end;
 
 
-
-   function Get_Argument (Count : Natural; Layout_File_Name : out Unbounded_String) return Boolean is
+   function Get_Argument (Count : in out Positive; Flag : String; File_Name : out Unbounded_String) return Boolean is
    begin
-      if CLI.Argument (Count) /= "-l" then
+      if CLI.Argument (Count) /= Flag then
          return False;
       end if;
-      Layout_File_Name := To_Unbounded_String (CLI.Argument (Count + 1));
+      File_Name := To_Unbounded_String (CLI.Argument (Count + 1));
+      Count := Count + 2;
       return True;
    end Get_Argument;
    
-   function Get_Argument (Count : Natural; Timeout : out Duration) return Boolean is
+   function Get_Argument (Count : in out Positive; Flag : String; Timeout : out Duration) return Boolean is
    begin
-      if CLI.Argument (Count) /= "-t" then
+      if CLI.Argument (Count) /= Flag then
          return False;
       end if;
       Timeout := Duration'Value (CLI.Argument (Count + 1));
+      Count := Count + 2;
       return True;
    exception
       when CONSTRAINT_ERROR =>
          return False;
    end Get_Argument;
+
+   function Get_Argument (Count : in out Positive; Flag : String; Verbosity : out Logging.Verbosity_Level) return Boolean is
+   begin
+      if CLI.Argument (Count) /= Flag then
+         return False;
+      end if;
+      if Flag = "-v" then
+         Verbosity := Logging.Log_Warning;
+      elsif Flag = "-vv" then
+         Verbosity := Logging.Log_Info;
+      else
+         return False;
+      end if;
+      Count := Count + 1;
+      return True;
+   end;
+
 end Configuration;

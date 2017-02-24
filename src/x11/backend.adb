@@ -10,6 +10,22 @@ package body Backend Is
       use type X11.Event_Variant_Type, X11.Key_Event_Variant_Type;
       Event : X11.Event;
    begin
+      select
+         accept Start_Capture do
+            declare
+               Keycodes : X11.Keycode_Array (1 .. Integer (From_Keycode.LEngth));
+               I : Positive := 1;
+            begin
+               for C in From_Keycode.Iterate loop
+                  Keycodes (I) := Keycode_Mapping.Key (C);
+                  I := I + 1;
+               end loop;
+               X11.Thread.Capture_Keys (Keycodes);
+            end;
+         end Start_Capture;
+      or
+         terminate;
+      end select;
       loop
          X11.Thread.Get_Key_Event (Event);
          if Event.Event_Variant = X11.Key_Event then
@@ -71,15 +87,4 @@ begin
    From_Keycode.Insert (50, Qweyboard.MSHI);
    From_Keycode.Insert (62, Qweyboard.MSHI);
    From_Keycode.Insert (65, Qweyboard.NOSP);
-
-   declare
-      Keycodes : X11.Keycode_Array (1 .. Integer (From_Keycode.LEngth));
-      I : Positive := 1;
-   begin
-      for C in From_Keycode.Iterate loop
-         Keycodes (I) := Keycode_Mapping.Key (C);
-         I := I + 1;
-      end loop;
-      X11.Thread.Capture_Keys (Keycodes);
-   end;
 end Backend;

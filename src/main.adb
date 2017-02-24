@@ -9,34 +9,44 @@ procedure Main is
    package CLI renames Ada.Command_Line;
 
    Settings : Configuration.Settings;
+   Softboard : Qweyboard.Softboard;
+   Event : Qweyboard.Key_Event;
 begin
-   --  Make this command-line configurable
-   Log.Set_Verbosity (Log_Info);
-
    Configuration.Get_Settings (Settings);
    Configuration.Load_Layout (Settings);
 
-   declare
-      Softboard : Qweyboard.Softboard := Qweyboard.Make_Softboard (Settings.Layout);
-      Event : Qweyboard.Key_Event;
-   begin
-      loop
-         select
-            Backend.Input.Get_Key_Event (Event);
-            Qweyboard.Handle (Softboard, Event);
-         or
-            delay 0.5;
-            Backend.Output (Qweyboard.Timeout (Softboard));
-         end select;
-      end loop;
-   end;
+   Log.Set_Verbosity (Settings.Log_Level);
+
+   Softboard := Qweyboard.Make_Softboard (Settings.Layout);
+   Backend.Input.Start_Capture;
+   loop
+      select
+         Backend.Input.Get_Key_Event (Event);
+         Qweyboard.Handle (Softboard, Event);
+      or
+         delay 0.5;
+         Backend.Output (Qweyboard.Timeout (Softboard));
+      end select;
+   end loop;
 exception
    when Configuration.ARGUMENTS_ERROR =>
-      Log.Error ("Usage: " & CLI.Command_Name & " [-l <standard|swedish>] [-t <0-9999>]");
-      Log.Error ("");
-      Log.Error ("-l sets the language (currently only Standard and Swedish available)");
-      Log.Error ("-t sets the timeout delta in milliseconds (i.e. how fast or slow you have to type)");
-      Log.Error ("");
-      Log.Error ("Running without arguments is equivalent to running " & CLI.Command_Name & " -l standard -t 500");
+      Log.Error ("Usage: " & CLI.Command_Name & " [OPTION]");
+      Log.Error ("                                                                      ");
+      Log.Error ("[OPTION] is any combination of the following options:                 ");
+      Log.Error ("                                                                      ");
+      Log.Error ("    -l <layout file>     : Modifies the standard layout with the      ");
+      Log.Error ("                           key mappings indicated in the specified    ");
+      Log.Error ("                           layout file.  [CURRENTLY UNUSED]           ");
+      Log.Error ("                                                                      ");
+      Log.Error ("    -t <seconds>         : Set the timeout for what counts as one     ");
+      Log.Error ("                           stroke. If you want 0, NKRO is strongly    ");
+      Log.Error ("                           recommended. Default value is 0.5.         ");
+      Log.Error ("                                                                      ");
+      Log.Error ("    -d <dictionary file> : Specifies a file of abbreviations to use.  ");
+      Log.Error ("                           [CURRENTLY UNUSED]                         ");
+      Log.Error ("                                                                      ");
+      Log.Error ("    -v,-vv               : Sets the log level of the software. If you ");
+      Log.Error ("                           want to know what goes on inside, this is  ");
+      Log.Error ("                           where to poke...                           ");
       CLI.Set_Exit_Status (1);
 end Main;
