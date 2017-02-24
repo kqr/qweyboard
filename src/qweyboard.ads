@@ -54,8 +54,4 @@ private
    function Apply (User_Layout : Layout; Pressed : Key_Sets.Set) return String;
    function Virtual_Layer (User_Layout : Layout; Pressed : Key_Sets.Set) return Layer_Maps.Map;
    function Mod_Layer (User_Layout : Layout; Modifier : Softkey; Pressed : Key_Sets.Set) return Layer_Maps.Map;
-
-   function Union (A : Layer_Maps.Map; B : Layer_Maps.Map) return Layer_Maps.Map;
-   function Intersection (A : Layer_Maps.Map; B : Layer_Maps.Map) return Layer_Maps.Map;
-   function Difference (A : Layer_Maps.Map; B : Layer_Maps.Map) return Layer_Maps.Map;
 end Qweyboard;

@@ -109,43 +109,6 @@ package body Qweyboard is
       end if;
       return Layer;
    end Mod_Layer;
-
-
-
-
-
-   function Union (A : Layer_Maps.Map; B : Layer_Maps.Map) return Layer_Maps.Map is
-      Ret : Layer_Maps.Map := A.Copy;
-   begin
-      for C in B.Iterate loop
-         if not Ret.Contains (Layer_Maps.Key (C)) then
-            Ret.Insert (Layer_Maps.Key (C), Layer_Maps.Element (C));
-         end if;
-      end loop;
-      return Ret;
-   end Union;
-
-   function Intersection (A : Layer_Maps.Map; B : Layer_Maps.Map) return Layer_Maps.Map is
-      Ret : Layer_Maps.Map := Layer_Maps.Empty_Map;
-   begin
-      for C in B.Iterate loop
-         if A.Contains (Layer_Maps.Key (C)) then
-            Ret.Insert (Layer_Maps.Key (C), Layer_Maps.Element (C));
-         end if;
-      end loop;
-      return Ret;
-   end Intersection;
-
-   function Difference (A : Layer_Maps.Map; B : Layer_Maps.Map) return Layer_Maps.Map is
-      Ret : Layer_Maps.Map := A.Copy;
-   begin
-      for C in B.Iterate loop
-         if Ret.Contains (Layer_Maps.Key (C)) then
-            Ret.Exclude (Layer_Maps.Key (C));
-         end if;
-      end loop;
-      return Ret;
-   end Difference;
 end Qweyboard;
 
 
