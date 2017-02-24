@@ -1,10 +1,10 @@
-with Ada.Text_IO;
 private with Interfaces;
 private with Interfaces.C;
 private with Interfaces.C.Strings;
 private with Interfaces.C.Pointers;
 private with System.Address_To_Access_Conversions;
 private with Ada.Containers.Ordered_Sets;
+private with Logging;
 private with XLib_H;
 private with XEvent;
 private with XInput2_H;

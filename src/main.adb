@@ -1,15 +1,18 @@
-with Ada.Text_IO;
 with Ada.Command_Line;
 with Configuration;
 with Qweyboard;
 with Backend;
+with Logging;
 
 procedure Main is
-   use Ada.Text_IO;
+   use Logging;
    package CLI renames Ada.Command_Line;
 
    Settings : Configuration.Settings;
 begin
+   --  Make this command-line configurable
+   Log.Set_Verbosity (Log_Info);
+
    Configuration.Get_Settings (Settings);
    Configuration.Load_Layout (Settings);
 
@@ -29,11 +32,11 @@ begin
    end;
 exception
    when Configuration.ARGUMENTS_ERROR =>
-      Put_Line ("Usage: " & CLI.Command_Name & " [-l <standard|swedish>] [-t <0-9999>]");
-      Put_Line ("");
-      Put_Line ("-l sets the language (currently only Standard and Swedish available)");
-      Put_Line ("-t sets the timeout delta in milliseconds (i.e. how fast or slow you have to type)");
-      Put_Line ("");
-      Put_Line ("Running without arguments is equivalent to running " & CLI.Command_Name & " -l standard -t 500");
+      Log.Error ("Usage: " & CLI.Command_Name & " [-l <standard|swedish>] [-t <0-9999>]");
+      Log.Error ("");
+      Log.Error ("-l sets the language (currently only Standard and Swedish available)");
+      Log.Error ("-t sets the timeout delta in milliseconds (i.e. how fast or slow you have to type)");
+      Log.Error ("");
+      Log.Error ("Running without arguments is equivalent to running " & CLI.Command_Name & " -l standard -t 500");
       CLI.Set_Exit_Status (1);
 end Main;

@@ -250,13 +250,15 @@ These are roughly in order of importance, I guess.
 
 * `[x]` Ensure proper exceptions are raised in the right places
 
+* `[x]` make it possible to type X (K+Z) and Q (C+F). might require rethinking
+  the whole layer idea? nope! just make layers more dynamic
+
+* `[x]` include symbols and numbers in layout
+
 * `[ ]` Figure out how to make the timeout a part of the qweyboard rather than the surrounding scaffolding main
 
 * `[ ]` "escape shortcut" to release any grabs and stop producing output.
   press again to re-enable the qweyboard (does this require refactoring? probably)
-
-* `[ ]` make it possible to type X (K+Z) and Q (C+F). might require rethinking
-  the whole layer idea?
 
 * `[ ]` Backspace should
 
@@ -266,8 +268,6 @@ These are roughly in order of importance, I guess.
 
   Requires the qweyboard package to move away from outputting a string...
   (or possibly outputting something like "Either BackSpace String")
-
-* `[ ]` include symbols and numbers in layout
 
 * `[ ]` Recognise "new sentence" (double tap space?) and allow
   auto-capitalisation

@@ -3,11 +3,11 @@ package body Configuration is
    begin
       if CLI.Argument_Count = 0 then
          null;
-      elsif CLI.Argument_Count = 2 and (Get_Argument (1, Config.Layout_Name) or Get_Argument (1, Config.Timeout)) then
+      elsif CLI.Argument_Count = 2 and (Get_Argument (1, Config.Layout_File_Name) or Get_Argument (1, Config.Timeout)) then
          null;
-      elsif CLI.Argument_Count = 4 and Get_Argument (1, Config.Layout_Name) and Get_Argument (3, Config.Timeout) then
+      elsif CLI.Argument_Count = 4 and Get_Argument (1, Config.Layout_File_Name) and Get_Argument (3, Config.Timeout) then
          null;
-      elsif CLI.Argument_Count = 4 and Get_Argument (3, Config.Layout_Name) and Get_Argument (1, Config.Timeout) then
+      elsif CLI.Argument_Count = 4 and Get_Argument (3, Config.Layout_File_Name) and Get_Argument (1, Config.Timeout) then
          null;
       else
          raise ARGUMENTS_ERROR; 
@@ -17,7 +17,6 @@ package body Configuration is
 
    procedure Load_Layout (Config : in out Settings) is
       use Qweyboard;
-      File_Name : String := To_String (Config.Layout_Name) & ".layout";
    begin
       --  This is somewhat temporary. We want to load the layout from a file soon...
       Add_Key (Config.Layout, NOKEY, LZ, 'Z');
@@ -96,7 +95,7 @@ package body Configuration is
       Add_Key (Config.Layout, MSHI, RF, '"');
       Add_Key (Config.Layout, MSHI, RS, ':');
       
-      if File_Name = "swedish.layout" then
+      if To_String (Config.Layout_File_Name) = "swedish.layout" then
          Add_Key (Config.Layout, NOKEY, LI, 'Å', Replace => True);
          Add_Key (Config.Layout, NOKEY, LO, 'Ä', Replace => True);
          Add_Key (Config.Layout, NOKEY, LE, 'Ö', Replace => True);
@@ -105,12 +104,12 @@ package body Configuration is
 
 
 
-   function Get_Argument (Count : Natural; Layout_Name : out Unbounded_String) return Boolean is
+   function Get_Argument (Count : Natural; Layout_File_Name : out Unbounded_String) return Boolean is
    begin
       if CLI.Argument (Count) /= "-l" then
          return False;
       end if;
-      Layout_Name := To_Unbounded_String (CLI.Argument (Count + 1));
+      Layout_File_Name := To_Unbounded_String (CLI.Argument (Count + 1));
       return True;
    end Get_Argument;
    

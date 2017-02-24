@@ -1,7 +1,7 @@
 package body Qweyboard is
    procedure Add_Key (To_Layout : in out Layout; Modifier : Softkey; Key : Softkey; Letter : Character; Replace : Boolean := False) is
    begin
-      if not To_Layout.Modifiers.Contains (Modifier) then
+      if not To_Layout.Layers.Contains (Modifier) then
          if Modifier /= NOKEY then
             To_Layout.Modifiers.Append (Modifier);
          end if;
@@ -20,6 +20,19 @@ package body Qweyboard is
    end;
 
    procedure Handle (Board : in out Softboard; Event : Key_Event) is
+      procedure Log_Board is
+      begin
+         Log.Info ("[Qweyboard] Pressed: [", Suffix => " ");
+         for Key of Board.Pressed loop
+            Log.Info (Softkey'Image (Key), Suffix => " ");
+         end loop;
+         Log.Info ("]", Suffix => " ");
+         Log.Info ("Released: [", Suffix => " ");
+         for Key of Board.Released loop
+            Log.Info (Softkey'Image (Key), Suffix => " ");
+         end loop;
+         Log.Info ("]");
+      end Log_Board;
    begin
       case Event.Key_Event_Variant is
          when Key_Press =>
@@ -28,6 +41,7 @@ package body Qweyboard is
             Board.Pressed.Exclude (Event.Key);
             Board.Released.Include (Event.Key);
       end case;
+      Log_Board;
    end Handle;
 
    function Timeout (Board : in out Softboard) return String is
@@ -42,17 +56,7 @@ package body Qweyboard is
    
 
    function Apply (User_Layout : Layout; Pressed : Key_Sets.Set) return String is
-      function Only_Letter_Keys (Keys : Key_Sets.Set) return Key_Sets.Set is
-         Ret : Key_Sets.Set := Keys.Copy;
-      begin
-         Ret.Exclude (MAPO); Ret.Exclude (LCOM); Ret.Exclude (RTIC);
-         Ret.Exclude (MSHI); Ret.Exclude (CAPI); Ret.Exclude (NOSP);
-         Ret.Exclude (BS); Ret.Exclude (NOKEY);
-         return Ret;
-      end Only_Letter_Keys;
-
-      Final_Presses : Layer_Maps.Map :=
-         Virtual_Layer (User_Layout, Only_Letter_Keys (Pressed));
+      Final_Presses : Layer_Maps.Map := Virtual_Layer (User_Layout, Pressed);
       Ret : String (1 .. Natural (Final_Presses.Length));
       I : Positive := 1;
    begin
@@ -96,7 +100,7 @@ package body Qweyboard is
    function Mod_Layer (User_Layout : Layout; Modifier : Softkey; Pressed : Key_Sets.Set) return Layer_Maps.Map is
       Layer : Layer_Maps.Map;
    begin
-      if Pressed.Contains (Modifier) then
+      if Modifier = NOKEY or Pressed.Contains (Modifier) then
          for Key of Pressed loop
             if User_Layout.Layers (Modifier).Contains (Key) then
                Layer.Insert (Key, User_Layout.Layers (Modifier) (Key));
@@ -145,13 +149,3 @@ package body Qweyboard is
 end Qweyboard;
 
 
---      Ada.Text_IO.Put ("Pressed: [ ");
---      for Key of Board.Pressed loop
---         Ada.Text_IO.Put (Softkey'Image (Key) & " ");
---      end loop;
---      Ada.Text_IO.Put ("] ");
---      Ada.Text_IO.Put ("Released: [ ");
---      for Key of Board.Released loop
---         Ada.Text_IO.Put (Softkey'Image (Key) & " ");
---      end loop;
---      Ada.Text_IO.Put_Line ("]");

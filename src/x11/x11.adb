@@ -44,7 +44,6 @@ package body X11 is
       I : C.Int;
       Select_Event_Mask : XIEventMask;
    begin
-      Params.Display := XOpenDisplay (C.Strings.Null_Ptr);
       Register_Real_Keyboards (Params);
 
       Select_Event_Mask := Key_Event_Mask (XIAllDevices);
@@ -232,7 +231,13 @@ package body X11 is
       begin
          return Character'Pos (Letter) >= 16#20# and Character'Pos (Letter) <= 16#fe#;
       end Is_Basic_Latin1;
+      
+      use Logging;
    begin
+      if Text = "" then
+         return;
+      end if;
+      Log.Info ("[X11] Outputting <" & Text & ">");
       for Letter of Text loop
          if not Is_Basic_Latin1 (Letter) then
             raise ENCODING_ERROR with "Invalid character in string. Only basic Latin 1 has a simple mapping to Keysyms and that's as much as I'm prepared to deal with right now. Pull requests welcome!";

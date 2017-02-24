@@ -1,7 +1,7 @@
-with Ada.Text_IO;
 private with Ada.Containers.Ordered_Sets;
 private with Ada.Containers.Ordered_Maps;
 private with Ada.Containers.Vectors;
+private with Logging;
 
 package Qweyboard is
    --  Letter keys declared in the order they're likely to appear in words
@@ -31,6 +31,8 @@ package Qweyboard is
    procedure Handle (Board : in out Softboard; Event : Key_Event);
    function Timeout (Board : in out Softboard) return String;
 private
+   use Logging;
+
    package Key_Sets is new Ada.Containers.Ordered_Sets (Element_Type => Softkey);
    package Key_Vectors is new Ada.Containers.Vectors (Index_Type => Positive, Element_Type => Softkey);
    package Layer_Maps is new Ada.Containers.Ordered_Maps (Key_Type => Softkey, Element_Type => Character);
