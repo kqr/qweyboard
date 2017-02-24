@@ -37,6 +37,11 @@ package body Backend Is
          X11.Thread.Get_Key_Event (Event);
          if Is_Escape_Event (Event) then
             Log.Chat ("[Backend] User toggled suspend status!");
+            if Suspended then
+               X11.Thread.Enable_Grabs;
+            else
+               X11.Thread.Disable_Grabs;
+            end if;
             Suspended := not Suspended;
          end if;
          Log.Chat ("[Backend] Seeing if we're allowed to deal with this event");
