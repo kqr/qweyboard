@@ -235,7 +235,9 @@ Still, I want to bring something like it to the public, in an open source shape.
 Todo
 ----
 
-These are roughly in order of importance, I guess.
+These are roughly in order of importance, I guess. It's mostly a loose
+collection of personal notes and if anyone needs help interpreting any of them
+I'm glad to assist.
 
 * `[x]` Command-line arguments for timeout delta and language
 
@@ -255,10 +257,21 @@ These are roughly in order of importance, I guess.
 
 * `[x]` include symbols and numbers in layout
 
-* `[ ]` Figure out how to make the timeout a part of the qweyboard rather than the surrounding scaffolding main
+* `[ ]` config should be done at the command line with arguments:
+
+    * `-t <delay>` how long to wait for consecutive presses (0 = nkro only)
+    * `-l <layout file>` file containing layout modifications over standard layout?
+    * `-d <dictionary file>` for abbreviations?
+    * `-v` enables logging warning, `-vv` logs info too?
+
+* `[ ]` qweyboard becomes task which can select accept event or delay accept
+    output, which takes the timeout bit out of main. main must select qw.event or
+    qw.output in the loop though
 
 * `[ ]` "escape shortcut" to release any grabs and stop producing output.
-  press again to re-enable the qweyboard (does this require refactoring? probably)
+  press again to re-enable the qweyboard (default key = ctrl shift x?)
+
+    * backend task should have entries is_enabled and some sort of set_toggle_shortcut? to indicate we want to have a toggle shortcut
 
 * `[ ]` Backspace should
 
@@ -266,8 +279,19 @@ These are roughly in order of importance, I guess.
     2. Erase last space (?)
     3. Erase last syllable
 
-  Requires the qweyboard package to move away from outputting a string...
-  (or possibly outputting something like "Either BackSpace String")
+    Requires the qweyboard package to move away from outputting a string...
+    (or possibly outputting something like "Either BackSpace String")
+
+        Type output_variant is output_text, backspace
+        type output (output_variant) is record
+           case output_variant is
+              when output_text
+                 text : unbounded_string
+              when backspace
+                 amount : positive
+
+    backspace also requires the keyboard to keep some modest amount of history
+      
 
 * `[ ]` Recognise "new sentence" (double tap space?) and allow
   auto-capitalisation
