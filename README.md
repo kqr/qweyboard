@@ -63,32 +63,29 @@ On Debian, these are installed with
 Key map
 -------
 
-If a standard Qwerty keyboard looks something like this
+The following picture illustrates a regular Qwerty keyboard, except with the
+Qweyboard layout on it.
 
-     1  2  3  4  5  6  7  8  9  0  -  =   BS 
-      q  w  e  r  t  y  u  i  o  p  [  ]   \
-       a  s  d  f  g  h  j  k  l  ;  '   RET
-        z  x  c  v  b  k  m  ,  .  / 
-                  SPACE
+![Qweyboard layout image](https://raw.githubusercontent.com/kqr/qweyboard/master/qweyboard_standard.png)
 
-Then you will find that the standard Qweyboard layout looks like
-
-     _  _  P  K  I  _  O  K  P  _  _  _   BS
-      _  F  T  J  O  U  I  J  T  F  _  _   \
-       Z  S  C  R  E  A  E  R  C  S  Z   RET
-        _  _  L  N  Y  N  L  _  _  _ 
-                 NOSPACE
-
-where underscore (_) denotes a key that is not yet used by Qweyboard. Keys not
-used by Qweyboard retain their normal meaning on the computer – so do all key
-combinations. This means that someting like "ctrl-c" is still in it's regular
-place. Only regular typing is different on the Qweyboard, not keyboard
+An empty key denotes a key that is not yet used by Qweyboard. Keys not used by
+Qweyboard retain their normal meaning on the computer – and so do all key
+combinations! This means that someting like "ctrl-c" is still in it's regular
+place. Only normal typing is different on the Qweyboard, not keyboard
 shortcuts.
 
-This illustrates the normal layer, where each key produces the letter it says on
-the tin. Additional letters are produced by combining different keys. To see
-illustrations of other letters and symbols, see the section below on typing on
-the Qweyboard.
+You'll notice that the Qweyboard uses the upper ("numbers") row for letters.
+This is indeed correct.
+
+The coloured circles represent where your hands rest in their neutral position.
+
+The letters in the middle of the keys are what the keys produce by default when
+you press them. The letters in the upper right are produced by also pressing the
+J key on the same side. The letters in the lower right are produced by also
+pressing the R key on the same side. This is indicated with the tiny blips on
+those keys. The Q and X letters are special cases.
+
+To learn more, read on about typing on the Qweyboard!
 
 
 Typing on the Qweyboard
@@ -98,7 +95,7 @@ If we shift the letter of the Qweyboard to look more like the original
 Veyboard, you'll notice it is largely symmetric in its layout.
 
       _  _  P  K  I  _  O  K  P  _  _  _   BS
-      _  F  T  J  O  U  I  J  T  F  _  _    \
+      _  F  T  J  O  U  I  J  T  F  _  _    _
       Z  S  C  R  E  A  E  R  C  S  Z     RET
          _  _  L  N  Y  N  L  _  _  _ 
                   NOSPACE
@@ -264,7 +261,9 @@ I'm glad to assist.
     * `-d <dictionary file>` for abbreviations?
     * `-v` enables logging warning, `-vv` logs info too?
 
-* `[ ]` "escape shortcut" to release any grabs and stop producing output.
+* `[x]` Draw a fancy picture!
+
+* `[x]` "escape shortcut" to release any grabs and stop producing output.
   press again to re-enable the qweyboard (default key = ctrl shift x?)
 
     * backend task should have entries is_enabled and some sort of set_toggle_shortcut? to indicate we want to have a toggle shortcut
