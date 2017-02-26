@@ -235,6 +235,8 @@ package body Input_Backend is
 
 begin
    Log.Chat ("[Backend] Setting up keycode table");
+   From_Keycode.Insert (10, Qweyboard.NOKEY);
+   From_Keycode.Insert (11, Qweyboard.NOKEY);
    From_Keycode.Insert (12, Qweyboard.LP);
    From_Keycode.Insert (13, Qweyboard.LK);
    From_Keycode.Insert (14, Qweyboard.LI);
@@ -242,6 +244,11 @@ begin
    From_Keycode.Insert (16, Qweyboard.RO);
    From_Keycode.Insert (17, Qweyboard.RK);
    From_Keycode.Insert (18, Qweyboard.RP);
+   From_Keycode.Insert (19, Qweyboard.NOKEY);
+   From_Keycode.Insert (20, Qweyboard.NOKEY);
+   From_Keycode.Insert (21, Qweyboard.NOKEY);
+   From_Keycode.Insert (22, Qweyboard.BS);
+   From_Keycode.Insert (24, Qweyboard.NOKEY);
    From_Keycode.Insert (25, Qweyboard.LF);
    From_Keycode.Insert (26, Qweyboard.LT);
    From_Keycode.Insert (27, Qweyboard.LJ);
@@ -251,6 +258,8 @@ begin
    From_Keycode.Insert (31, Qweyboard.RJ);
    From_Keycode.Insert (32, Qweyboard.RT);
    From_Keycode.Insert (33, Qweyboard.RF);
+   From_Keycode.Insert (34, Qweyboard.NOKEY);
+   From_Keycode.Insert (35, Qweyboard.NOKEY);
    From_Keycode.Insert (38, Qweyboard.LZ);
    From_Keycode.Insert (39, Qweyboard.LS);
    From_Keycode.Insert (40, Qweyboard.LC);
@@ -262,13 +271,16 @@ begin
    From_Keycode.Insert (46, Qweyboard.RC);
    From_Keycode.Insert (47, Qweyboard.RS);
    From_Keycode.Insert (48, Qweyboard.RZ);
+   From_Keycode.Insert (49, Qweyboard.NOKEY);
+   From_Keycode.Insert (50, Qweyboard.MSHI);
+   From_Keycode.Insert (51, Qweyboard.NOKEY);
+   From_Keycode.Insert (52, Qweyboard.NOKEY);
+   From_Keycode.Insert (53, Qweyboard.NOKEY);
    From_Keycode.Insert (54, Qweyboard.LL);
    From_Keycode.Insert (55, Qweyboard.LN);
    From_Keycode.Insert (56, Qweyboard.MY);
    From_Keycode.Insert (57, Qweyboard.RN);
    From_Keycode.Insert (58, Qweyboard.RL);
-   From_Keycode.Insert (22, Qweyboard.BS);
-   From_Keycode.Insert (50, Qweyboard.MSHI);
    From_Keycode.Insert (62, Qweyboard.MSHI);
    From_Keycode.Insert (65, Qweyboard.NOSP);
 end Input_Backend;
