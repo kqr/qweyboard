@@ -6,7 +6,7 @@ computer keyboard.
 
 The Velotype/Veyboard is an orthographic, stenographic keyboard which lets you
 type really fast by exploiting language features. It's primarily used with
-European languages such as Swedish and Dutch, but it works great for English
+European languages such as Swedish and Dutch, and it works great for English
 too.
 
 
@@ -29,28 +29,13 @@ Qweyboard.
 Quit the program by typing CTRL-C.
 
 
-Qweyboard vs. Plover
--------------------
-
-Plover, which is the most visible part of the Open Steno Project, is a much more
-mature project. However, it's based on a phonetic stenography system, which
-means that if you want to use it, you'll need a full system with a stenographic
-dictionary and all. If you only type in English, then this is not a problem and
-Plover is likely what you really want.
-
-If you sometimes type in languages other than English, you may want an
-orthographic keyboard like the Qweyboard, which (much like a regular keyboard)
-still lets you type the letters you want. This turns out to work better for
-languages where you don't have a stenographic dictionary available.
-
-
 Dependencies
 ------------
 
 If it doesn't want to run or build (undefined symbol, linker errors or
 whatnot), install the prerequisite dependencies:
 
- * GNAT (Ada compiler)
+ * GNAT (Ada compiler; Ada is compiled with GCC but the gnatmake frontend helps)
  * Xlib (X11 client programming library)
  * XInput2 (support for more advanced input in X11)
  * XTest (extension that enables clients to create input events as if from a real device)
@@ -68,22 +53,27 @@ Qweyboard layout on it.
 
 ![Qweyboard layout image](https://raw.githubusercontent.com/kqr/qweyboard/master/qweyboard_standard.png)
 
-An empty key denotes a key that is not yet used by Qweyboard. Keys not used by
+The colourful circles are where you put your fingers in their neutral position.
+
+An empty key denotes a key that is not yet used by Qweyboard. If you press these
+keys, generally nothing happens at all. However, there is currently an exception
+in place for the ,./ set of keys, since they seem important and there's no way –
+at the moment – to produce those symbols on the Qweyboard.
+
+All key combinations retain their normal meaning on the computer. eys not used by
 Qweyboard retain their normal meaning on the computer – and so do all key
-combinations! This means that someting like "ctrl-c" is still in it's regular
+combinations!This means that someting like "ctrl-c" is still in it's regular
 place. Only normal typing is different on the Qweyboard, not keyboard
 shortcuts.
 
-You'll notice that the Qweyboard uses the upper ("numbers") row for letters.
-This is indeed correct.
+You'll notice that the Qweyboard uses the uppermost row (the "QWERTY numbers
+row") for letters. This is indeed correct.
 
-The coloured circles represent where your hands rest in their neutral position.
-
-The letters in the middle of the keys are what the keys produce by default when
-you press them. The letters in the upper right are produced by also pressing the
-J key on the same side. The letters in the lower right are produced by also
-pressing the R key on the same side. This is indicated with the tiny blips on
-those keys. The Q and X letters are special cases.
+The letters in the middle of the keys are produced by default when you press
+them. The letters in the upper right are produced by also pressing the J key on
+the same side. The letters in the lower right are produced by also pressing the
+R key on the same side. This is indicated with the tiny blips on those keys. The
+Q and X letters are special cases.
 
 To learn more, read on about typing on the Qweyboard!
 
@@ -100,7 +90,8 @@ Veyboard, you'll notice it is largely symmetric in its layout.
          _  _  L  N  Y  N  L  _  _  _ 
                   NOSPACE
 
-To make this section easier, I'll invent a notation for talking about keys on this keyboard. We can split the keyboard into a left half, a middle and a right half. The division looks like so:
+We can split the keyboard into a left half, a middle and a right half. The
+division looks like so:
 
                     | M |
                     | I |
@@ -110,30 +101,29 @@ To make this section easier, I'll invent a notation for talking about keys on th
                     | E |
                     |   |
       _  _  P  K  I | _ | O  K  P  _  _  _   BS
-      _  F  T  J  O | U | I  J  T  F  _  _    \
+      _  F  T  J  O | U | I  J  T  F  _  _    _
       Z  S  C  R  E | A | E  R  C  S  Z     RET
          _  _  L  N | Y | N  L  _  _  _ 
                   NOSPACE
 
-When talking about the key on the left side that on its own represents the
-letter T, I will simply write LT. Similarly, RC refers to the key on the right
-half which produces the letter C. The middle key A is MA, and so on.
-
 When typing on the Qweyboard, you will be typing what is practically "one
-syllable at a time". So, to write the word "tan", you press the keys LT MA
-RN. These keys can be pressed in any order; the output will be the order in
-which they appear on the Qweyboard. You can even press all three keys
-simultaneously, if your keyboard supports it!
+syllable at a time". So, to write the word "tan", you press the left T-key, the
+middle A key, and the right N key.  These keys can be pressed in any order; the
+output will be the order in which they appear on the Qweyboard. You can even
+press all three keys simultaneously, if your physical keyboard supports it!
 
-A more complicated word like "snails" follows a similar principle. Divide the word up according to left/middle/right halves, and you get
+A more complicated word like "snails" follows a similar principle. Divide the
+word up according to left/middle/right halves, and you get
 
     Word:   S N |    A   | I L S
                 |        |
     Half:  Left | Middle | Right
                 |        |
-    Keys: LS LN |   MA   | RI RL RS
+    Keys:   S N |    A   | I L S
 
-Again, these keys can be pressed in any order, or even simultaneously.
+Again, these keys can be pressed in any order, or even simultaneously. What
+matters is that you press the L on the right side of the Qweyboard – or else
+you'll see it output "slnais".
 
 If you try this, you'll notice that the Qweyboard automatically puts a space
 after the word. With the Qweyboard, you don't have to type space yourself. It
@@ -149,33 +139,36 @@ of the alphabet missing. These are achieved in combination with the J and R keys
 on each half. If you hold down the J keys, they key layout looks like
 
      _  _  B  _  _  _  _  _  B  _  _  _   BS
-      _  _  D  .  _  _  _  .  D  _  _  _   \
+      _  _  D  #  _  _  _  #  D  _  _  _   _
        _  _  G  _  _  _  _  _  G  _  _   RET
         _  _  H  W  _  W  H  _  _  _ 
                  NOSPACE
 
 Here, the hash mark indicates that we're holding down the J key, and if you type
 any of the other keys with letters, you get that letter instead. So, for
-example, the LJ LC combination gives you the letter G. If you want to type a
+example, the J+C combination gives you the letter G. If you want to type a
 word like "deer", you'll have to break it down into
 
     Word:     D  E | E R
                    |
     Half:     Left | Right
                    |
-    Keys: LJ LT LE | RE RR
+    Keys:    J T E | E R
     
-where, as you know, the LJ LT combination produces the letter D, and the other
+where, as you know, the J+T combination produces the letter D, and the other
 keys simply produce what's on their label.
 
 There's a similar thing going on with the R keys to produce some additional
 letters. In their case, the layout will look like
 
      _  _  _  _  _  _  _  _  _  _  _  _   BS
-      _  _  _  _  _  _  _  _  _  _  _  _   \
-       _  _  _  .  _  _  _  .  _  _  _   RET
+      _  _  _  _  _  _  _  _  _  _  _  _   _
+       _  _  _  #  _  _  _  #  _  _  _   RET
         _  _  V  M  _  M  V  _  _  _ 
                  NOSPACE
+
+There are two remaining letters though: Q is produced by C+F and X is produced
+by K+Z.
 
 The Qweyboard is designed to be used by striking as many keys as possible
 simultaneously. Ideally, you should type most syllables with just a single
@@ -196,12 +189,6 @@ that can be altered when you start the Qweyboard program, allowing slow typists
 to take their time, and fast typists to type faster than what the software would
 otherwise allow them to.
 
-In terms of getting started and hand placement, I loosely recommend memorizing
-that the "central column" of keys are situated on the QWERTY keys Y H B. These
-keys split the keyboard in half. Then I let my index, middle and ring fingers
-rest on the "QWERTY top row", i.e. the keys E R T, U I O for each hand. The
-little finger rests where it naturally lands, on the keys for S and ;.
-
 Remember to use your thumbs! On a regular QWERTY keyboard, they sort of assume
 the sole responsibility of pressing space. With Qweyboard, they can be much more
 useful than that.
@@ -216,6 +203,21 @@ that order. I have no idea if this is good or bad, nor do I know how it's done
 in the actual Velotype/Veyboard. The reason I replaced the left side letters is
 because I and E are fairly common letters, so I wanted to keep them on the
 "stronger" right hand.
+
+
+Qweyboard vs. Plover
+-------------------
+
+Plover, which is the most visible part of the Open Steno Project, is a much more
+mature project. However, it's based on a phonetic stenography system, which
+means that if you want to use it, you'll need a full system with a stenographic
+dictionary and all. If you only type in English, then this is not a problem and
+Plover is likely what you really want.
+
+If you sometimes type in languages other than English, you may want an
+orthographic keyboard like the Qweyboard, which (much like a regular keyboard)
+still lets you type the letters you want. This turns out to work better for
+languages where you don't have a stenographic dictionary available.
 
 
 Disclaimer
@@ -235,6 +237,8 @@ Todo
 These are roughly in order of importance, I guess. It's mostly a loose
 collection of personal notes and if anyone needs help interpreting any of them
 I'm glad to assist.
+
+* `[ ]` shift = sssssymbol keys? actually trickier than I had thought...
 
 * `[ ]` Recognise "new sentence" (double tap space?) and allow
   auto-capitalisation
