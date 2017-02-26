@@ -5,6 +5,10 @@ with Interfaces.C.Pointers;
 package XLib_H is
    package C renames Interfaces.C;
 
+   EXTENSION_MISSING, HARDWARE_PROBLEM : exception;
+   GENERAL_X11_ERROR : exception;
+   ENCODING_ERROR : exception;
+
    GenericEvent : constant C.Int := 35;
 
    type Display is null record;

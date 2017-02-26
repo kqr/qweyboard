@@ -268,6 +268,21 @@ I'm glad to assist.
 
     * backend task should have entries is_enabled and some sort of set_toggle_shortcut? to indicate we want to have a toggle shortcut
 
+* `[ ]` Maybe a possible architecture: information flows in this order strictly!
+
+    * package Input_Backend
+        * task Input
+            loop e = getevent; Qweyboard.Events.Trigger (e)
+    * package Qweyboard with Output_Backend
+        * protected State
+            * handle {}
+            * timeout {output_backend.output.enter (apply)}
+        * task Events
+            * select accept trigger {State.Handle} or delay 0.5 {State.Timeout}
+    * package Output_Backend
+        * task Output
+            * accept enter {fake_input}
+
 * `[ ]` Backspace should
 
     1. Clear currently pressed

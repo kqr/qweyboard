@@ -1,0 +1,151 @@
+package body Input_Backend is
+   package Keycode_Mapping is new Ada.Containers.Ordered_Maps (Key_Type => X11.Keycode, Element_Type => Qweyboard.Softkey, "=" => Qweyboard."=");
+
+   procedure Finalize (Grab : in out Grab_Status) is
+   begin
+      if Grab.Enabled then
+         Grab_Keys (Grab, Ungrab => True);
+      end if;
+   end;
+
+   task body Input is
+      Grab : Grab_Status;
+      XInput_Opcode : C.Int;
+      Last_Event : Qweyboard.Key_Event;
+      From_Keycode : Keycode_Mapping.Map;
+      Suspended : Boolean := False;
+   begin
+      Set_Keycode_Bindings (From_Keycode);
+
+      Log.Chat ("[X11.Input] Opening display");
+      Grab.Display := XOpenDisplay (C.Strings.Null_Ptr);
+      declare
+         Ev : C.Int;
+         Err : C.Int;
+      begin
+         if XQueryExtension (Grab.Display, C.Strings.New_String ("XInputExtension"), XInput_Opcode, Ev, Err) = 0 then
+            raise EXTENSION_MISSING with "XInputExtension not available, cannot continue";
+         end if;
+      end;
+
+      Log.Chat ("[X11.Input] Setting up key grabs and event selects");
+      declare
+         Keycodes : Keycode_Vectors.Vector;
+      begin
+         for C in From_Keycode.Iterate loop
+            Keycodes.Insert (Keycode_Mapping.Key (C));
+         end loop;
+         Setup_Keygrabs (Grab, Keycodes);
+      end;
+
+      Log.Chat ("[X11.Input] Entering loop");
+      loop
+         if Suspended and Grab.Enabled then
+            Log.Chat ("[X11.Input] Disabled backend and enabled grabs - ungrabbing");
+            Grab_Keys (Grab, Ungrab => True);
+         elsif not Suspended and not Grab.Enabled then
+            Log.Chat ("[X11.Input] Enabled backend and disabled grabs - grabbing");
+            Grab_Keys (Grab);
+         end if;
+         
+         Log.Chat ("[X11.Input] Fetching next event");
+         Last_Event := Next_Event (Grab.Display, XInput_Opcode, Grab.Devices);
+         Log.Chat ("[X11.Input] Telling backend about event");
+         Qweyboard.Handle (Last_Event);
+         
+         --  Make sure we actually quit this X11 loop when everything else has ended ??
+         --select terminate; end select;
+      end loop;
+   end Input;
+   
+   function Next_Event (Display : Display_Access; XInput_Opcode : C.Int; Devices : Device_Sets.Set) return Qweyboard.Event is
+      function Correct_Device (Event : XIDeviceEvent_Access) return Boolean is
+      begin
+         for Device of Devices loop
+            if Device.Device_Id = Event.SourceID then
+               return True;
+            end if;
+         end loop;
+         return False;
+      end Correct_Device;
+
+      Any_Event : XEvent.Event;
+      Event_Cookie : XEvent.XGenericEventCookie;
+      Device_Event : XIDeviceEvent_Access;
+      I : C.Int;
+   begin
+      loop
+         Log.Chat ("[X11.Input] Trying to get next event from xlib");
+         I := XEvent.XNextEvent (Display.all'Address, Any_Event);
+         Log.Chat ("[X11.Input] Checking if event is a generic event");
+         if Any_Event.C_type = GenericEvent then
+            Event_Cookie := Any_Event.XCookie;
+            Log.Chat ("[X11.Input] Loading the extra xcookie data");
+            I := XEvent.XGetEventData (Display.all'Address, Event_Cookie);
+            if I /= 0 and Event_Cookie.Extension = XInput_Opcode then
+               Log.Chat ("[X11.Input] discovered xinput2 event, attempting to treat as device event");
+               Device_Event := CastDeviceEvent.To_Pointer (Event_Cookie.Data);
+               if Device_Event.Evtype = XIKeyPress or Device_Event.Evtype = XIKeyRelease then
+                  Log.Chat ("[X11.Input] it is a key event!");
+                  if Correct_Device (Device_Event) then
+                     Log.Chat ("[X11.Input] device event is from a valid device, returning");
+                     return Convert_Event (Device_Event);
+                  end if;
+               end if;
+            end if;
+         end if;
+      end loop;
+   end;
+      
+   function Convert_Event (Device_Event : XIDeviceEvent_Access) return Qweyboard.Key_Event is
+      use Qweyboard;
+      Variant : Key_Event_Variant_Type := (if Device_Event.Evtype = XIKeyPress then Key_Press else Key_Release);
+      Key : Softkey := From_Keycode (Keycode (Device_Event.Detail));
+   begin
+      --  TODO: handle suspend event (ctrl shift x)
+      --  TODO: call free() on the Device_Event pointer
+      return (Key_Event_Variant => Variant, Key => Key);
+   end;
+
+   procedure Set_Keycode_Bindings (From_Keycode : in out Keycode_Mapping) is
+   begin
+      Log.Chat ("[Backend] Setting up keycode table");
+      From_Keycode.Insert (12, Qweyboard.LP);
+      From_Keycode.Insert (13, Qweyboard.LK);
+      From_Keycode.Insert (14, Qweyboard.LI);
+      From_Keycode.Insert (15, Qweyboard.MAPO);
+      From_Keycode.Insert (16, Qweyboard.RO);
+      From_Keycode.Insert (17, Qweyboard.RK);
+      From_Keycode.Insert (18, Qweyboard.RP);
+      From_Keycode.Insert (25, Qweyboard.LF);
+      From_Keycode.Insert (26, Qweyboard.LT);
+      From_Keycode.Insert (27, Qweyboard.LJ);
+      From_Keycode.Insert (28, Qweyboard.LO);
+      From_Keycode.Insert (29, Qweyboard.MU);
+      From_Keycode.Insert (30, Qweyboard.RI);
+      From_Keycode.Insert (31, Qweyboard.RJ);
+      From_Keycode.Insert (32, Qweyboard.RT);
+      From_Keycode.Insert (33, Qweyboard.RF);
+      From_Keycode.Insert (38, Qweyboard.LZ);
+      From_Keycode.Insert (39, Qweyboard.LS);
+      From_Keycode.Insert (40, Qweyboard.LC);
+      From_Keycode.Insert (41, Qweyboard.LR);
+      From_Keycode.Insert (42, Qweyboard.LE);
+      From_Keycode.Insert (43, Qweyboard.MA);
+      From_Keycode.Insert (44, Qweyboard.RE);
+      From_Keycode.Insert (45, Qweyboard.RR);
+      From_Keycode.Insert (46, Qweyboard.RC);
+      From_Keycode.Insert (47, Qweyboard.RS);
+      From_Keycode.Insert (48, Qweyboard.RZ);
+      From_Keycode.Insert (54, Qweyboard.LL);
+      From_Keycode.Insert (55, Qweyboard.LN);
+      From_Keycode.Insert (56, Qweyboard.MY);
+      From_Keycode.Insert (57, Qweyboard.RN);
+      From_Keycode.Insert (58, Qweyboard.RL);
+--      From_Keycode.Insert (22, Qweyboard.BS);
+      From_Keycode.Insert (50, Qweyboard.MSHI);
+      From_Keycode.Insert (62, Qweyboard.MSHI);
+      From_Keycode.Insert (65, Qweyboard.NOSP);
+   end;
+begin
+end Input_Backend;
