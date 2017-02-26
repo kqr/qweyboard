@@ -9,7 +9,8 @@ package body Output_Backend is
    use XLib_H, XTest_H;
 
    procedure Fake_Input_String (Display : Display_Access; Text : String);
-   function Bind_Character (Display : Display_Access; Letter : Character) return C.Int;
+   procedure Fake_Input_Keysym (Display : Display_Access; Keysym : C.Unsigned_Long);
+   function Scratch_Keycode (Display : Display_Access) return C.Int;
    procedure Fake_Press (Display : Display_Access; Key : C.Int);
 
    task body Output is
@@ -32,9 +33,19 @@ package body Output_Backend is
       Log.Chat ("[X11.Output] Entering loop");
       loop
          select
-            accept Enter (Text : Unbounded_String) do
+            accept Enter (Text : Unbounded_String; Completes_Word : Boolean) do
                Fake_Input_String (Display, To_String (Text));
+               if Completes_Word then
+                  Fake_Input_String (Display, " ");
+               end if;
             end Enter;
+         or
+            accept Erase (Amount : Positive) do
+               Log.Chat ("[X11.Output] Simulating" & Positive'Image (Amount) & " backspace(s)...");
+               for I in 1 .. Amount loop
+                  Fake_Input_Keysym (Display, 16#ff08#);
+               end loop;
+            end Erase;
          or
             terminate;
          end select;
@@ -55,19 +66,28 @@ package body Output_Backend is
          end if;
          
          declare
-            Key : C.Int := Bind_Character (Display, Letter);
-            I : C.Int := 0;
-            Keysym : C.Unsigned_Long := 0;
+            Keysym : C.Unsigned_Long := Character'Pos (Letter);
          begin
-            Fake_Press (Display, Key);
-            I := XSync (Display, 0);
-            I := XChangeKeyboardMapping (Display, Key, 1, Keysym, 1);
-            I := XSync (Display, 0);
+            Fake_Input_Keysym (Display, Keysym);
          end;
       end loop;
    end Fake_Input_String;
-
-   function Bind_Character (Display : Display_Access; Letter : Character) return C.Int is
+   
+   procedure Fake_Input_Keysym (Display : Display_Access; Keysym : C.Unsigned_Long) is
+      KS : C.Unsigned_Long := Keysym;
+      Key : C.Int := Scratch_Keycode (Display);
+      I : C.Int := 0;
+      No_Symbol : C.Unsigned_Long := 0;
+   begin
+      I := XChangeKeyboardMapping (Display, Key, 1, KS, 1);
+      I := XSync (Display, 0);
+      Fake_Press (Display, Key);
+      I := XSync (Display, 0);
+      I := XChangeKeyboardMapping (Display, Key, 1, No_Symbol, 1);
+      I := XSync (Display, 0);
+   end Fake_Input_Keysym;
+   
+   function Scratch_Keycode (Display : Display_Access) return C.Int is
       use type C.Unsigned_Long;
       
       No_Symbol : C.Unsigned_Long := 0;
@@ -80,7 +100,6 @@ package body Output_Backend is
          Keysyms_Per_Key : C.Int := 0;
          Keysyms_Ptr : Keysym_Accesses.Pointer := XGetKeyboardMapping (Display, Min_Keycode, Key_Count, Keysyms_Per_key);
          Keysyms : Keysym_Array := Keysym_Accesses.Value (Keysyms_Ptr, C.Ptrdiff_T (Key_Count * Keysyms_Per_Key));
-         Scratch_Key : C.Int := 0;
       begin
          for Key in Min_Keycode .. Max_Keycode loop
             declare
@@ -93,24 +112,13 @@ package body Output_Backend is
                   end if;
                end loop;
                if Key_Is_Empty then
-                  Scratch_Key := Key;
-                  exit;
+                  return Key;
                end if;
             end;
          end loop;
-         if Scratch_Key = 0 then
-            raise GENERAL_X11_ERROR with "No empty key available as scratch space. This is technically not a problem but so unusual that I haven't bothered to code for this scenario...";
-         end if;
-         declare
-            I : C.Int := 0;
-            Keysym : C.Unsigned_Long := Character'Pos (Letter);
-         begin
-            I := XChangeKeyboardMapping (Display, Scratch_Key, 1, Keysym, 1);
-            I := XSync (Display, 0);
-         end;
-         return Scratch_Key;
       end;
-   end Bind_Character;
+      raise GENERAL_X11_ERROR with "No empty key available as scratch space. This is technically not a problem but so unusual that I haven't bothered to code for this scenario...";
+   end;
 
    procedure Fake_Press (Display : Display_Access; Key : C.Int) is
       XTestRelease : constant C.Int := 0;

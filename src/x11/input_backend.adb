@@ -267,7 +267,7 @@ begin
    From_Keycode.Insert (56, Qweyboard.MY);
    From_Keycode.Insert (57, Qweyboard.RN);
    From_Keycode.Insert (58, Qweyboard.RL);
---   From_Keycode.Insert (22, Qweyboard.BS);
+   From_Keycode.Insert (22, Qweyboard.BS);
    From_Keycode.Insert (50, Qweyboard.MSHI);
    From_Keycode.Insert (62, Qweyboard.MSHI);
    From_Keycode.Insert (65, Qweyboard.NOSP);

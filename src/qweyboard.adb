@@ -16,10 +16,55 @@ package body Qweyboard is
    
    task body Softboard is
       Initialised : Boolean := False;
-      Has_Event : Boolean := False;
       Current_Layout : Layout;
       Pressed : Key_Sets.Set;
       Released : Key_Sets.Set;
+      Last_Output : Output;
+      
+      procedure Commit is
+         Final_Presses : Layer_Maps.Map;
+         Ret : Unbounded_String;
+      begin
+         Final_Presses := Virtual_Layer (Current_Layout, Released);
+         if not Final_Presses.Is_Empty then
+            -- As if by accident, the declaration order of Softkey in conjunction with
+            -- the implementation of Ordered_(Sets|Maps) means this iteration happens
+            -- in precisely the order we need it to...
+            for C in Final_Presses.Iterate loop
+               Append (Ret, Layer_Maps.Element (C));
+            end loop;
+            Last_Output := (Syllable, Ret, not Released.Contains (NOSP));
+            
+            case Last_Output.Variant is
+               when Syllable =>
+                  Output_Backend.Output.Enter (Last_Output.Text, Last_Output.Completes_Word);
+               when Erase =>
+                  Output_Backend.Output.Erase (Last_Output.Amount);
+               when Nothing =>
+                  null;
+            end case;
+         end if;
+         Released.Clear;
+      end Commit;
+      
+      procedure Erase is
+      begin
+         Pressed.Clear;
+         Released.Clear;
+         if Last_Output.Variant = Syllable then
+            if Last_Output.Completes_Word then
+               Last_Output.Completes_Word := False;
+               Output_Backend.Output.Erase (1);
+            else
+               declare
+                  Amount : Positive := Length (Last_Output.Text);
+               begin
+                  Last_Output := (Erase, Amount);
+                  Output_Backend.Output.Erase (Amount);
+               end;
+            end if;
+         end if;
+      end;
    begin
       loop
          select
@@ -29,62 +74,43 @@ package body Qweyboard is
             end Set_Layout;
          or
             accept Handle (Event : Key_Event) do
-               Has_Event := True;
+               -- TODO if key is susp, clear last_output
                case Event.Key_Event_Variant is
                   when Key_Press =>
-                     Pressed.Include (Event.Key);
+                     if Event.Key = BS then
+                        Erase;
+                     else
+                        Pressed.Include (Event.Key);
+                     end if;
                   when Key_Release =>
                      Pressed.Exclude (Event.Key);
                      Released.Include (Event.Key);
                end case;
-               --Log_Board;
+               Log_Board (Pressed, Released);
             end Handle;
          or
             delay 0.5;
-            declare
-               Result : Unbounded_String;
-            begin
-               Result := Apply (Current_Layout, Released);
-               Output_Backend.Output.Enter (Result);
-               Released.Clear;
-            end;
+            if Pressed.Is_Empty then
+               Commit;
+            end if;
          end select;
       end loop;
    end Softboard;
    
-
-
----   procedure Log_Board is
----   begin
----      Log.Info ("[Qweyboard] Pressed: [", Suffix => " ");
----      for Key of Pressed loop
----         Log.Info (Softkey'Image (Key), Suffix => " ");
----      end loop;
----      Log.Info ("]", Suffix => " ");
----      Log.Info ("Released: [", Suffix => " ");
----      for Key of Released loop
----         Log.Info (Softkey'Image (Key), Suffix => " ");
----      end loop;
----      Log.Info ("]");
----   end Log_Board;
-
-
-   function Apply (User_Layout : Layout; Pressed : Key_Sets.Set) return Unbounded_String is
-      Final_Presses : Layer_Maps.Map := Virtual_Layer (User_Layout, Pressed);
-      Ret : Unbounded_String;
+   procedure Log_Board (Pressed : Key_Sets.Set; Released : Key_Sets.Set) is
    begin
-      -- As if by accident, the declaration order of Softkey in conjunction with
-      -- the implementation of Ordered_(Sets|Maps) means this iteration happens
-      -- in precisely the order we need it to...
-      for C in Final_Presses.Iterate loop
-         Append (Ret, Layer_Maps.Element (C));
+      Log.Info ("[Qweyboard] Pressed: [", Suffix => " ");
+      for Key of Pressed loop
+         Log.Info (Softkey'Image (Key), Suffix => " ");
       end loop;
-      if Final_Presses.Is_Empty or Pressed.Contains (NOSP) then
-         return Ret;
-      else
-         return Ret & " ";
-      end if;
-   end Apply;
+      Log.Info ("]", Suffix => " ");
+      Log.Info ("Released: [", Suffix => " ");
+      for Key of Released loop
+         Log.Info (Softkey'Image (Key), Suffix => " ");
+      end loop;
+      Log.Info ("]");
+   end Log_Board;
+
 
    function Virtual_Layer (User_Layout : Layout; Pressed : Key_Sets.Set) return Layer_Maps.Map is
       Final_Presses : Layer_Maps.Map;

@@ -5,6 +5,7 @@ package Output_Backend is
    use Logging;
 
    task Output is
-      entry Enter (Text : Unbounded_String);
+      entry Enter (Text : Unbounded_String; Completes_Word : Boolean);
+      entry Erase (Amount : Positive);
    end Output;
 end Output_Backend;
