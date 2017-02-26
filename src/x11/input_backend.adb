@@ -192,6 +192,7 @@ package body Input_Backend is
                   Log.Chat ("[X11.Input] it is a key event!");
                   if Correct_Device (Device_Event) then
                      Log.Chat ("[X11.Input] device event is from a valid device, returning");
+                     XEvent.XFreeEventData (Display.all'Address, Event_Cookie);
                      return Convert_Event (Device_Event);
                   end if;
                end if;

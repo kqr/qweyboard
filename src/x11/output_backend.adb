@@ -93,6 +93,7 @@ package body Output_Backend is
       No_Symbol : C.Unsigned_Long := 0;
       Min_Keycode : C.Int := 0;
       Max_Keycode : C.Int := 0;
+      Unused : C.Int;
    begin
       XDisplayKeycodes (Display, Min_Keycode, Max_Keycode);
       declare
@@ -112,10 +113,12 @@ package body Output_Backend is
                   end if;
                end loop;
                if Key_Is_Empty then
+                  Unused := XFree (Keysyms_Ptr.all'Address);
                   return Key;
                end if;
             end;
          end loop;
+         Unused := XFree (Keysyms_Ptr.all'Address);
       end;
       raise GENERAL_X11_ERROR with "No empty key available as scratch space. This is technically not a problem but so unusual that I haven't bothered to code for this scenario...";
    end;

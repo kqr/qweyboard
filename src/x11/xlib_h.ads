@@ -1,3 +1,4 @@
+with System;
 with Interfaces.C;
 with Interfaces.C.Strings;
 with Interfaces.C.Pointers;
@@ -19,7 +20,7 @@ package XLib_H is
    subtype XID is C.Unsigned_Long;
    subtype Window is XID;
    subtype Keysym is XID;
-
+   
    function XOpenDisplay (Display_Name : C.Strings.Chars_Ptr) return Display_Access;
    pragma Import (C, XOpenDisplay, "XOpenDisplay");
 
@@ -29,6 +30,9 @@ package XLib_H is
    function XSync (Display : Display_Access; Discard : C.Int) return C.Int;
    pragma Import (C, XSync, "XSync");
    
+   function XFree (Addr : System.Address) return C.Int;
+   pragma Import (C, XFree, "XFree");
+
    function XDefaultRootWindow (Display : Display_Access) return Window;
    pragma Import (C, XDefaultRootWindow, "XDefaultRootWindow");
 

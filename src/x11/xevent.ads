@@ -629,6 +629,9 @@ package XEvent is
    function XGetEventData (Display : System.Address; Cookie : in out XGenericEventCookie) return C.Int;
    pragma Import (C, XGetEventData, "XGetEventData");
 
+   procedure XFreeEventData (Display : System.Address; Cookie : in out XGenericEventCookie);
+   pragma Import (C, XFreeEventData, "XGetEventData");
+
    package CastDeviceEvent is new System.Address_To_Access_Conversions (Object => XIDeviceEvent);
    subtype XIDeviceEvent_Access is CastDeviceEvent.Object_Pointer;
 end XEvent;
