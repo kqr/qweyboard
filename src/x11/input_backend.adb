@@ -77,8 +77,13 @@ package body Input_Backend is
          Log.Chat ("[X11.Input] Fetching next event");
          Last_Event := Next_Event (Grab.Display, XInput_Opcode, Grab.Devices);
          Log.Chat ("[X11.Input] Telling backend about event");
-         Qweyboard.Softboard.Handle (Last_Event);
+         if not Suspended then
+            Qweyboard.Softboard.Handle (Last_Event);
+         end if;
          
+         if Qweyboard."=" (Last_Event.Key, Qweyboard.Susp) then
+            Suspended := not Suspended;
+         end if;
          --  Make sure we actually quit this X11 loop when everything else has ended ??
          --select terminate; end select;
       end loop;
@@ -187,12 +192,7 @@ package body Input_Backend is
                   Log.Chat ("[X11.Input] it is a key event!");
                   if Correct_Device (Device_Event) then
                      Log.Chat ("[X11.Input] device event is from a valid device, returning");
-                     begin
-                        return Convert_Event (Device_Event);
-                     exception
-                        when CONSTRAINT_ERROR =>
-                           null;
-                     end;
+                     return Convert_Event (Device_Event);
                   end if;
                end if;
             end if;
@@ -202,17 +202,33 @@ package body Input_Backend is
       
    function Convert_Event (Device_Event : XIDeviceEvent_Access) return Qweyboard.Key_Event is
       use Qweyboard;
-      Variant : Key_Event_Variant_Type := (if Device_Event.Evtype = XIKeyPress then Key_Press else Key_Release);
-      Key : Softkey := From_Keycode (Keycode (Device_Event.Detail));
+
+      Variant : Key_Event_Variant_Type :=
+        (if Device_Event.Evtype = XIKeyPress
+           then Key_Press
+           else Key_Release);
+      Key : Softkey;
    begin
-      --  TODO: handle suspend event (ctrl shift x)
-      --  TODO: call free() on the Device_Event pointer
-      return (Key_Event_Variant => Variant, Key => Key);
+      --  TODO find a way to make this customizeable in a cross-platform way
+      if Variant = Key_Press and then Device_Event.Detail = 53 and then Device_Event.Mods.Base = 5 then
+         return (SUSP, Variant);
+      end if;
+
+      begin
+         Key := From_Keycode (Keycode (Device_Event.Detail));
+      exception
+         when CONSTRAINT_ERROR =>
+            return (NOKEY, Variant);
+      end;
+
+      --  TODO: call free() on the Device_Event pointer?
+      return (Key, Variant);
    end;
 
    function Key_Event_Mask (Device_Id : C.Int) return XIEventMask is
       use type Interfaces.Unsigned_8;
-      Mask_Bytes : C.Char_Array (0..0) := (others => C.To_C (Character'Val (XIKeyPressMask or XIKeyREleaseMask)));
+      Mask_Bytes : C.Char_Array (0..0) :=
+        (others => C.To_C (Character'Val (XIKeyPressMask or XIKeyREleaseMask)));
    begin
       return (Device_ID, Mask_Bytes'Length, C.Strings.New_Char_Array (Mask_Bytes));
    end;
