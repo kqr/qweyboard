@@ -2,6 +2,7 @@ package body Configuration is
    procedure Get_Settings (Config : out Settings) is
       I : Positive := 1;
    begin
+      Config.Log_Level := Logging.Log_Error;
       while I <= CLI.Argument_Count loop
          if Get_Argument (I, "-t", Config.Timeout) then null;
          elsif Get_Argument (I, "-l", Config.Layout_File_Name) then null;
