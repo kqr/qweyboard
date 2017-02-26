@@ -74,18 +74,24 @@ package body Qweyboard is
             end Set_Layout;
          or
             accept Handle (Event : Key_Event) do
-               -- TODO if key is susp, clear last_output
-               case Event.Key_Event_Variant is
-                  when Key_Press =>
-                     if Event.Key = BS then
-                        Erase;
-                     else
-                        Pressed.Include (Event.Key);
-                     end if;
-                  when Key_Release =>
-                     Pressed.Exclude (Event.Key);
-                     Released.Include (Event.Key);
-               end case;
+               if Event.Key = SUSP then
+                  Last_Output := (Variant => Nothing);
+                  Commit;
+               else
+                  case Event.Key_Event_Variant is
+                     when Key_Press =>
+                        if Event.Key = BS then
+                           Erase;
+                        elsif Event.Key = NOSP and Released.Is_Empty and Pressed.Is_Empty then
+                           Output_Backend.Output.Enter (To_Unbounded_String (" "), False);
+                        else
+                           Pressed.Include (Event.Key);
+                        end if;
+                     when Key_Release =>
+                        Pressed.Exclude (Event.Key);
+                        Released.Include (Event.Key);
+                  end case;
+               end if;
                Log_Board (Pressed, Released);
             end Handle;
          or
