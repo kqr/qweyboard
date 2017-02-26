@@ -45,6 +45,7 @@ package Qweyboard is
    task Softboard is
       entry Set_Layout (User_Layout : Layout);
       entry Handle (Event : Key_Event);
+      entry Shut_Down;
    end Softboard;
    
 private

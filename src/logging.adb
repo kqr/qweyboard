@@ -21,6 +21,12 @@ package body Logging is
                end if;
             end Info;
          or
+            accept Warning (Text : String; Suffix : String := 1*Ada.Characters.Latin_1.LF) do
+               if Verbosity >= Log_Warning then
+                  Put (Standard_Error, Text & Suffix);
+               end if;
+            end Warning;
+         or
             accept Error (Text : String; Suffix : String := 1*Ada.Characters.Latin_1.LF) do
                if Verbosity >= Log_Error then
                   Put (Standard_Error, Text & Suffix);

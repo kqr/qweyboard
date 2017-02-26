@@ -7,5 +7,6 @@ package Output_Backend is
    task Output is
       entry Enter (Text : Unbounded_String; Completes_Word : Boolean);
       entry Erase (Amount : Positive);
+      entry Shut_Down;
    end Output;
 end Output_Backend;

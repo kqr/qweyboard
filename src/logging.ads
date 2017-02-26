@@ -9,6 +9,7 @@ package Logging is
       entry Set_Verbosity (User_Verbosity : Verbosity_Level);
       entry Chat (Text : String; Suffix : String := 1*Ada.Characters.Latin_1.LF);
       entry Info (Text : String; Suffix : String := 1*Ada.Characters.Latin_1.LF);
+      entry Warning (Text : String; Suffix : String := 1*Ada.Characters.Latin_1.LF);
       entry Error (Text : String; Suffix : String := 1*Ada.Characters.Latin_1.LF);
    end Log;
 end Logging;

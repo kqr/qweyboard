@@ -24,6 +24,9 @@ package XLib_H is
    function XOpenDisplay (Display_Name : C.Strings.Chars_Ptr) return Display_Access;
    pragma Import (C, XOpenDisplay, "XOpenDisplay");
 
+   function XCloseDisplay (Display : Display_Access) return C.Int;
+   pragma Import (C, XCloseDisplay, "XCloseDisplay");
+
    function XQueryExtension (Display : Display_Access; Name : C.Strings.Chars_Ptr; Major_Opcode : out C.Int; Event : out C.Int; Error : out C.Int) return C.Int;
    pragma Import (C, XQueryExtension, "XQueryExtension");
 

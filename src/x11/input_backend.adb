@@ -38,10 +38,13 @@ package body Input_Backend is
    function Key_Event_Mask (Device_Id : C.Int) return XIEventMask;
 
    procedure Finalize (Grab : in out Grab_Status) is
+      I : C.Int;
    begin
       if Grab.Enabled then
          Grab_Keys (Grab, Ungrab => True);
       end if;
+      Log.Warning ("[X11.Input] Closing display");
+      I := XCloseDisplay (Grab.Display);
    end;
 
    task body Input is
@@ -55,10 +58,12 @@ package body Input_Backend is
       declare
          Ev : C.Int;
          Err : C.Int;
+         Ext_Name : C.Strings.Chars_Ptr := C.Strings.New_String ("XInputExtension");
       begin
-         if XQueryExtension (Grab.Display, C.Strings.New_String ("XInputExtension"), XInput_Opcode, Ev, Err) = 0 then
+         if XQueryExtension (Grab.Display, Ext_Name, XInput_Opcode, Ev, Err) = 0 then
             raise EXTENSION_MISSING with "XInputExtension not available, cannot continue";
          end if;
+         C.Strings.Free (Ext_Name);
       end;
 
       Log.Chat ("[X11.Input] Setting up key grabs and event selects");
@@ -77,6 +82,11 @@ package body Input_Backend is
          Log.Chat ("[X11.Input] Fetching next event");
          Last_Event := Next_Event (Grab.Display, XInput_Opcode, Grab.Devices);
          Log.Chat ("[X11.Input] Telling backend about event");
+--       Enable to help check for memory leaks
+--         if Qweyboard."=" (Last_Event.Key, Qweyboard.LZ) then
+--            Qweyboard.Softboard.Shut_Down;
+--            exit;
+--         end if;
          if not Suspended then
             Qweyboard.Softboard.Handle (Last_Event);
          end if;
@@ -84,8 +94,6 @@ package body Input_Backend is
          if Qweyboard."=" (Last_Event.Key, Qweyboard.Susp) then
             Suspended := not Suspended;
          end if;
-         --  Make sure we actually quit this X11 loop when everything else has ended ??
-         --select terminate; end select;
       end loop;
    end Input;
    
@@ -102,6 +110,7 @@ package body Input_Backend is
       if XISelectEvents (Grab.Display, XDefaultRootWindow (Grab.Display), Select_Event_Mask, 1) /= 0 then
          raise HARDWARE_PROBLEM with "Unable to select events, cannot continue";
       end if;
+      C.Strings.Free (Select_Event_Mask.Mask);
    end Setup_Keygrabs;
 
    procedure Register_Real_Keyboards (Grab : in out Grab_Status) is
@@ -156,6 +165,7 @@ package body Input_Backend is
                if I /= 0 then
                   raise HARDWARE_PROBLEM with "Unable to establish key grabs, unable to continue";
                end if;
+               C.Strings.Free (Mask.Mask);
             end;
          end loop;
       end loop;
@@ -192,11 +202,16 @@ package body Input_Backend is
                   Log.Chat ("[X11.Input] it is a key event!");
                   if Correct_Device (Device_Event) then
                      Log.Chat ("[X11.Input] device event is from a valid device, returning");
-                     XEvent.XFreeEventData (Display.all'Address, Event_Cookie);
-                     return Convert_Event (Device_Event);
+                     declare
+                        Key_Event : Qweyboard.Key_Event := Convert_Event (Device_Event);
+                     begin
+                        XEvent.XFreeEventData (Display.all'Address, Event_Cookie);
+                        return Key_Event;
+                     end;
                   end if;
                end if;
             end if;
+            XEvent.XFreeEventData (Display.all'Address, Event_Cookie);
          end if;
       end loop;
    end;

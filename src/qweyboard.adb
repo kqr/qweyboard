@@ -51,19 +51,19 @@ package body Qweyboard is
       begin
          Pressed.Clear;
          Released.Clear;
-         if Last_Output.Variant = Syllable and not Last_Output.Completes_Word then
-            declare
-               Amount : Positive := Length (Last_Output.Text);
-            begin
-               Last_Output := (Erase, Amount);
-               Output_Backend.Output.Erase (Amount);
-            end;
-         else
-            if Last_Output.Variant = Syllable then
-               Last_Output.Completes_Word := False;
-            end if;
-            Output_Backend.Output.Erase (1);
-         end if;
+         case Last_Output.Variant is
+            when Syllable =>
+               if Last_Output.Completes_Word then
+                  Last_Output.Completes_Word := False;
+                  Output_Backend.Output.Erase (1);
+               else
+                  Last_Output := (Erase, Length (Last_Output.Text));
+                  Output_Backend.Output.Erase (Last_Output.Amount);
+               end if;
+            when others =>
+               Last_Output := (Erase, 1);
+               Output_Backend.Output.Erase (1);
+        end case;
       end;
    begin
       loop
@@ -94,6 +94,10 @@ package body Qweyboard is
                end if;
                Log_Board (Pressed, Released);
             end Handle;
+         or
+            accept Shut_Down;
+            Output_Backend.Output.Shut_Down;
+            exit;
          or
             delay 0.5;
             if Pressed.Is_Empty then

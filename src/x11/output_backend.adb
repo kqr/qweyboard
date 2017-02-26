@@ -1,3 +1,4 @@
+with Ada.Finalization;
 with Interfaces.C;
 with Interfaces.C.Strings;
 with Interfaces.C.Pointers;
@@ -8,46 +9,66 @@ package body Output_Backend is
    use type C.Int;
    use XLib_H, XTest_H;
 
+   type XTest_Data is new Ada.Finalization.Controlled with record
+      Display : Display_Access;
+   end record;
+
    procedure Fake_Input_String (Display : Display_Access; Text : String);
    procedure Fake_Input_Keysym (Display : Display_Access; Keysym : C.Unsigned_Long);
    function Scratch_Keycode (Display : Display_Access) return C.Int;
    procedure Fake_Press (Display : Display_Access; Key : C.Int);
 
+   procedure Finalize (XTest : in out XTest_Data) is
+      I : C.Int;
+   begin
+      Log.Warning ("[X11.Output] Closing display");
+      I := XCloseDisplay (XTest.Display);
+   end;
+
    task body Output is
-      Display : Display_Access;
+      XTest : XTest_Data;
       XTest_Opcode : C.Int;
       Last_Output : Unbounded_String;
    begin
       Log.Chat ("[X11.Output] Opening display");
-      Display := XOpenDisplay (C.Strings.Null_Ptr);
+      XTest.Display := XOpenDisplay (C.Strings.Null_Ptr);
+      Log.Chat ("[X11.Output] Display opened");
 
       declare
          Ev : C.Int;
          Err : C.Int;
+         Ext_Name : C.Strings.Chars_Ptr := C.Strings.New_String ("XTEST");
       begin
-         if XQueryExtension (Display, C.Strings.New_String ("XTEST"), XTest_Opcode, Ev, Err) = 0 then
+         Log.Chat ("[X11.Output] Checking for extension");
+         if XQueryExtension (XTest.Display, Ext_Name, XTest_Opcode, Ev, Err) = 0 then
             raise EXTENSION_MISSING with "XTest not available, cannot continue";
          end if;
+         Log.Chat ("[X11.Output] Extension found, freeing C string");
+         C.Strings.Free (Ext_Name);
+         Log.Chat ("[X11.Output] C string free'd");
       end;
 
       Log.Chat ("[X11.Output] Entering loop");
       loop
          select
             accept Enter (Text : Unbounded_String; Completes_Word : Boolean) do
-               Fake_Input_String (Display, To_String (Text));
+               Log.Chat ("Asked to enter <" & To_String (Text) & ">");
+               Fake_Input_String (XTest.Display, To_String (Text));
                if Completes_Word then
-                  Fake_Input_String (Display, " ");
+                  Fake_Input_String (XTest.Display, " ");
                end if;
             end Enter;
          or
             accept Erase (Amount : Positive) do
                Log.Chat ("[X11.Output] Simulating" & Positive'Image (Amount) & " backspace(s)...");
                for I in 1 .. Amount loop
-                  Fake_Input_Keysym (Display, 16#ff08#);
+                  Fake_Input_Keysym (XTest.Display, 16#ff08#);
                end loop;
             end Erase;
          or
-            terminate;
+            accept Shut_Down;
+            Log.Warning ("Shutting down");
+            exit;
          end select;
       end loop;
    end Output;
