@@ -59,7 +59,9 @@ package body Qweyboard is
                Output_Backend.Output.Erase (Amount);
             end;
          else
-            Last_Output.Completes_Word := False;
+            if Last_Output.Variant = Syllable then
+               Last_Output.Completes_Word := False;
+            end if;
             Output_Backend.Output.Erase (1);
          end if;
       end;
