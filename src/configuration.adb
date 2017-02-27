@@ -2,7 +2,6 @@ package body Configuration is
    procedure Get_Settings (Config : out Settings) is
       I : Positive := 1;
    begin
-      Config.Log_Level := Logging.Log_Error;
       while I <= CLI.Argument_Count loop
          if Get_Argument (I, "-t", Config.Timeout) then null;
          elsif Get_Argument (I, "-l", Config.Layout_File_Name) then null;
@@ -120,7 +119,7 @@ package body Configuration is
       if CLI.Argument (Count) /= Flag then
          return False;
       end if;
-      Timeout := Duration'Value (CLI.Argument (Count + 1));
+      Timeout := Duration (Natural'Value (CLI.Argument (Count + 1))) / 1000.0;
       Count := Count + 2;
       return True;
    exception

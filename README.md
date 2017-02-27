@@ -240,6 +240,11 @@ I'm glad to assist.
 
 * `[ ]` shift = sssssymbol keys? actually trickier than I had thought...
 
+* `[ ]` Some sort of expansion dictionaries? "LF LS LL MA RJ RC => FSLAG =>
+  förslag" (also tis -> this, waj -> way, typf -> type)
+
+* `[ ]` do something about memory leaks
+
 * `[ ]` Recognise "new sentence" (double tap space?) and allow
   auto-capitalisation
 
@@ -247,8 +252,15 @@ I'm glad to assist.
 
 * `[ ]` Escape shortcut should be configurable with something like `-e <escape shortcut>`?
 
-* `[ ]` Some sort of expansion dictionaries? "LF LS LL MA RJ RC => FSLAG =>
-  förslag"
-
 * `[ ]` Get a better picture of key presses and releases (to be able to detect
   things such as double tapping?)
+
+* `[ ]` Decide what to do about important bits of information I had missed:
+
+    * reverse order of keys left/right? so left = down to up, and right = up to down
+    * For english, the following might be surprising:
+        * a -> LO RI                     ; LO+RI = a
+        * this -> LT RI RS               ; LT = th
+        * way -> LJ LN LO RI RJ          ; RJ = y
+        * type -> LT MY RP RF            ; RF = -e
+        * whole -> CAP+ LO LR LL RL RF   ; ???

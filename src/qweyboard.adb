@@ -17,6 +17,7 @@ package body Qweyboard is
    task body Softboard is
       Initialised : Boolean := False;
       Current_Layout : Layout;
+      Current_Timeout : Duration;
       Pressed : Key_Sets.Set;
       Released : Key_Sets.Set;
       Last_Output : Output;
@@ -66,14 +67,22 @@ package body Qweyboard is
         end case;
       end;
    begin
+      Log.Chat ("[Qweyboard] Initialised, waiting for go signal");
+      accept Ready_Wait;
       loop
          select
+            accept Set_Timeout (Timeout_Amount : Duration) do
+              Log.Chat ("[Qweyboard] Setting timeout to" & Duration'Image (Current_Timeout));
+               Current_Timeout := Timeout_Amount;
+            end Set_Timeout;
+         or
             accept Set_Layout (User_Layout : Layout) do
                Current_Layout := User_Layout;
                Initialised := True;
             end Set_Layout;
          or
             accept Handle (Event : Key_Event) do
+               Log.Chat ("[Qweyboard] Handling key event");
                if Event.Key = SUSP then
                   Last_Output := (Variant => Nothing);
                   Commit;
@@ -96,11 +105,14 @@ package body Qweyboard is
             end Handle;
          or
             accept Shut_Down;
+            Log.Chat ("[Qweyboard] Received shut down command, committing and shutting down output backend");
+            Commit;
             Output_Backend.Output.Shut_Down;
             exit;
          or
-            delay 0.5;
+            delay Current_Timeout;
             if Pressed.Is_Empty then
+               Log.Chat ("[Qweyboard] Timed out and pressed is empty, committing");
                Commit;
             end if;
          end select;

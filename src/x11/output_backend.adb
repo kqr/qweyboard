@@ -48,6 +48,7 @@ package body Output_Backend is
          Log.Chat ("[X11.Output] C string free'd");
       end;
 
+      accept Ready_Wait;
       Log.Chat ("[X11.Output] Entering loop");
       loop
          select

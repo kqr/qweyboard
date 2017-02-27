@@ -8,11 +8,11 @@ private with Output_Backend;
 package Qweyboard is
    --  Letter keys declared in the order they're likely to appear in words
    type Softkey is
-     (LZ, LF, LS, LP, LT, LC, LK, LJ, LR, LL, LI, LO, LE, LN,
-      MU, MA, MY,
-      RN, RE, RI, RO, RL, RR, RJ, RK, RC, RT, RP, RS, RF, RZ,
+     (LZ, LS, LF, LC, LT, LP, LL, LR, LJ, LK, LN, LE, LO, LI,
+      MY, MA, MU, MAPO,
+      RO, RI, RE, RN, RK, RJ, RR, RL, RP, RT, RC, RF, RS, RZ,
       --  Symbol keys declared afterward
-      MAPO, LCOM, RTIC,
+      LCOM, RTIC,
       --  Special keys that exist on the real hardware
       MSHI, CAPI, NOSP,
       --  Special keys we want (backspace, suspend and "no modifier pressed")
@@ -43,6 +43,8 @@ package Qweyboard is
    end record;
 
    task Softboard is
+      entry Ready_Wait;
+      entry Set_Timeout (Timeout_Amount : Duration);
       entry Set_Layout (User_Layout : Layout);
       entry Handle (Event : Key_Event);
       entry Shut_Down;

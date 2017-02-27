@@ -6,5 +6,6 @@ package Input_Backend is
    use Logging;
 
    task Input is
+      entry Ready_Wait;
    end Input;
 end Input_Backend;

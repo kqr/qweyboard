@@ -11,10 +11,10 @@ package Configuration is
    ARGUMENTS_ERROR : exception;
    
    type Settings is record
-      Timeout : Duration;
-      Layout_File_Name : Unbounded_String;  -- Currently unused
-      Dictionary_File_Name : Unbounded_String;  -- Currently unused
-      Log_Level : Logging.Verbosity_Level;
+      Timeout : Duration := 0.5;
+      Layout_File_Name : Unbounded_String;
+      Dictionary_File_Name : Unbounded_String;
+      Log_Level : Logging.Verbosity_Level := Logging.Log_Error;
       Layout : Qweyboard.Layout;
    end record;
    

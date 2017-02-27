@@ -21,6 +21,8 @@ LIBS=
 MKDIR=
 endif
 
+# comment out to use the test dummy platform
+# PLATFORM=dummy_platform
 all:
 	$(MKDIR) build
 	$(MKDIR) bin

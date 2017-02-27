@@ -69,6 +69,7 @@ package body Input_Backend is
       Log.Chat ("[X11.Input] Setting up key grabs and event selects");
       Setup_Keygrabs (Grab);
 
+      accept Ready_Wait;
       Log.Chat ("[X11.Input] Entering loop");
       loop
          if Suspended and Grab.Enabled then
