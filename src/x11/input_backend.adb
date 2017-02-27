@@ -81,13 +81,9 @@ package body Input_Backend is
          
          Log.Chat ("[X11.Input] Fetching next event");
          Last_Event := Next_Event (Grab.Display, XInput_Opcode, Grab.Devices);
-         Log.Chat ("[X11.Input] Telling backend about event");
---       Enable to help check for memory leaks
---         if Qweyboard."=" (Last_Event.Key, Qweyboard.LZ) then
---            Qweyboard.Softboard.Shut_Down;
---            exit;
---         end if;
+
          if not Suspended then
+            Log.Chat ("[X11.Input] Telling backend about event");
             Qweyboard.Softboard.Handle (Last_Event);
          end if;
          
