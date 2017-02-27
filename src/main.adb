@@ -1,15 +1,19 @@
 with Ada.Command_Line;
+with Ada.Task_Termination;
 with Configuration;
 with Configuration;
 with Logging;
 with Qweyboard;
 with Input_Backend;
 
+
 procedure Main is
    use Logging;
 
    Settings : Configuration.Settings;
 begin
+   Ada.Task_Termination.Set_Dependents_Fallback_Handler (Logging.Termination_Handler.Diagnostics'Access);
+
    Configuration.Get_Settings (Settings);
    Log.Set_Verbosity (Settings.Log_Level);
    Log.Chat ("[Main] Got settings and set log verbosity");
