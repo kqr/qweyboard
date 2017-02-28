@@ -52,12 +52,13 @@ package body Output_Backend is
       Log.Chat ("[X11.Output] Entering loop");
       loop
          select
-            accept Enter (Text : Unbounded_String; Completes_Word : Boolean) do
-               Log.Chat ("Asked to enter <" & To_String (Text) & ">");
-               Fake_Input_String (XTest.Display, To_String (Text));
-               if Completes_Word then
-                  Fake_Input_String (XTest.Display, " ");
+            accept Enter (Text : Unbounded_String; Continues_Word : Boolean) do
+               Log.Chat ("Asked to enter """ & To_String (Text) & """");
+               if Continues_Word then
+                  Log.Chat ("First erasing space");
+                  Fake_Input_Keysym (XTest.Display, 16#ff08#);
                end if;
+               Fake_Input_String (XTest.Display, To_String (Text) & " ");
             end Enter;
          or
             accept Erase (Amount : Positive) do
@@ -81,7 +82,7 @@ package body Output_Backend is
          return Character'Pos (Letter) >= 16#20# and Character'Pos (Letter) <= 16#fe#;
       end Is_Basic_Latin1;
    begin
-      Log.Info ("[X11] Outputting <" & Text & ">");
+      Log.Info ("[X11] Outputting """ & Text & """");
       for Letter of Text loop
          if not Is_Basic_Latin1 (Letter) then
             raise ENCODING_ERROR with "Invalid character in string. Only basic Latin 1 has a simple mapping to Keysyms and that's as much as I'm prepared to deal with right now. Pull requests welcome!";

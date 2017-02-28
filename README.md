@@ -26,6 +26,13 @@ You can download and run it by typing
 While the program is running, you can do all your regular typing using the
 Qweyboard.
 
+All control, alt and super based key combinations retain their normal meaning
+when you use the Qweyboard, so something like CTRL-S to save a document is the
+same as it's always been for you. Only typing letters, symbols and numbers is
+different with the Qweyboard. If you want to temporarily disable the Qweyboard,
+press CTRL-SHIFT-X. This toggles the Qweyboard on and off, so it's a good
+shortcut to remember for passwords and whatnot.
+
 Quit the program by typing CTRL-C.
 
 
@@ -45,153 +52,143 @@ On Debian, these are installed with
     $ sudo gnat apt-get install libx11-6 libx11-dev libxtst-6 libxtst-dev libxi-6 libxi-dev
 
 
-Key map
--------
+Short tutorial
+--------------
 
-The following picture illustrates a regular Qwerty keyboard, except with the
-Qweyboard layout on it.
+This is a short tutorial on how to use the Qweyboard. The Qweyboard is easy to
+learn, because it is a lot like a regular QWERTY keyboard, with three main
+exceptions:
+
+1. The most common letters are under your fingers already – no movement
+required! By just learning the ten keys under your fingers, you can already type
+a lot of stuff.
+
+2. The keys are largely laid out symmetrically. This actually makes the
+Qweyboard easier to learn.
+
+3. It doesn't matter which order you press keys on the Qweyboard. As long as you
+press the same keys, the same word will appear on the screen regardless of which
+order you pressed the keys in.
+
+### Layout
+
+Start the Qweyboard program, and refer to the following image, which illustrates
+a regular QWERTY keyboard with the Qweyboard layout on it.
 
 ![Qweyboard layout image](https://raw.githubusercontent.com/kqr/qweyboard/master/qweyboard_standard.png)
 
-The colourful circles are where you put your fingers in their neutral position.
+The colourful circles indicate where your fingers go when they are in their
+neutral position, which you return to this once you've hit some keys. The purple
+circles are your thumbs. You'll want to use those when you type on the
+Qweyboard!
 
-An empty key denotes a key that is not yet used by Qweyboard. If you press these
-keys, generally nothing happens at all. However, there is currently an exception
-in place for the ,./ set of keys, since they seem important and there's no way –
-at the moment – to produce those symbols on the Qweyboard.
+When you type on the Qweyboard, you type what is practically entire *syllables*
+at once. A word like "tin" is produced by pressing the left T-key, the right
+I-key and the right N-key at the same time. Try it now! Press your left ring
+finger, your right index finger and your right thumb simultaneously. You don't
+have to move your fingers – you type a whole word by just striking down on a few
+fingers.
 
-All key combinations retain their normal meaning on the computer. eys not used by
-Qweyboard retain their normal meaning on the computer – and so do all key
-combinations!This means that someting like "ctrl-c" is still in it's regular
-place. Only normal typing is different on the Qweyboard, not keyboard
-shortcuts.
+> Oh, and you're on a laptop keyboard so your keyboard doesn't register that many
+key presses at once? Not a big problem. The Qweyboard is designed such that if
+you press several keys in rapid enough succession that counts as pressing them
+simultaneously. Any time I speak of pressing many keys at the same time, you can
+mentally translate that as "pressing keys in quick enough succession".
 
-You'll notice that the Qweyboard uses the uppermost row (the "QWERTY numbers
-row") for letters. This is indeed correct.
+> It doesn't matter in which order you press the keys. The final word is based
+on *which* keys you press, not in which order they are pressed.
 
-The letters in the middle of the keys are produced by default when you press
-them. The letters in the upper right are produced by also pressing the J key on
-the same side. The letters in the lower right are produced by also pressing the
-R key on the same side. This is indicated with the tiny blips on those keys. The
-Q and X letters are special cases.
+So what if you want to type the reverse, "nit"? Use the *left* L-key instead, and
+then the right I-key and the right T-key. If you mirror the keys you press, the
+output word is also mirrored!
 
-To learn more, read on about typing on the Qweyboard!
+You see how the output word is produced by the Qweyboard according to the order
+of the keys on the keyboard, not according to which order you pressed them.
 
 
-Typing on the Qweyboard
------------------------
+### Secondary Letters
 
-If we shift the letter of the Qweyboard to look more like the original
-Veyboard, you'll notice it is largely symmetric in its layout.
+Some keys have two or more letters on them. The big central letters are the ones
+normally produced by the key. The other letters are produced by holding down
+several keys simultaneously. The most common of these are the "J combinations":
+as you can see, the J keys in the image have a little circle in the upper right
+corner. This circle indicates that if you combine the J key with any other key
+on the same side that has a small letter in the upper right, that letter will be
+produced instead. The most common example of this is probably how hitting both
+J and T on the same side will produce the letter D.
 
-      _  _  P  K  I  _  O  K  P  _  _  _   BS
-      _  F  T  J  O  U  I  J  T  F  _  _    _
-      Z  S  C  R  E  A  E  R  C  S  Z     RET
-         _  _  L  N  Y  N  L  _  _  _ 
-                  NOSPACE
+The same thing goes for R, except then we're talking about the lower right
+corner. A common example is probably R and N, which produces an M.
 
-We can split the keyboard into a left half, a middle and a right half. The
-division looks like so:
+There are three special cases, where you find small letters in the lower left
+corner. Those have to be remembered, and they are:
 
-                    | M |
-                    | I |
-                    | D |
-        L E F T     | D |    R I G H T
-        H A L F     | L |    H A L F
-                    | E |
-                    |   |
-      _  _  P  K  I | _ | O  K  P  _  _  _   BS
-      _  F  T  J  O | U | I  J  T  F  _  _    _
-      Z  S  C  R  E | A | E  R  C  S  Z     RET
-         _  _  L  N | Y | N  L  _  _  _ 
-                  NOSPACE
+* O + I = A
+* C + F = Q
+* K + Z = X
 
-When typing on the Qweyboard, you will be typing what is practically "one
-syllable at a time". So, to write the word "tan", you press the left T-key, the
-middle A key, and the right N key.  These keys can be pressed in any order; the
-output will be the order in which they appear on the Qweyboard. You can even
-press all three keys simultaneously, if your physical keyboard supports it!
 
-A more complicated word like "snails" follows a similar principle. Divide the
-word up according to left/middle/right halves, and you get
+### Multi-syllable Words
 
-    Word:   S N |    A   | I L S
-                |        |
-    Half:  Left | Middle | Right
-                |        |
-    Keys:   S N |    A   | I L S
+While most words in regular text consist of single syllables (for example, 77%
+of words in this paragraph), there are plenty of multi-syllable words too. As
+you have seen in your experiments, the Qweyboard automatically inserts a space
+after you have typed a syllable, since this is the most common case.
 
-Again, these keys can be pressed in any order, or even simultaneously. What
-matters is that you press the L on the right side of the Qweyboard – or else
-you'll see it output "slnais".
+If you want to type a word that consists of multiple syllables, like "splendid",
+you'll begin by typing the first syllable normally, and then to join the second
+syllable to the first, you hold down the "nospace" key simultaneously to typing
+the second syllable. So the final word consists of two chords, the latter
+combined with the nospace key.
 
-If you try this, you'll notice that the Qweyboard automatically puts a space
-after the word. With the Qweyboard, you don't have to type space yourself. It
-automatically inserts them after a syllable.
 
-If you want to type a two-syllable word, you'll have to press (or hold down) the
-space key on your keyboard when you type the first syllable. By pressing the
-space key (or the NOSPACE key as it is known on the Qweyboard), you suppress the
-automatic space output after a word.
+### Period and Comma
 
-You'll notice that the symmetry of the keyboard means there are a few letters
-of the alphabet missing. These are achieved in combination with the J and R keys
-on each half. If you hold down the J keys, they key layout looks like
+If you press the "nospace" key on its own, you get a single space
+character. Other keys that behave this way are the right J and O keys, which,
+when used completely on their own in a chord, produces a comma and a period,
+respectively. So when you want to finish a sentence, you press the right O key
+alone.
 
-     _  _  B  _  _  _  _  _  B  _  _  _   BS
-      _  _  D  #  _  _  _  #  D  _  _  _   _
-       _  _  G  _  _  _  _  _  G  _  _   RET
-        _  _  H  W  _  W  H  _  _  _ 
-                 NOSPACE
 
-Here, the hash mark indicates that we're holding down the J key, and if you type
-any of the other keys with letters, you get that letter instead. So, for
-example, the J+C combination gives you the letter G. If you want to type a
-word like "deer", you'll have to break it down into
 
-    Word:     D  E | E R
-                   |
-    Half:     Left | Right
-                   |
-    Keys:    J T E | E R
-    
-where, as you know, the J+T combination produces the letter D, and the other
-keys simply produce what's on their label.
+### Common Shortcuts
 
-There's a similar thing going on with the R keys to produce some additional
-letters. In their case, the layout will look like
+In e.g. English, it's common for words to end in a "silent E". Consider a word
+like "debate". Phonetically, it consists of two syllables, but on the Qweyboard,
+you'd need three strokes to create it, because of the final E: TJE+PJOIT+E.
 
-     _  _  _  _  _  _  _  _  _  _  _  _   BS
-      _  _  _  _  _  _  _  _  _  _  _  _   _
-       _  _  _  #  _  _  _  #  _  _  _   RET
-        _  _  V  M  _  M  V  _  _  _ 
-                 NOSPACE
+The way the real Velotype/Veyboard handles this is by letting the right F-key
+become an E when used in conjunction with other consonants. The way the
+Qweyboard solves this is by allowing for user-defined "autocorrections". By
+default, the Qweyboard ships with a "safe" dictionary of replacements, among
+which you will find the entry "batf=bate", which will make it possible for you
+to type "debatf" in just two strokes, and it will be autocorrected to "debate".
 
-There are two remaining letters though: Q is produced by C+F and X is produced
-by K+Z.
+Perhaps even more convincingly, the word "this" needs two strokes on the
+Qweyboard by default. A dictionary entry allows "tis=this" so you can type it in
+one stroke.  You are free to modify or create new dictionaries for your own
+words.
 
-The Qweyboard is designed to be used by striking as many keys as possible
-simultaneously. Ideally, you should type most syllables with just a single
-"chord", or "stroke". In reality, you'll find two problems with that:
+Another example is something like "tray", which is very inconvenient on the pure
+Qweyboard, but a dictionary entry "traj=tray" makes it really easy!
 
-1. Many syllables need too many keys to realistically be typed in a single chord, and
-2. Many keyboards don't allow you to hold down very many keys simultaneously anyway.
+This is also useful when the key order of the Qweyboard isn't optimal for your
+language. In Swedish, for example, it is common for words to end with the "ck"
+digraph. On the Qweyboard, this becomes "kc" if you don't want to split it up
+over two strokes. A Swedish dictionary might then include a bunch of words on
+the form of "rakc=rack". (Come to think of it, that entry is probably useful for
+English users as well.)
 
-The Qweyboard approach to this is to simply pretend that any combination of keys
-pressed in rapid enough succession counts as a single chord or stroke. Note that
-this means it is literally impossible, in a sense, to type slowly on the
-Qweyboard. You need to figure out all keys for a syllable first, then hit them
-rapidly, and then you can take a break to figure out the keys for the next
-syllable.
+These base dictionaries should be relatively easy to generate automatically for
+a language.
 
-Fortunately for learning, what counts as a "rapid succession" is a parameter
-that can be altered when you start the Qweyboard program, allowing slow typists
-to take their time, and fast typists to type faster than what the software would
-otherwise allow them to.
 
-Remember to use your thumbs! On a regular QWERTY keyboard, they sort of assume
-the sole responsibility of pressing space. With Qweyboard, they can be much more
-useful than that.
+### To be continued...
+
+This is all I'm going to type up at the moment. Feel free to ask questions
+and play around.
+
 
 
 Language Variants
@@ -240,27 +237,16 @@ I'm glad to assist.
 
 * `[ ]` shift = sssssymbol keys? actually trickier than I had thought...
 
-* `[ ]` Some sort of expansion dictionaries? "LF LS LL MA RJ RC => FSLAG =>
-  förslag" (also tis -> this, waj -> way, typf -> type)
+* `[ ]` Actually read layout files...
 
 * `[ ]` do something about memory leaks
 
-* `[ ]` Recognise "new sentence" (double tap space?) and allow
-  auto-capitalisation
+* `[ ]` allow capitalisation somehow. perhaps find a spot for the MCAP key?
 
-* `[ ]` Actually read layout files...
+* `[ ]` Unicodify the whole project. Painfully dependent on iso-8859-1 right now
 
 * `[ ]` Escape shortcut should be configurable with something like `-e <escape shortcut>`?
 
 * `[ ]` Get a better picture of key presses and releases (to be able to detect
-  things such as double tapping?)
+  things such as double tapping? or long presses?)
 
-* `[ ]` Decide what to do about important bits of information I had missed:
-
-    * reverse order of keys left/right? so left = down to up, and right = up to down
-    * For english, the following might be surprising:
-        * a -> LO RI                     ; LO+RI = a
-        * this -> LT RI RS               ; LT = th
-        * way -> LJ LN LO RI RJ          ; RJ = y
-        * type -> LT MY RP RF            ; RF = -e
-        * whole -> CAP+ LO LR LL RL RF   ; ???

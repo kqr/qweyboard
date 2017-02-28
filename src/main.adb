@@ -1,5 +1,6 @@
 with Ada.Command_Line;
 with Ada.Task_Termination;
+with Ada.Task_Identification;
 with Configuration;
 with Configuration;
 with Logging;
@@ -13,12 +14,15 @@ procedure Main is
 
    Settings : Configuration.Settings;
 begin
+   Ada.Task_Termination.Set_Specific_Handler (Ada.Task_Identification.Current_Task, Logging.Termination_Handler.Diagnostics'Access);
    Ada.Task_Termination.Set_Dependents_Fallback_Handler (Logging.Termination_Handler.Diagnostics'Access);
 
    Configuration.Get_Settings (Settings);
    Log.Set_Verbosity (Settings.Log_Level);
    Log.Chat ("[Main] Got settings and set log verbosity");
 
+   Log.Chat ("[Main] Loading dictionary");
+   Configuration.Load_Dictionary (Settings);
    Log.Chat ("[Main] Loading layout");
    Configuration.Load_Layout (Settings);
 
@@ -26,8 +30,9 @@ begin
    Qweyboard.Softboard.Ready_Wait;
    Log.Chat ("[Main] Softboard started");
    -- Configure softboard
-   Qweyboard.Softboard.Set_Layout (Settings.Layout);
    Qweyboard.Softboard.Set_Timeout (Settings.Timeout);
+   Qweyboard.Softboard.Set_Layout (Settings.Layout);
+   Qweyboard.Softboard.Set_Dictionary (Settings.Dictionary);
    Log.Chat ("[Main] Softboard configured");
 
    --  First wait for the output backend to be ready
@@ -52,7 +57,6 @@ exception
       Log.Error ("                           recommended. Default value is 500.         ");
       Log.Error ("                                                                      ");
       Log.Error ("    -d <dictionary file> : Specifies a file of abbreviations to use.  ");
-      Log.Error ("                           [CURRENTLY UNUSED]                         ");
       Log.Error ("                                                                      ");
       Log.Error ("    -v,-vv,-vvv          : Sets the log level of the software. If you ");
       Log.Error ("                           want to know what goes on inside, this is  ");

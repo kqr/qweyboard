@@ -1,5 +1,6 @@
 package body Qweyboard is
    procedure Add_Key (To_Layout : in out Layout; Modifier : Softkey; Key : Softkey; Letter : Character; Replace : Boolean := False) is
+      use Ada.Characters.Handling;
    begin
       if not To_Layout.Layers.Contains (Modifier) then
          if Modifier /= NOKEY then
@@ -8,15 +9,15 @@ package body Qweyboard is
          To_Layout.Layers.Insert (Modifier, Layer_Maps.Empty_Map);
       end if;
       if Replace then
-         Layer_Maps.Replace (To_Layout.Layers (Modifier), Key, Letter);
+         Layer_Maps.Replace (To_Layout.Layers (Modifier), Key, To_Lower (Letter));
       else
-         To_Layout.Layers (Modifier).Insert (Key, Letter);
+         To_Layout.Layers (Modifier).Insert (Key, To_Lower (Letter));
       end if;
    end;
    
    task body Softboard is
-      Initialised : Boolean := False;
       Current_Layout : Layout;
+      Current_Dictionary : Dictionaries.Dictionary;
       Current_Timeout : Duration;
       Pressed : Key_Sets.Set;
       Released : Key_Sets.Set;
@@ -34,11 +35,14 @@ package body Qweyboard is
             for C in Final_Presses.Iterate loop
                Append (Ret, Layer_Maps.Element (C));
             end loop;
-            Last_Output := (Syllable, Ret, not Released.Contains (NOSP));
+
+            Ret := Dictionaries.Apply_To (Current_Dictionary, Ret);
+
+            Last_Output := (Syllable, Ret, Released.Contains (NOSP));
             
             case Last_Output.Variant is
                when Syllable =>
-                  Output_Backend.Output.Enter (Last_Output.Text, Last_Output.Completes_Word);
+                  Output_Backend.Output.Enter (Last_Output.Text, Last_Output.Continues_Word);
                when Erase =>
                   Output_Backend.Output.Erase (Last_Output.Amount);
                when Nothing =>
@@ -54,12 +58,12 @@ package body Qweyboard is
          Released.Clear;
          case Last_Output.Variant is
             when Syllable =>
-               if Last_Output.Completes_Word then
-                  Last_Output.Completes_Word := False;
-                  Output_Backend.Output.Erase (1);
-               else
+               if Last_Output.Continues_Word then
                   Last_Output := (Erase, Length (Last_Output.Text));
                   Output_Backend.Output.Erase (Last_Output.Amount);
+               else
+                  Last_Output.Continues_Word := True;
+                  Output_Backend.Output.Erase (1);
                end if;
             when others =>
                Last_Output := (Erase, 1);
@@ -72,14 +76,17 @@ package body Qweyboard is
       loop
          select
             accept Set_Timeout (Timeout_Amount : Duration) do
-              Log.Chat ("[Qweyboard] Setting timeout to" & Duration'Image (Current_Timeout));
                Current_Timeout := Timeout_Amount;
+               Log.Chat ("[Qweyboard] Setting timeout to" & Duration'Image (Current_Timeout));
             end Set_Timeout;
          or
             accept Set_Layout (User_Layout : Layout) do
                Current_Layout := User_Layout;
-               Initialised := True;
             end Set_Layout;
+         or
+            accept Set_Dictionary (User_Dictionary : Dictionaries.Dictionary) do
+               Current_Dictionary := User_Dictionary;
+            end Set_Dictionary;
          or
             accept Handle (Event : Key_Event) do
                Log.Chat ("[Qweyboard] Handling key event");
@@ -91,21 +98,43 @@ package body Qweyboard is
                      when Key_Press =>
                         if Event.Key = BS then
                            Erase;
-                        elsif Event.Key = NOSP and Released.Is_Empty and Pressed.Is_Empty then
-                           Output_Backend.Output.Enter (To_Unbounded_String (" "), False);
                         else
                            Pressed.Include (Event.Key);
                         end if;
                      when Key_Release =>
                         Pressed.Exclude (Event.Key);
-                        Released.Include (Event.Key);
+                        --  If only this key was pressed, and no other key is in the chord
+                        --  These are some hardcoded special cases – doesn't feel worth it
+                        --  to make 'em dynamic at the moment
+                        declare
+                           Special_Used : Boolean := False;
+                        begin
+                           if Released.Is_Empty and Pressed.Is_Empty then
+                              if Event.Key = NOSP then
+                                 Last_Output := (Syllable, To_Unbounded_String (" "), False);
+                                 Output_Backend.Output.Enter (Last_Output.Text, Last_Output.Continues_Word);
+                                 Special_Used := True;
+                              elsif Event.Key = RO then
+                                 Last_Output := (Syllable, To_Unbounded_String ("."), True);
+                                 Output_Backend.Output.Enter (Last_Output.Text, Last_Output.Continues_Word);
+                                 Special_Used := True;
+                              elsif Event.Key = RJ then
+                                 Last_Output := (Syllable, To_Unbounded_String (","), True);
+                                 Output_Backend.Output.Enter (Last_Output.Text, Last_Output.Continues_Word);
+                                 Special_Used := True;
+                              end if;
+                           end if;
+                           if not Special_Used then
+                              Released.Include (Event.Key);
+                           end if;
+                        end;
                   end case;
                end if;
                Log_Board (Pressed, Released);
             end Handle;
          or
             accept Shut_Down;
-            Log.Chat ("[Qweyboard] Received shut down command, committing and shutting down output backend");
+            Log.Info ("[Qweyboard] Received shut down command, committing and shutting down output backend");
             Commit;
             Output_Backend.Output.Shut_Down;
             exit;

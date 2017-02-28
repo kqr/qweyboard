@@ -1,7 +1,10 @@
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Ada.Containers.Ordered_Sets;
+private with Ada.Characters.Handling;
 private with Ada.Containers.Ordered_Maps;
 private with Ada.Containers.Vectors;
+
+with Dictionaries;
 private with Logging;
 private with Output_Backend;
 
@@ -36,7 +39,7 @@ package Qweyboard is
             null;
          when Syllable =>
             Text : Unbounded_String;
-            Completes_Word : Boolean;
+            Continues_Word : Boolean;
          when Erase =>
             Amount : Positive;
       end case;
@@ -45,6 +48,7 @@ package Qweyboard is
    task Softboard is
       entry Ready_Wait;
       entry Set_Timeout (Timeout_Amount : Duration);
+      entry Set_Dictionary (User_Dictionary : Dictionaries.Dictionary);
       entry Set_Layout (User_Layout : Layout);
       entry Handle (Event : Key_Event);
       entry Shut_Down;
@@ -58,6 +62,7 @@ private
    package Key_Vectors is new Ada.Containers.Vectors (Index_Type => Positive, Element_Type => Softkey);
    package Layer_Maps is new Ada.Containers.Ordered_Maps (Key_Type => Softkey, Element_Type => Character);
    package Layout_Maps is new Ada.Containers.Ordered_Maps (Key_Type => Softkey, Element_Type => Layer_Maps.Map, "=" => Layer_Maps."=");
+
 
    type Layout is record
       --  This is a vector because we want the order they're declared in to matter...

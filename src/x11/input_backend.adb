@@ -73,10 +73,10 @@ package body Input_Backend is
       Log.Chat ("[X11.Input] Entering loop");
       loop
          if Suspended and Grab.Enabled then
-            Log.Chat ("[X11.Input] Disabled backend and enabled grabs - ungrabbing");
+            Log.Warning ("[X11.Input] Input backend suspended on user request");
             Grab_Keys (Grab, Ungrab => True);
          elsif not Suspended and not Grab.Enabled then
-            Log.Chat ("[X11.Input] Enabled backend and disabled grabs - grabbing");
+            Log.Warning ("[X11.Input] Input backend enabled on user request");
             Grab_Keys (Grab);
          end if;
          
@@ -294,6 +294,9 @@ begin
    From_Keycode.Insert (56, Qweyboard.MY);
    From_Keycode.Insert (57, Qweyboard.RN);
    From_Keycode.Insert (58, Qweyboard.RL);
+   From_Keycode.Insert (59, Qweyboard.NOKEY);
+   From_Keycode.Insert (60, Qweyboard.NOKEY);
+   From_Keycode.Insert (61, Qweyboard.NOKEY);
    From_Keycode.Insert (62, Qweyboard.MSHI);
    From_Keycode.Insert (65, Qweyboard.NOSP);
 end Input_Backend;

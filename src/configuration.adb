@@ -1,5 +1,5 @@
 package body Configuration is
-   procedure Get_Settings (Config : out Settings) is
+   procedure Get_Settings (Config : in out Settings) is
       I : Positive := 1;
    begin
       while I <= CLI.Argument_Count loop
@@ -14,6 +14,27 @@ package body Configuration is
          end if;
       end loop;
    end Get_Settings;
+   
+
+   procedure Load_Dictionary (Config : in out Settings) is
+      use Ada.Text_IO;
+      Dictionary : File_Type;
+   begin
+      --  TODO try first local, then home directory, then system wide?
+      if Length (Config.Dictionary_File_Name) = 0 then
+         Config.Dictionary_File_Name := To_Unbounded_String ("dictionaries/english.qwd");
+      end if;
+      --  TODO also catch missing file exception?
+      Open (Dictionary, In_File, To_String (Config.Dictionary_File_Name));
+      begin
+         Config.Dictionary := Dictionaries.Parse (Dictionary);
+         Close (Dictionary);
+      exception
+         when Dictionaries.PARSE_ERROR =>
+            --  TODO: include exception information here
+            Logging.Log.Error ("[Configuration] Failed to parse dictionary, running with no dictionary");
+      end;
+   end Load_Dictionary;
 
 
    procedure Load_Layout (Config : in out Settings) is
@@ -52,6 +73,7 @@ package body Configuration is
       Add_Key (Config.Layout, NOKEY, RF, 'F');
       Add_Key (Config.Layout, NOKEY, RS, 'S');
       Add_Key (Config.Layout, NOKEY, RZ, 'Z');
+      Add_Key (Config.Layout, LO, RI, 'A');
       Add_Key (Config.Layout, LJ, LP, 'B');
       Add_Key (Config.Layout, LJ, LT, 'D');
       Add_Key (Config.Layout, LJ, LC, 'G');
@@ -104,7 +126,7 @@ package body Configuration is
    end;
 
 
-   function Get_Argument (Count : in out Positive; Flag : String; File_Name : out Unbounded_String) return Boolean is
+   function Get_Argument (Count : in out Positive; Flag : String; File_Name : in out Unbounded_String) return Boolean is
    begin
       if CLI.Argument (Count) /= Flag then
          return False;
@@ -114,12 +136,16 @@ package body Configuration is
       return True;
    end Get_Argument;
    
-   function Get_Argument (Count : in out Positive; Flag : String; Timeout : out Duration) return Boolean is
+   function Get_Argument (Count : in out Positive; Flag : String; Timeout : in out Duration) return Boolean is
    begin
       if CLI.Argument (Count) /= Flag then
          return False;
       end if;
-      Timeout := Duration (Natural'Value (CLI.Argument (Count + 1))) / 1000.0;
+      declare
+         Value : Natural := Natural'Value (CLI.Argument (Count + 1));
+      begin
+         Timeout := Duration (Value) / 1000.0;
+      end;
       Count := Count + 2;
       return True;
    exception
@@ -127,7 +153,7 @@ package body Configuration is
          return False;
    end Get_Argument;
 
-   function Get_Argument (Count : in out Positive; Flag : String; Verbosity : out Logging.Verbosity_Level) return Boolean is
+   function Get_Argument (Count : in out Positive; Flag : String; Verbosity : in out Logging.Verbosity_Level) return Boolean is
    begin
       if CLI.Argument (Count) /= Flag then
          return False;
