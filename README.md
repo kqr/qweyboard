@@ -235,32 +235,28 @@ These are roughly in order of importance, I guess. It's mostly a loose
 collection of personal notes and if anyone needs help interpreting any of them
 I'm glad to assist.
 
-* NEW DISCOVERIES AFTER READING THE PATENT!!
+* `[ ]` explain: Languages based on substitutions rather than dictionaries
+
+* `[ ]` explain: Standard layout does not contain all optimisations for english. Standard is
+  meant to be a compromise of as many languages as possible
+
+* `[ ]` explain: Qweyboard does not have a convenient H key, so some accomodations need to be made
+
+* `[x]` Q on C, V on F, E on RF
 
 * `[x]` Order inits: L and N last. Order tails: L and N first!
 
-* `[ ]` FJ=V
+* NEW DISCOVERIES AFTER READING THE PATENT!!
 
-* `[ ]` LC LR RR RC = backspace
+* `[x]` FJ=V
 
-* `[ ]` LZ RZ = return
-
-* `[ ]` Languages based on substitutions rather than dictionaries
-
-* `[ ]` [swedish] LO = Ä, but LO+RO=OO: ÄO=OO substitution
+* `[x]` LC LR RR RC = backspace
 
 * `[ ]` Init substitutions
 
-    * BN=BR
-    * GN=GR (GN=CR?)
-    * DN=DR
-    * VN=VR
-    * PK=PR
-    * TK=TR
-    * FK=FR
-    * CK=KR
+    * [only in languages where its needed?] ZC=Ccedilla?
 
-    * [english/standard only]
+    * [english only, not standard]
         * ZV = ZW
         * TV = TW
         * DV = DW
@@ -269,18 +265,14 @@ I'm glad to assist.
 
     * SZ=STS
     * YZ=YS
-    * IESZ=IESS (?)
     * NZ=NS
     * DZ=DS
     * MZ=MS
     * TZ=TS
     * SJ=SS
-    * GHZ=GHT
-    * GDF=DGE
     * CZ=CH
     * CS=SH
     * DZ=TH
-    * BZ=BLE (doabz=doable)
     * BF=BE
     * CF=CE
     * DF=DF (etc consonants)
@@ -291,7 +283,11 @@ I'm glad to assist.
     * FZ=FT
     * NC=GN
 
-    * [english/standard only]
+    * [english only, not standard]
+        * GDF=DGE
+        * GHZ=GHT
+        * IESZ=IESS (?)
+        * BZ=BLE (doabz=doable)
         * KT=CT
         * AJ=AY
         * OJ=OY
@@ -300,7 +296,12 @@ I'm glad to assist.
         * IJ=Y
         * ANJ=ANY
 
+* `[ ]` [swedish] LO = Ä, but LO+RO=OO: ÄO=OO substitution
+
+* `[ ]` LZ RZ = return
+
 * `[ ]` shift = sssssymbol keys? actually trickier than I had thought...
+     insight!! don't use the actual shift key on the keyboard dummy...
 
 * `[ ]` Actually read layout files...
 

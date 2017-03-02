@@ -1,4 +1,7 @@
 package body Qweyboard is
+   Return_Combo : Key_Sets.Set;
+   Backspace_Combo : Key_Sets.Set;
+
    task body Softboard is
       Current_Language : Languages.Language;
       Current_Timeout : Duration;
@@ -34,7 +37,25 @@ package body Qweyboard is
                Last_Output := (Erase, 1);
                Output_Backend.Output.Erase (1);
         end case;
-      end;
+      end Erase;
+
+      procedure Commit is
+         Result : Unbounded_String;
+         use type Key_Sets.Set;
+      begin
+         Result := Languages.Decode (Current_Language, Released);
+
+         if Released = Return_Combo then
+            Log.Warning ("[Qweyboard] Return press not implemented");
+         elsif Released = Backspace_Combo then
+            Log.Chat ("[Qweyboard] Received backspace combination CR-RC; erasing");
+            Erase;
+         elsif Length (Result) > 0 then
+            Last_Output := (Syllable, Result, Released.Contains (NOSP));
+            Output_Backend.Output.Enter (Result, Released.Contains (NOSP));
+         end if;
+         Released.Clear;
+      end Commit;
    begin
       Log.Chat ("[Qweyboard] Initialised, waiting for go signal");
       accept Ready_Wait;
@@ -54,11 +75,7 @@ package body Qweyboard is
                else
                   case Event.Key_Event_Variant is
                      when Key_Press =>
-                        if Event.Key = BS then
-                           Erase;
-                        else
-                           Pressed.Include (Event.Key);
-                        end if;
+                        Pressed.Include (Event.Key);
                      when Key_Release =>
                         Pressed.Exclude (Event.Key);
                         --  If only this key was pressed, and no other key is in the chord
@@ -119,6 +136,13 @@ package body Qweyboard is
       end loop;
       Log.Info ("]");
    end Log_Board;
+begin
+   Return_Combo.Insert (LZ);
+   Return_Combo.Insert (RZ);
+   Backspace_Combo.Insert (LC);
+   Backspace_Combo.Insert (LR);
+   Backspace_Combo.Insert (RR);
+   Backspace_Combo.Insert (RC);
 end Qweyboard;
 
 

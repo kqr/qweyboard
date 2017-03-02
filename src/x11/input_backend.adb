@@ -261,7 +261,6 @@ begin
    From_Keycode.Insert (19, Keys.NOKEY);
    From_Keycode.Insert (20, Keys.NOKEY);
    From_Keycode.Insert (21, Keys.NOKEY);
-   From_Keycode.Insert (22, Keys.BS);
    From_Keycode.Insert (24, Keys.NOKEY);
    From_Keycode.Insert (25, Keys.LF);
    From_Keycode.Insert (26, Keys.LT);

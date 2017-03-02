@@ -16,12 +16,10 @@ package Keys is
      (LZ, LS, LF, LC, LT, LP, LR, LJ, LK, LE, LO, LI, LL, LN,
       MY, MA, MU, MAPO,
       RN, RL, RO, RI, RE, RK, RJ, RR, RP, RT, RC, RF, RS, RZ,
-      --  Symbol keys declared afterward
-      LCOM, RTIC,
       --  Special keys that exist on the real hardware
       MSHI, CAPI, NOSP,
       --  Special keys we want (backspace, suspend and "no modifier pressed")
-      BS, SUSP, NOKEY);
+      SUSP, NOKEY);
 
    package Key_Sets is new Ada.Containers.Ordered_Sets (Element_Type => Softkey);
 end Keys;
