@@ -1,53 +1,18 @@
 package body Qweyboard is
-   procedure Add_Key (To_Layout : in out Layout; Modifier : Softkey; Key : Softkey; Letter : Character; Replace : Boolean := False) is
-      use Ada.Characters.Handling;
-   begin
-      if not To_Layout.Layers.Contains (Modifier) then
-         if Modifier /= NOKEY then
-            To_Layout.Modifiers.Append (Modifier);
-         end if;
-         To_Layout.Layers.Insert (Modifier, Layer_Maps.Empty_Map);
-      end if;
-      if Replace then
-         Layer_Maps.Replace (To_Layout.Layers (Modifier), Key, To_Lower (Letter));
-      else
-         To_Layout.Layers (Modifier).Insert (Key, To_Lower (Letter));
-      end if;
-   end;
-   
    task body Softboard is
-      Current_Layout : Layout;
-      Current_Dictionary : Dictionaries.Dictionary;
+      Current_Language : Languages.Language;
       Current_Timeout : Duration;
       Pressed : Key_Sets.Set;
       Released : Key_Sets.Set;
       Last_Output : Output;
       
       procedure Commit is
-         Final_Presses : Layer_Maps.Map;
-         Ret : Unbounded_String;
+         Result : Unbounded_String;
       begin
-         Final_Presses := Virtual_Layer (Current_Layout, Released);
-         if not Final_Presses.Is_Empty then
-            -- As if by accident, the declaration order of Softkey in conjunction with
-            -- the implementation of Ordered_(Sets|Maps) means this iteration happens
-            -- in precisely the order we need it to...
-            for C in Final_Presses.Iterate loop
-               Append (Ret, Layer_Maps.Element (C));
-            end loop;
-
-            Ret := Dictionaries.Apply_To (Current_Dictionary, Ret);
-
-            Last_Output := (Syllable, Ret, Released.Contains (NOSP));
-            
-            case Last_Output.Variant is
-               when Syllable =>
-                  Output_Backend.Output.Enter (Last_Output.Text, Last_Output.Continues_Word);
-               when Erase =>
-                  Output_Backend.Output.Erase (Last_Output.Amount);
-               when Nothing =>
-                  null;
-            end case;
+         Result := Languages.Decode (Current_Language, Released);
+         if Length (Result) > 0 then
+            Last_Output := (Syllable, Result, Released.Contains (NOSP));
+            Output_Backend.Output.Enter (Result, Released.Contains (NOSP));
          end if;
          Released.Clear;
       end Commit;
@@ -75,18 +40,11 @@ package body Qweyboard is
       accept Ready_Wait;
       loop
          select
-            accept Set_Timeout (Timeout_Amount : Duration) do
-               Current_Timeout := Timeout_Amount;
+            accept Configure (Settings : Configuration.Settings) do
+               Current_Timeout := Settings.Timeout;
+               Current_Language := Settings.Language;
                Log.Chat ("[Qweyboard] Setting timeout to" & Duration'Image (Current_Timeout));
-            end Set_Timeout;
-         or
-            accept Set_Layout (User_Layout : Layout) do
-               Current_Layout := User_Layout;
-            end Set_Layout;
-         or
-            accept Set_Dictionary (User_Dictionary : Dictionaries.Dictionary) do
-               Current_Dictionary := User_Dictionary;
-            end Set_Dictionary;
+            end Configure;
          or
             accept Handle (Event : Key_Event) do
                Log.Chat ("[Qweyboard] Handling key event");
@@ -161,43 +119,6 @@ package body Qweyboard is
       end loop;
       Log.Info ("]");
    end Log_Board;
-
-
-   function Virtual_Layer (User_Layout : Layout; Pressed : Key_Sets.Set) return Layer_Maps.Map is
-      Final_Presses : Layer_Maps.Map;
-      Already_Handled : Key_Sets.Set;
-      
-      procedure Handle_Modifier (Modifier : Softkey) is
-         Layer : Layer_Maps.Map := Mod_Layer (User_Layout, Modifier, Key_Sets.Difference (Pressed, Already_Handled));
-      begin
-         if not Layer.Is_Empty then
-            Already_Handled.Insert (Modifier);
-         end if;
-         for C in Layer.Iterate loop
-            Already_Handled.Insert (Layer_Maps.Key (C));
-            Final_Presses.Insert (Layer_Maps.Key (C), Layer_Maps.Element (C));
-         end loop;
-      end;
-   begin
-      for Modifier of User_Layout.Modifiers loop
-         Handle_Modifier (Modifier);
-      end loop;
-      Handle_Modifier (NOKEY);
-      return Final_Presses;
-   end Virtual_Layer;
-
-   function Mod_Layer (User_Layout : Layout; Modifier : Softkey; Pressed : Key_Sets.Set) return Layer_Maps.Map is
-      Layer : Layer_Maps.Map;
-   begin
-      if Modifier = NOKEY or Pressed.Contains (Modifier) then
-         for Key of Pressed loop
-            if User_Layout.Layers (Modifier).Contains (Key) then
-               Layer.Insert (Key, User_Layout.Layers (Modifier) (Key));
-            end if;
-         end loop;
-      end if;
-      return Layer;
-   end Mod_Layer;
 end Qweyboard;
 
 

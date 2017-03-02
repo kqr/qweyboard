@@ -8,12 +8,13 @@ with Interfaces.C;
 with Interfaces.C.Strings;
 with Ada.Containers.Ordered_Maps;
 with Ada.Containers.Ordered_Sets;
+with Keys;
 
 package body Input_Backend is
    package C renames Interfaces.C;
    use type C.Int;
 
-   package Keycode_Mapping is new Ada.Containers.Ordered_Maps (Key_Type => C.Int, Element_Type => Qweyboard.Softkey, "=" => Qweyboard."=");
+   package Keycode_Mapping is new Ada.Containers.Ordered_Maps (Key_Type => C.Int, Element_Type => Keys.Softkey, "=" => Keys."=");
    From_Keycode : Keycode_Mapping.Map;
 
    function "<" (A : XIDeviceInfo; B : XIDeviceInfo) return Boolean is
@@ -88,7 +89,7 @@ package body Input_Backend is
             Qweyboard.Softboard.Handle (Last_Event);
          end if;
          
-         if Qweyboard."=" (Last_Event.Key, Qweyboard.Susp) then
+         if Keys."=" (Last_Event.Key, Keys.Susp) then
             Suspended := not Suspended;
          end if;
       end loop;
@@ -214,7 +215,7 @@ package body Input_Backend is
    end;
       
    function Convert_Event (Device_Event : XIDeviceEvent_Access) return Qweyboard.Key_Event is
-      use Qweyboard;
+      use Keys; use Qweyboard;
 
       Variant : Key_Event_Variant_Type :=
         (if Device_Event.Evtype = XIKeyPress
@@ -248,55 +249,55 @@ package body Input_Backend is
 
 begin
    Log.Chat ("[Backend] Setting up keycode table");
-   From_Keycode.Insert (10, Qweyboard.NOKEY);
-   From_Keycode.Insert (11, Qweyboard.NOKEY);
-   From_Keycode.Insert (12, Qweyboard.LP);
-   From_Keycode.Insert (13, Qweyboard.LK);
-   From_Keycode.Insert (14, Qweyboard.LI);
-   From_Keycode.Insert (15, Qweyboard.MAPO);
-   From_Keycode.Insert (16, Qweyboard.RO);
-   From_Keycode.Insert (17, Qweyboard.RK);
-   From_Keycode.Insert (18, Qweyboard.RP);
-   From_Keycode.Insert (19, Qweyboard.NOKEY);
-   From_Keycode.Insert (20, Qweyboard.NOKEY);
-   From_Keycode.Insert (21, Qweyboard.NOKEY);
-   From_Keycode.Insert (22, Qweyboard.BS);
-   From_Keycode.Insert (24, Qweyboard.NOKEY);
-   From_Keycode.Insert (25, Qweyboard.LF);
-   From_Keycode.Insert (26, Qweyboard.LT);
-   From_Keycode.Insert (27, Qweyboard.LJ);
-   From_Keycode.Insert (28, Qweyboard.LO);
-   From_Keycode.Insert (29, Qweyboard.MU);
-   From_Keycode.Insert (30, Qweyboard.RI);
-   From_Keycode.Insert (31, Qweyboard.RJ);
-   From_Keycode.Insert (32, Qweyboard.RT);
-   From_Keycode.Insert (33, Qweyboard.RF);
-   From_Keycode.Insert (34, Qweyboard.NOKEY);
-   From_Keycode.Insert (35, Qweyboard.NOKEY);
-   From_Keycode.Insert (38, Qweyboard.LZ);
-   From_Keycode.Insert (39, Qweyboard.LS);
-   From_Keycode.Insert (40, Qweyboard.LC);
-   From_Keycode.Insert (41, Qweyboard.LR);
-   From_Keycode.Insert (42, Qweyboard.LE);
-   From_Keycode.Insert (43, Qweyboard.MA);
-   From_Keycode.Insert (44, Qweyboard.RE);
-   From_Keycode.Insert (45, Qweyboard.RR);
-   From_Keycode.Insert (46, Qweyboard.RC);
-   From_Keycode.Insert (47, Qweyboard.RS);
-   From_Keycode.Insert (48, Qweyboard.RZ);
-   From_Keycode.Insert (49, Qweyboard.NOKEY);
-   From_Keycode.Insert (50, Qweyboard.MSHI);
-   From_Keycode.Insert (51, Qweyboard.NOKEY);
-   From_Keycode.Insert (52, Qweyboard.NOKEY);
-   From_Keycode.Insert (53, Qweyboard.NOKEY);
-   From_Keycode.Insert (54, Qweyboard.LL);
-   From_Keycode.Insert (55, Qweyboard.LN);
-   From_Keycode.Insert (56, Qweyboard.MY);
-   From_Keycode.Insert (57, Qweyboard.RN);
-   From_Keycode.Insert (58, Qweyboard.RL);
-   From_Keycode.Insert (59, Qweyboard.NOKEY);
-   From_Keycode.Insert (60, Qweyboard.NOKEY);
-   From_Keycode.Insert (61, Qweyboard.NOKEY);
-   From_Keycode.Insert (62, Qweyboard.MSHI);
-   From_Keycode.Insert (65, Qweyboard.NOSP);
+   From_Keycode.Insert (10, Keys.NOKEY);
+   From_Keycode.Insert (11, Keys.NOKEY);
+   From_Keycode.Insert (12, Keys.LP);
+   From_Keycode.Insert (13, Keys.LK);
+   From_Keycode.Insert (14, Keys.LI);
+   From_Keycode.Insert (15, Keys.MAPO);
+   From_Keycode.Insert (16, Keys.RO);
+   From_Keycode.Insert (17, Keys.RK);
+   From_Keycode.Insert (18, Keys.RP);
+   From_Keycode.Insert (19, Keys.NOKEY);
+   From_Keycode.Insert (20, Keys.NOKEY);
+   From_Keycode.Insert (21, Keys.NOKEY);
+   From_Keycode.Insert (22, Keys.BS);
+   From_Keycode.Insert (24, Keys.NOKEY);
+   From_Keycode.Insert (25, Keys.LF);
+   From_Keycode.Insert (26, Keys.LT);
+   From_Keycode.Insert (27, Keys.LJ);
+   From_Keycode.Insert (28, Keys.LO);
+   From_Keycode.Insert (29, Keys.MU);
+   From_Keycode.Insert (30, Keys.RI);
+   From_Keycode.Insert (31, Keys.RJ);
+   From_Keycode.Insert (32, Keys.RT);
+   From_Keycode.Insert (33, Keys.RF);
+   From_Keycode.Insert (34, Keys.NOKEY);
+   From_Keycode.Insert (35, Keys.NOKEY);
+   From_Keycode.Insert (38, Keys.LZ);
+   From_Keycode.Insert (39, Keys.LS);
+   From_Keycode.Insert (40, Keys.LC);
+   From_Keycode.Insert (41, Keys.LR);
+   From_Keycode.Insert (42, Keys.LE);
+   From_Keycode.Insert (43, Keys.MA);
+   From_Keycode.Insert (44, Keys.RE);
+   From_Keycode.Insert (45, Keys.RR);
+   From_Keycode.Insert (46, Keys.RC);
+   From_Keycode.Insert (47, Keys.RS);
+   From_Keycode.Insert (48, Keys.RZ);
+   From_Keycode.Insert (49, Keys.NOKEY);
+   From_Keycode.Insert (50, Keys.MSHI);
+   From_Keycode.Insert (51, Keys.NOKEY);
+   From_Keycode.Insert (52, Keys.NOKEY);
+   From_Keycode.Insert (53, Keys.NOKEY);
+   From_Keycode.Insert (54, Keys.LL);
+   From_Keycode.Insert (55, Keys.LN);
+   From_Keycode.Insert (56, Keys.MY);
+   From_Keycode.Insert (57, Keys.RN);
+   From_Keycode.Insert (58, Keys.RL);
+   From_Keycode.Insert (59, Keys.NOKEY);
+   From_Keycode.Insert (60, Keys.NOKEY);
+   From_Keycode.Insert (61, Keys.NOKEY);
+   From_Keycode.Insert (62, Keys.MSHI);
+   From_Keycode.Insert (65, Keys.NOSP);
 end Input_Backend;

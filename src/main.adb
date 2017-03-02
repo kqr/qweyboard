@@ -2,7 +2,7 @@ with Ada.Command_Line;
 with Ada.Task_Termination;
 with Ada.Task_Identification;
 with Configuration;
-with Configuration;
+with Languages;
 with Logging;
 with Qweyboard;
 with Input_Backend;
@@ -21,18 +21,14 @@ begin
    Log.Set_Verbosity (Settings.Log_Level);
    Log.Chat ("[Main] Got settings and set log verbosity");
 
-   Log.Chat ("[Main] Loading dictionary");
-   Configuration.Load_Dictionary (Settings);
-   Log.Chat ("[Main] Loading layout");
-   Configuration.Load_Layout (Settings);
+   Log.Chat ("[Main] Loading language");
+   Configuration.Load_Language (Settings);
 
    --  Then kick off the Softboard!
    Qweyboard.Softboard.Ready_Wait;
    Log.Chat ("[Main] Softboard started");
    -- Configure softboard
-   Qweyboard.Softboard.Set_Timeout (Settings.Timeout);
-   Qweyboard.Softboard.Set_Layout (Settings.Layout);
-   Qweyboard.Softboard.Set_Dictionary (Settings.Dictionary);
+   Qweyboard.Softboard.Configure (Settings);
    Log.Chat ("[Main] Softboard configured");
 
    --  First wait for the output backend to be ready

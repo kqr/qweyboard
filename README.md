@@ -235,6 +235,71 @@ These are roughly in order of importance, I guess. It's mostly a loose
 collection of personal notes and if anyone needs help interpreting any of them
 I'm glad to assist.
 
+* NEW DISCOVERIES AFTER READING THE PATENT!!
+
+* `[x]` Order inits: L and N last. Order tails: L and N first!
+
+* `[ ]` FJ=V
+
+* `[ ]` LC LR RR RC = backspace
+
+* `[ ]` LZ RZ = return
+
+* `[ ]` Languages based on substitutions rather than dictionaries
+
+* `[ ]` [swedish] LO = Ä, but LO+RO=OO: ÄO=OO substitution
+
+* `[ ]` Init substitutions
+
+    * BN=BR
+    * GN=GR (GN=CR?)
+    * DN=DR
+    * VN=VR
+    * PK=PR
+    * TK=TR
+    * FK=FR
+    * CK=KR
+
+    * [english/standard only]
+        * ZV = ZW
+        * TV = TW
+        * DV = DW
+
+* `[ ]` tails substitutions
+
+    * SZ=STS
+    * YZ=YS
+    * IESZ=IESS (?)
+    * NZ=NS
+    * DZ=DS
+    * MZ=MS
+    * TZ=TS
+    * SJ=SS
+    * GHZ=GHT
+    * GDF=DGE
+    * CZ=CH
+    * CS=SH
+    * DZ=TH
+    * BZ=BLE (doabz=doable)
+    * BF=BE
+    * CF=CE
+    * DF=DF (etc consonants)
+    * KP=RP
+    * KC=CK
+    * GZ=GT
+    * PZ=PT
+    * FZ=FT
+    * NC=GN
+
+    * [english/standard only]
+        * KT=CT
+        * AJ=AY
+        * OJ=OY
+        * UJ=UY
+        * EJ=EY
+        * IJ=Y
+        * ANJ=ANY
+
 * `[ ]` shift = sssssymbol keys? actually trickier than I had thought...
 
 * `[ ]` Actually read layout files...
@@ -244,6 +309,8 @@ I'm glad to assist.
 * `[ ]` allow capitalisation somehow. perhaps find a spot for the MCAP key?
 
 * `[ ]` Unicodify the whole project. Painfully dependent on iso-8859-1 right now
+
+* `[ ]` come up with a way to define shortcuts on the fly?
 
 * `[ ]` Escape shortcut should be configurable with something like `-e <escape shortcut>`?
 
