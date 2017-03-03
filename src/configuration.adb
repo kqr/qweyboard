@@ -1,4 +1,5 @@
 package body Configuration is
+
    procedure Get_Settings (Config : in out Settings) is
       I : Positive := 1;
    begin
@@ -16,23 +17,12 @@ package body Configuration is
 
 
    procedure Load_Language (Config : in out Settings) is
-      use Ada.Text_IO;
-      Language : File_Type;
    begin
       if Length (Config.Language_File_Name) = 0 then
          --  TODO try first local, then home directory, then system wide? fall back to standard
          null;
       end if;
-      --  TODO also catch missing file exception?
-      Open (Language, In_File, To_String (Config.Language_File_Name));
-      begin
-         Config.Language := Languages.Parse (Language);
-         Close (Language);
-      exception
-         when Languages.PARSE_ERROR =>
-            --  TODO: include exception information here
-            Logging.Log.Error ("[Configuration] Failed to parse language, running with standard language");
-      end;
+      Config.Language := Languages_Parser.Parse (To_String (Config.Language_File_Name));
    end;
 
 

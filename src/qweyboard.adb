@@ -9,17 +9,6 @@ package body Qweyboard is
       Released : Key_Sets.Set;
       Last_Output : Output;
       
-      procedure Commit is
-         Result : Unbounded_String;
-      begin
-         Result := Languages.Decode (Current_Language, Released);
-         if Length (Result) > 0 then
-            Last_Output := (Syllable, Result, Released.Contains (NOSP));
-            Output_Backend.Output.Enter (Result, Released.Contains (NOSP));
-         end if;
-         Released.Clear;
-      end Commit;
-      
       procedure Erase is
       begin
          Pressed.Clear;

@@ -16,7 +16,7 @@ package Languages is
 
    type Language is private;
    function Decode (User_Language : Language; Released : Key_Sets.Set) return Unbounded_String;
-   function Parse (Source : Ada.Text_IO.File_Type) return Language;
+   function Get_Standard return Language;
 private
    package Key_Vectors is new Ada.Containers.Vectors (Index_Type => Positive, Element_Type => Softkey);
    package Layer_Maps is new Ada.Containers.Ordered_Maps (Key_Type => Softkey, Element_Type => Character);

@@ -2,7 +2,6 @@ with Ada.Command_Line;
 with Ada.Task_Termination;
 with Ada.Task_Identification;
 with Configuration;
-with Languages;
 with Logging;
 with Qweyboard;
 with Input_Backend;

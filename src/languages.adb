@@ -2,27 +2,34 @@ package body Languages is
    Standard_Language : Language;
 
    function Decode (User_Language : Language; Released : Key_Sets.Set) return Unbounded_String is
-      Ret : Unbounded_String;
+      Init : Unbounded_String;
+      Vowels : Unbounded_String;
+      Tail : Unbounded_String;
+      Ret : Unbounded_String; -- !
    begin
       --  As if by accident, the declaration order of Softkey in conjunction with
       --  the implementation of Ordered_(Sets|Maps) means this iteration happens
       --  in precisely the order we need it to...
-      for C in Virtual_Layer (User_Language.Layout, Released).Iterate loop
-         Ret := Ret & Layer_Maps.Element (C);
-      end loop;
-      return Ret;
-   end Decode;
 
-   function Parse (Source : Ada.Text_IO.File_Type) return Language is
+      for C in Virtual_Layer (User_Language.Layout, Released).Iterate loop
+         --  if element C is less than MY, add to init
+         --  if element C is less than RN, add to vowels
+         --  if element C is less than MSHI, add to tail
+         Ret := Ret & Layer_Maps.Element (C); -- !
+      end loop;
+      
+      -- perform substitutions on init
+      -- perform substitutions on tail
+
+      -- return new_init & vowels & new_tail
+
+      return Ret; -- !
+   end Decode;
+   
+   function Get_Standard return Language is
    begin
-      --  check if null string, then standard language
-      --  if To_String (Config.Layout_File_Name) = "swedish.layout" then
-      --     Add_Key (Config.Layout, NOKEY, LI, 'Å', Replace => True);
-      --     Add_Key (Config.Layout, NOKEY, LO, 'Ä', Replace => True);
-      --     Add_Key (Config.Layout, NOKEY, LE, 'Ö', Replace => True);
-      --  end if;
       return Standard_Language;
-   end Parse;
+   end;
 
    function Virtual_Layer (Layout : Layout_Type; Pressed : Key_Sets.Set) return Layer_Maps.Map is
       Final_Presses : Layer_Maps.Map;
@@ -44,6 +51,7 @@ package body Languages is
          Handle_Modifier (Modifier);
       end loop;
       Handle_Modifier (NOKEY);
+      
       return Final_Presses;
    end Virtual_Layer;
 
