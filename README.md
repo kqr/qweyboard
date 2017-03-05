@@ -1,13 +1,13 @@
 Qweyboard
 =========
 
-Qweyboard aims to be a Velotype/Veyboard like experience on a regular standard
-computer keyboard.
+Qweyboard aims to be an open source Velotype/Veyboard like experience on a
+regular standard computer keyboard.
 
 The Velotype/Veyboard is an orthographic, stenographic keyboard which lets you
-type really fast by exploiting language features. It's primarily used with
-European languages such as Swedish and Dutch, and it works great for English
-too.
+type really fast by exploiting language features. Orthographic means you still
+type letter-by-letter (as opposed to phonetically, based on sound). Stenographic
+means you generally make fewer keypresses than with regular keyboards.
 
 
 Try it!
@@ -16,7 +16,7 @@ Try it!
 Currently Qweyboard only supports Linux/X11 systems, as that is what I have and
 use.
 
-You can download and run it by typing
+You should be able to download and run it by typing
 
     $ git clone https://github.com/kqr/qweyboard
     $ cd qweyboard
@@ -49,31 +49,33 @@ whatnot), install the prerequisite dependencies:
 
 On Debian, these are installed with
 
-    $ sudo gnat apt-get install libx11-6 libx11-dev libxtst-6 libxtst-dev libxi-6 libxi-dev
+    $ sudo apt-get install gnat libx11-6 libx11-dev libxtst-6 libxtst-dev libxi-6 libxi-dev
 
 
 Short tutorial
 --------------
 
 This is a short tutorial on how to use the Qweyboard. The Qweyboard is easy to
-learn, because it is a lot like a regular QWERTY keyboard, with three main
-exceptions:
+learn, because it is a lot like a regular QWERTY keyboard in that each key
+produces a letter in the final word. THere are three main differences to your
+regular QWERTY keyboard:
 
-1. The most common letters are under your fingers already – no movement
-required! By just learning the ten keys under your fingers, you can already type
-a lot of stuff.
+1. The most common letters are under your fingers already, which means less
+movement is required. By just learning the ten keys under your fingers, you can
+already type a lot of stuff. [Insert some number here if it turns out impressive]
 
-2. The keys are largely laid out symmetrically. This actually makes the
-Qweyboard easier to learn.
+2. The keys are almost completely symmetrically laid out. This makes the
+Qweyboard surprisingly easy to learn. Your muscle memory loves symmetry.
 
 3. It doesn't matter which order you press keys on the Qweyboard. As long as you
 press the same keys, the same word will appear on the screen regardless of which
 order you pressed the keys in.
 
+
 ### Layout
 
-Start the Qweyboard program, and refer to the following image, which illustrates
-a regular QWERTY keyboard with the Qweyboard layout on it.
+To start learning, refer to the following image, which illustrates a regular
+QWERTY keyboard with the Qweyboard layout on it.
 
 ![Qweyboard layout image](https://raw.githubusercontent.com/kqr/qweyboard/master/qweyboard_standard.png)
 
@@ -151,37 +153,10 @@ respectively. So when you want to finish a sentence, you press the right O key
 alone.
 
 
+### Language-specific Substitutions
 
-### Common Shortcuts
-
-In e.g. English, it's common for words to end in a "silent E". Consider a word
-like "debate". Phonetically, it consists of two syllables, but on the Qweyboard,
-you'd need three strokes to create it, because of the final E: TJE+PJOIT+E.
-
-The way the real Velotype/Veyboard handles this is by letting the right F-key
-become an E when used in conjunction with other consonants. The way the
-Qweyboard solves this is by allowing for user-defined "autocorrections". By
-default, the Qweyboard ships with a "safe" dictionary of replacements, among
-which you will find the entry "batf=bate", which will make it possible for you
-to type "debatf" in just two strokes, and it will be autocorrected to "debate".
-
-Perhaps even more convincingly, the word "this" needs two strokes on the
-Qweyboard by default. A dictionary entry allows "tis=this" so you can type it in
-one stroke.  You are free to modify or create new dictionaries for your own
-words.
-
-Another example is something like "tray", which is very inconvenient on the pure
-Qweyboard, but a dictionary entry "traj=tray" makes it really easy!
-
-This is also useful when the key order of the Qweyboard isn't optimal for your
-language. In Swedish, for example, it is common for words to end with the "ck"
-digraph. On the Qweyboard, this becomes "kc" if you don't want to split it up
-over two strokes. A Swedish dictionary might then include a bunch of words on
-the form of "rakc=rack". (Come to think of it, that entry is probably useful for
-English users as well.)
-
-These base dictionaries should be relatively easy to generate automatically for
-a language.
+Sometimes the order of keys on the Qweyboard isn't optimal for the language
+that is being typed. For example, in English, [stuff about subs]
 
 
 ### To be continued...

@@ -1,7 +1,6 @@
 with Ada.Text_IO;
 with Ada.Strings.Unbounded;
 with Ada.Command_Line;
-with Languages;
 with Languages_Parser;
 with Logging;
 
@@ -15,7 +14,6 @@ package Configuration is
       Timeout : Duration := 0.5;
       Language_File_Name : Unbounded_String;
       Log_Level : Logging.Verbosity_Level := Logging.Log_Error;
-      Language : Languages.Language;
    end record;
    
    procedure Get_Settings (Config : in out Settings);

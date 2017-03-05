@@ -3,7 +3,6 @@ package body Qweyboard is
    Backspace_Combo : Key_Sets.Set;
 
    task body Softboard is
-      Current_Language : Languages.Language;
       Current_Timeout : Duration;
       Pressed : Key_Sets.Set;
       Released : Key_Sets.Set;
@@ -32,7 +31,7 @@ package body Qweyboard is
          Result : Unbounded_String;
          use type Key_Sets.Set;
       begin
-         Result := Languages.Decode (Current_Language, Released);
+         Result := Languages.User_Language.Decode (Released);
 
          if Released = Return_Combo then
             Log.Warning ("[Qweyboard] Return press not implemented");
@@ -52,7 +51,6 @@ package body Qweyboard is
          select
             accept Configure (Settings : Configuration.Settings) do
                Current_Timeout := Settings.Timeout;
-               Current_Language := Settings.Language;
                Log.Chat ("[Qweyboard] Setting timeout to" & Duration'Image (Current_Timeout));
             end Configure;
          or

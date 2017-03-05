@@ -1,165 +1,164 @@
 package body Languages is
-   Standard_Language : Language;
-
-   function Decode (User_Language : Language; Released : Key_Sets.Set) return Unbounded_String is
-      Init : Unbounded_String;
-      Vowels : Unbounded_String;
-      Tail : Unbounded_String;
-      Ret : Unbounded_String; -- !
-   begin
-      --  As if by accident, the declaration order of Softkey in conjunction with
-      --  the implementation of Ordered_(Sets|Maps) means this iteration happens
-      --  in precisely the order we need it to...
-
-      for C in Virtual_Layer (User_Language.Layout, Released).Iterate loop
-         --  if element C is less than MY, add to init
-         --  if element C is less than RN, add to vowels
-         --  if element C is less than MSHI, add to tail
-         Ret := Ret & Layer_Maps.Element (C); -- !
-      end loop;
-      
-      -- perform substitutions on init
-      -- perform substitutions on tail
-
-      -- return new_init & vowels & new_tail
-
-      return Ret; -- !
-   end Decode;
-   
-   function Get_Standard return Language is
-   begin
-      return Standard_Language;
-   end;
-
-   function Virtual_Layer (Layout : Layout_Type; Pressed : Key_Sets.Set) return Layer_Maps.Map is
-      Final_Presses : Layer_Maps.Map;
-      Already_Handled : Key_Sets.Set;
-      
-      procedure Handle_Modifier (Modifier : Softkey) is
-         Layer : Layer_Maps.Map := Mod_Layer (Layout, Modifier, Key_Sets.Difference (Pressed, Already_Handled));
+   protected body User_Language is
+      function Decode (Released : Key_Sets.Set) return Unbounded_String is
+         Init : Unbounded_String;
+         Vowels : Unbounded_String;
+         Tail : Unbounded_String;
       begin
-         if not Layer.Is_Empty then
-            Already_Handled.Insert (Modifier);
-         end if;
-         for C in Layer.Iterate loop
-            Already_Handled.Insert (Layer_Maps.Key (C));
-            Final_Presses.Insert (Layer_Maps.Key (C), Layer_Maps.Element (C));
-         end loop;
-      end Handle_Modifier;
-   begin
-      for Modifier of Layout.Modifiers loop
-         Handle_Modifier (Modifier);
-      end loop;
-      Handle_Modifier (NOKEY);
-      
-      return Final_Presses;
-   end Virtual_Layer;
+         --  As if by accident, the declaration order of Softkey in conjunction with
+         --  the implementation of Ordered_(Sets|Maps) means this iteration happens
+         --  in precisely the order we need it to...
 
-   function Mod_Layer (Layout : Layout_Type; Modifier : Softkey; Pressed : Key_Sets.Set) return Layer_Maps.Map is
-      Layer : Layer_Maps.Map;
-   begin
-      if Modifier = NOKEY or Pressed.Contains (Modifier) then
-         for Key of Pressed loop
-            if Layout.Layers (Modifier).Contains (Key) then
-               Layer.Insert (Key, Layout.Layers (Modifier) (Key));
+         for C in Virtual_Layer (Current_Layout, Released).Iterate loop
+            if Layer_Maps.Key (C) < MY then
+               Init := Init & Layer_maps.Element (C);
+            elsif Layer_Maps.Key (C) < RN then
+               Vowels := Vowels & Layer_maps.Element (C);
+            elsif Layer_Maps.Key (C) < MSHI then
+               Tail := Tail & Layer_maps.Element (C);
             end if;
          end loop;
-      end if;
-      return Layer;
-   end Mod_Layer;
-
-   procedure Add_Key (Layout : in out Layout_Type; Modifier : Softkey; Key : Softkey; Letter : Character; Replace : Boolean := False) is
-      use Ada.Characters.Handling;
-   begin
-      if not Layout.Layers.Contains (Modifier) then
-         if Modifier /= NOKEY then
-            Layout.Modifiers.Append (Modifier);
+         
+         -- TODO This is too simplistic. Need to do search & replace inside the string!
+         if Substitution_Maps.Contains (Substitutions (Left), Init) then
+            Init := Substitutions (Left) (Init);
          end if;
-         Layout.Layers.Insert (Modifier, Layer_Maps.Empty_Map);
-      end if;
-      if Replace then
-         Layer_Maps.Replace (Layout.Layers (Modifier), Key, To_Lower (Letter));
-      else
-         Layout.Layers (Modifier).Insert (Key, To_Lower (Letter));
-      end if;
-   end Add_Key;
+         -- TODO perform substitutions also on middle and right
+
+         return Init & Vowels & Tail;
+      end Decode;
+
+      procedure Add_Key (Modifier : Softkey; Key : Softkey; Symbol : Character) is
+         use Ada.Characters.Handling;
+      begin
+         if not Current_Layout.Layers.Contains (Modifier) then
+            if Modifier /= NOKEY then
+               Current_Layout.Modifiers.Append (Modifier);
+            end if;
+            Current_Layout.Layers.Insert (Modifier, Layer_Maps.Empty_Map);
+         end if;
+         Layer_Maps.Include (Current_Layout.Layers (Modifier), Key, Symbol);
+      end Add_Key;
+
+      procedure Add_Substitution (Position : Substitution_Type; Pattern : Unbounded_String; Replacement : Unbounded_String) is
+      begin
+         Substitution_Maps.Include (Substitutions (Position), Pattern, Replacement);
+      end Add_Substitution;
+   
+      function Virtual_Layer (Layout : Layout_Type; Pressed : Key_Sets.Set) return Layer_Maps.Map is
+         Final_Presses : Layer_Maps.Map;
+         Already_Handled : Key_Sets.Set;
+         
+         procedure Handle_Modifier (Modifier : Softkey) is
+            Layer : Layer_Maps.Map := Mod_Layer (Layout, Modifier, Key_Sets.Difference (Pressed, Already_Handled));
+         begin
+            if not Layer.Is_Empty then
+               Already_Handled.Insert (Modifier);
+            end if;
+            for C in Layer.Iterate loop
+               Already_Handled.Insert (Layer_Maps.Key (C));
+               Final_Presses.Insert (Layer_Maps.Key (C), Layer_Maps.Element (C));
+            end loop;
+         end Handle_Modifier;
+      begin
+         for Modifier of Layout.Modifiers loop
+            Handle_Modifier (Modifier);
+         end loop;
+         Handle_Modifier (NOKEY);
+         
+         return Final_Presses;
+      end Virtual_Layer;
+
+      function Mod_Layer (Layout : Layout_Type; Modifier : Softkey; Pressed : Key_Sets.Set) return Layer_Maps.Map is
+         Layer : Layer_Maps.Map;
+      begin
+         if Modifier = NOKEY or Pressed.Contains (Modifier) then
+            for Key of Pressed loop
+               if Layout.Layers (Modifier).Contains (Key) then
+                  Layer.Insert (Key, Layout.Layers (Modifier) (Key));
+               end if;
+            end loop;
+         end if;
+         return Layer;
+      end Mod_Layer;
+   end User_Language;
 begin
-   Add_Key (Standard_Language.Layout, NOKEY, LZ, 'Z');
-   Add_Key (Standard_Language.Layout, NOKEY, LF, 'F');
-   Add_Key (Standard_Language.Layout, NOKEY, LS, 'S');
-   Add_Key (Standard_Language.Layout, NOKEY, LP, 'P');
-   Add_Key (Standard_Language.Layout, NOKEY, LT, 'T');
-   Add_Key (Standard_Language.Layout, NOKEY, LC, 'C');
-   Add_Key (Standard_Language.Layout, NOKEY, LK, 'K');
-   Add_Key (Standard_Language.Layout, NOKEY, LJ, 'J');
-   Add_Key (Standard_Language.Layout, NOKEY, LR, 'R');
-   Add_Key (Standard_Language.Layout, NOKEY, LL, 'L');
-   Add_Key (Standard_Language.Layout, NOKEY, LI, 'I');
-   Add_Key (Standard_Language.Layout, NOKEY, LO, 'O');
-   Add_Key (Standard_Language.Layout, NOKEY, LE, 'E');
-   Add_Key (Standard_Language.Layout, NOKEY, LN, 'N');
-   Add_Key (Standard_Language.Layout, NOKEY, MAPO, ''');
-   Add_Key (Standard_Language.Layout, NOKEY, MU, 'U');
-   Add_Key (Standard_Language.Layout, NOKEY, MA, 'A');
-   Add_Key (Standard_Language.Layout, NOKEY, MY, 'Y');
-   Add_Key (Standard_Language.Layout, NOKEY, RO, 'O');
-   Add_Key (Standard_Language.Layout, NOKEY, RI, 'I');
-   Add_Key (Standard_Language.Layout, NOKEY, RE, 'E');
-   Add_Key (Standard_Language.Layout, NOKEY, RN, 'N');
-   Add_Key (Standard_Language.Layout, NOKEY, RK, 'K');
-   Add_Key (Standard_Language.Layout, NOKEY, RJ, 'J');
-   Add_Key (Standard_Language.Layout, NOKEY, RR, 'R');
-   Add_Key (Standard_Language.Layout, NOKEY, RL, 'L');
-   Add_Key (Standard_Language.Layout, NOKEY, RP, 'P');
-   Add_Key (Standard_Language.Layout, NOKEY, RT, 'T');
-   Add_Key (Standard_Language.Layout, NOKEY, RC, 'C');
-   Add_Key (Standard_Language.Layout, NOKEY, RF, 'F');
-   Add_Key (Standard_Language.Layout, NOKEY, RS, 'S');
-   Add_Key (Standard_Language.Layout, NOKEY, RZ, 'Z');
-   Add_Key (Standard_Language.Layout, LO, RI, 'A');
-   Add_Key (Standard_Language.Layout, LJ, LF, 'V');
-   Add_Key (Standard_Language.Layout, LJ, LP, 'B');
-   Add_Key (Standard_Language.Layout, LJ, LT, 'D');
-   Add_Key (Standard_Language.Layout, LJ, LC, 'G');
-   Add_Key (Standard_Language.Layout, LJ, LL, 'H');
-   Add_Key (Standard_Language.Layout, LJ, LN, 'W');
-   Add_Key (Standard_Language.Layout, RJ, RF, 'V');
-   Add_Key (Standard_Language.Layout, RJ, RN, 'W');
-   Add_Key (Standard_Language.Layout, RJ, RL, 'H');
-   Add_Key (Standard_Language.Layout, RJ, RP, 'B');
-   Add_Key (Standard_Language.Layout, RJ, RT, 'D');
-   Add_Key (Standard_Language.Layout, RJ, RC, 'G');
-   Add_Key (Standard_Language.Layout, LR, LL, 'V');
-   Add_Key (Standard_Language.Layout, LR, LN, 'M');
-   Add_Key (Standard_Language.Layout, RR, RN, 'M');
-   Add_Key (Standard_Language.Layout, RR, RL, 'V');
-   Add_Key (Standard_Language.Layout, LC, LF, 'Q');
-   Add_Key (Standard_Language.Layout, RC, RF, 'Q');
-   Add_Key (Standard_Language.Layout, LK, LZ, 'X');
-   Add_Key (Standard_Language.Layout, RK, RZ, 'X');
-   Add_Key (Standard_Language.Layout, MSHI, LS, '$');
-   Add_Key (Standard_Language.Layout, MSHI, LP, '%');
-   Add_Key (Standard_Language.Layout, MSHI, LT, '/');
-   Add_Key (Standard_Language.Layout, MSHI, LC, '(');
-   Add_Key (Standard_Language.Layout, MSHI, LK, '&');
-   Add_Key (Standard_Language.Layout, MSHI, LJ, '*');
-   Add_Key (Standard_Language.Layout, MSHI, LR, '+');
-   Add_Key (Standard_Language.Layout, MSHI, LI, '7');
-   Add_Key (Standard_Language.Layout, MSHI, LO, '4');
-   Add_Key (Standard_Language.Layout, MSHI, LE, '1');
-   Add_Key (Standard_Language.Layout, MSHI, MAPO, '8');
-   Add_Key (Standard_Language.Layout, MSHI, MU, '5');
-   Add_Key (Standard_Language.Layout, MSHI, MA, '2');
-   Add_Key (Standard_Language.Layout, MSHI, MY, '0');
-   Add_Key (Standard_Language.Layout, MSHI, RO, '9');
-   Add_Key (Standard_Language.Layout, MSHI, RI, '6');
-   Add_Key (Standard_Language.Layout, MSHI, RE, '3');
-   Add_Key (Standard_Language.Layout, MSHI, RK, '?');
-   Add_Key (Standard_Language.Layout, MSHI, RJ, '=');
-   Add_Key (Standard_Language.Layout, MSHI, RR, '-');
-   Add_Key (Standard_Language.Layout, MSHI, RP, '!');
-   Add_Key (Standard_Language.Layout, MSHI, RT, ';');
-   Add_Key (Standard_Language.Layout, MSHI, RC, ')');
-   Add_Key (Standard_Language.Layout, MSHI, RF, '"');
-   Add_Key (Standard_Language.Layout, MSHI, RS, ':');
+   User_Language.Add_Key (NOKEY, LZ, 'Z');
+   User_Language.Add_Key (NOKEY, LF, 'F');
+   User_Language.Add_Key (NOKEY, LS, 'S');
+   User_Language.Add_Key (NOKEY, LP, 'P');
+   User_Language.Add_Key (NOKEY, LT, 'T');
+   User_Language.Add_Key (NOKEY, LC, 'C');
+   User_Language.Add_Key (NOKEY, LK, 'K');
+   User_Language.Add_Key (NOKEY, LJ, 'J');
+   User_Language.Add_Key (NOKEY, LR, 'R');
+   User_Language.Add_Key (NOKEY, LL, 'L');
+   User_Language.Add_Key (NOKEY, LI, 'I');
+   User_Language.Add_Key (NOKEY, LO, 'O');
+   User_Language.Add_Key (NOKEY, LE, 'E');
+   User_Language.Add_Key (NOKEY, LN, 'N');
+   User_Language.Add_Key (NOKEY, MAPO, ''');
+   User_Language.Add_Key (NOKEY, MU, 'U');
+   User_Language.Add_Key (NOKEY, MA, 'A');
+   User_Language.Add_Key (NOKEY, MY, 'Y');
+   User_Language.Add_Key (NOKEY, RO, 'O');
+   User_Language.Add_Key (NOKEY, RI, 'I');
+   User_Language.Add_Key (NOKEY, RE, 'E');
+   User_Language.Add_Key (NOKEY, RN, 'N');
+   User_Language.Add_Key (NOKEY, RK, 'K');
+   User_Language.Add_Key (NOKEY, RJ, 'J');
+   User_Language.Add_Key (NOKEY, RR, 'R');
+   User_Language.Add_Key (NOKEY, RL, 'L');
+   User_Language.Add_Key (NOKEY, RP, 'P');
+   User_Language.Add_Key (NOKEY, RT, 'T');
+   User_Language.Add_Key (NOKEY, RC, 'C');
+   User_Language.Add_Key (NOKEY, RF, 'F');
+   User_Language.Add_Key (NOKEY, RS, 'S');
+   User_Language.Add_Key (NOKEY, RZ, 'Z');
+   User_Language.Add_Key (LO, RI, 'A');
+   User_Language.Add_Key (LJ, LF, 'V');
+   User_Language.Add_Key (LJ, LP, 'B');
+   User_Language.Add_Key (LJ, LT, 'D');
+   User_Language.Add_Key (LJ, LC, 'G');
+   User_Language.Add_Key (LJ, LL, 'H');
+   User_Language.Add_Key (LJ, LN, 'W');
+   User_Language.Add_Key (RJ, RF, 'V');
+   User_Language.Add_Key (RJ, RN, 'W');
+   User_Language.Add_Key (RJ, RL, 'H');
+   User_Language.Add_Key (RJ, RP, 'B');
+   User_Language.Add_Key (RJ, RT, 'D');
+   User_Language.Add_Key (RJ, RC, 'G');
+   User_Language.Add_Key (LR, LL, 'V');
+   User_Language.Add_Key (LR, LN, 'M');
+   User_Language.Add_Key (RR, RN, 'M');
+   User_Language.Add_Key (RR, RL, 'V');
+   User_Language.Add_Key (LC, LF, 'Q');
+   User_Language.Add_Key (RC, RF, 'Q');
+   User_Language.Add_Key (LK, LZ, 'X');
+   User_Language.Add_Key (RK, RZ, 'X');
+   User_Language.Add_Key (MSHI, LS, '$');
+   User_Language.Add_Key (MSHI, LP, '%');
+   User_Language.Add_Key (MSHI, LT, '/');
+   User_Language.Add_Key (MSHI, LC, '(');
+   User_Language.Add_Key (MSHI, LK, '&');
+   User_Language.Add_Key (MSHI, LJ, '*');
+   User_Language.Add_Key (MSHI, LR, '+');
+   User_Language.Add_Key (MSHI, LI, '7');
+   User_Language.Add_Key (MSHI, LO, '4');
+   User_Language.Add_Key (MSHI, LE, '1');
+   User_Language.Add_Key (MSHI, MAPO, '8');
+   User_Language.Add_Key (MSHI, MU, '5');
+   User_Language.Add_Key (MSHI, MA, '2');
+   User_Language.Add_Key (MSHI, MY, '0');
+   User_Language.Add_Key (MSHI, RO, '9');
+   User_Language.Add_Key (MSHI, RI, '6');
+   User_Language.Add_Key (MSHI, RE, '3');
+   User_Language.Add_Key (MSHI, RK, '?');
+   User_Language.Add_Key (MSHI, RJ, '=');
+   User_Language.Add_Key (MSHI, RR, '-');
+   User_Language.Add_Key (MSHI, RP, '!');
+   User_Language.Add_Key (MSHI, RT, ';');
+   User_Language.Add_Key (MSHI, RC, ')');
+   User_Language.Add_Key (MSHI, RF, '"');
+   User_Language.Add_Key (MSHI, RS, ':');
 end Languages;

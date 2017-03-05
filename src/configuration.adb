@@ -22,7 +22,7 @@ package body Configuration is
          --  TODO try first local, then home directory, then system wide? fall back to standard
          null;
       end if;
-      Config.Language := Languages_Parser.Parse (To_String (Config.Language_File_Name));
+      Languages_Parser.Parse (To_String (Config.Language_File_Name));
    end;
 
 
