@@ -1,6 +1,7 @@
 with Ada.Text_IO; use Ada.Text_IO;
 with Ada.Characters.Handling;
 with Ada.Characters.Latin_1;
+with Ada.Finalization;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Logging; use Logging;
 with Languages;
@@ -48,8 +49,8 @@ private
       end case;
    end record;
 
+   --  TODO: set up a controlled type around this?
    type Lexer_State is record
-      --  TODO: set up a controlled type around this?
       File : File_Type;
       Buffer : Unbounded_String;
       In_String_State : Boolean;
@@ -57,7 +58,7 @@ private
       Last_Token : Token_Type;
       Line_Number : Positive := 1;
    end record;
-
+   
    procedure Advance (State : Lexer_State);
    
    procedure Accept_Token (State : in out Lexer_State);

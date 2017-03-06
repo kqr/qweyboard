@@ -18,11 +18,9 @@ package body Configuration is
 
    procedure Load_Language (Config : in out Settings) is
    begin
-      if Length (Config.Language_File_Name) = 0 then
-         --  TODO try first local, then home directory, then system wide? fall back to standard
-         null;
+      if Length (Config.Language_File_Name) > 0 then
+         Languages_Parser.Parse (To_String (Config.Language_File_Name));
       end if;
-      Languages_Parser.Parse (To_String (Config.Language_File_Name));
    end;
 
 

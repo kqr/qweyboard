@@ -3,12 +3,10 @@ package body Languages_Parser is
    procedure Parse (File_Name : String) is
       State : Lexer_State;
    begin
-      --  TODO also catch missing file exception?
       Ada.Text_IO.Open (State.File, Ada.Text_IO.In_File, File_Name);
       begin
          Language_Spec (State);
       exception
-         --  TODO: exception handling here as well, if the parser fails?
          when others =>
             Log.Error
               ("[Languages_Parser] Caught exception when parsing " &
@@ -36,7 +34,8 @@ package body Languages_Parser is
          String_Value : Unbounded_String := State.Buffer;
       begin
          if not State.In_String_State Then
-            raise Parse_Error with "Trying to exit string state without being in it";
+            raise Parse_Error
+              with "Trying to exit string state without being in it";
          end if;
          State.In_String_State := False;
          State.Last_Token := (Token_String, String_Value);
@@ -55,8 +54,8 @@ package body Languages_Parser is
             State.Line_Number := State.Line_Number + 1;
             Advance (State);
          elsif Symbol = ' ' then
-            --  TODO: or other kinds of illegal whitespace, including newlines
-            --  to make sure they are caught with a sensible error message
+            --  Other kinds of whitespace needn't be covered here because
+            --  they're not considered "graphic" characters
             raise Parse_Error with "Whitespace not allowed in definitions";
          elsif Symbol = '.' and not State.In_String_State then
             Enter_String_State (Latin_1.LF);
@@ -94,7 +93,6 @@ package body Languages_Parser is
    
    procedure Language_Spec (State : in out Lexer_State) is
    begin
-      Ada.Text_IO.Put_Line ("> language spec");
       loop
          begin
             Section (State);
@@ -108,7 +106,6 @@ package body Languages_Parser is
    procedure Section (State : in out Lexer_State) is
       Unused : Token_Type;
    begin
-      Ada.Text_IO.Put_Line (">> section");
       Unused := Expecting (State, Token_Period);
       Accept_Token (State);
       begin
@@ -132,7 +129,6 @@ package body Languages_Parser is
       Replacement : Unbounded_String;
       Unused : Token_Type;
    begin
-      Ada.Text_IO.Put_Line (">>> substitutions");
       Position_Name (State, Position);
       Accept_Token (State);
       loop
@@ -148,7 +144,6 @@ package body Languages_Parser is
    procedure Position_Name (State : in out Lexer_State; Position : out Languages.Substitution_Type) is
       Position_Name : Token_Type;
    begin
-      Ada.Text_IO.Put_Line (">>>> position name");
       Position_Name := Expecting (State, Token_String);
       if Position_Name.String_Value = "left" then
          Position := Languages.Left;
@@ -166,7 +161,6 @@ package body Languages_Parser is
    procedure Substitution_Body (State : in out Lexer_State; Pattern : out Unbounded_String; Replacement : out Unbounded_String) is
       Unused : Token_Type;
    begin
-      Ada.Text_IO.Put_Line (">>>> subst body");
       Graphic_String (State, Pattern);
       Accept_Token (State);
       Unused := Expecting (State, Token_Equals);
@@ -177,7 +171,6 @@ package body Languages_Parser is
    procedure Graphic_String (State : in out Lexer_State; Out_String : out Unbounded_String) is
       Token : Token_Type := Next_Token (State);
    begin
-      Ada.Text_IO.Put_Line (">>>>> graphic string");
       Token := Expecting (State, Token_String);
       Out_String := Token.String_Value;
    end Graphic_String;
@@ -189,7 +182,6 @@ package body Languages_Parser is
       Unused : Token_Type;
       Next : Token_Type;
    begin
-      Ada.Text_IO.Put_Line (">>> keys");
       Key_Name (State, Modifier);
       Accept_Token (State);
       loop
@@ -205,7 +197,6 @@ package body Languages_Parser is
    procedure Keys_Body (State : in out Lexer_State; Out_Key : out Softkey; Out_Character : out Character) is
       Unused : Token_Type;
    begin
-      Ada.Text_IO.Put_Line (">>>> keys body");
       Key_Name (State, Out_Key);
       Accept_Token (State);
       Unused := Expecting (State, Token_Equals);
@@ -216,7 +207,6 @@ package body Languages_Parser is
    procedure Key_Name (State : in out Lexer_State; Out_Key : out Softkey) is
       Key_Name : Token_Type;
    begin
-      Ada.Text_IO.Put_Line (">>>>> key name");
       Key_Name := Expecting (State, Token_String);
       Out_Key := Softkey'Value (To_String (Key_Name.String_Value));
    end Key_Name;
@@ -224,7 +214,6 @@ package body Languages_Parser is
    procedure Graphic_Character (State : in out Lexer_State; Out_Character : out Character) is
       Token : Token_Type;
    begin
-      Ada.Text_IO.Put_Line (">>>>> graphic character");
       Token := Expecting (State, Token_String);
       if Length (Token.String_Value) = 1 then
          Out_Character := Element (Token.String_Value, 1);
@@ -238,7 +227,6 @@ package body Languages_Parser is
    function Expecting (State : in out Lexer_State; Variant : Token_Variant) return Token_Type is
       Token : Token_Type := Next_Token (State);
    begin
-      Ada.Text_IO.Put_Line (">>>>>> expecting");
       if Token.Variant = Variant then
          return Token;
       else
