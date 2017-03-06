@@ -1,6 +1,8 @@
 Qweyboard
 =========
 
+![Qweyboard standard layout image](https://raw.githubusercontent.com/kqr/qweyboard/master/qweyboard_standard.png)
+
 Qweyboard aims to be an open source Velotype/Veyboard like experience on a
 regular standard computer keyboard.
 
@@ -77,7 +79,7 @@ order you pressed the keys in.
 To start learning, refer to the following image, which illustrates a regular
 QWERTY keyboard with the Qweyboard layout on it.
 
-![Qweyboard layout image](https://raw.githubusercontent.com/kqr/qweyboard/master/qweyboard_standard.png)
+![Qweyboard standard layout image](https://raw.githubusercontent.com/kqr/qweyboard/master/qweyboard_standard.png)
 
 The colourful circles indicate where your fingers go when they are in their
 neutral position, which you return to this once you've hit some keys. The purple
