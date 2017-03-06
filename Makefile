@@ -1,8 +1,7 @@
-ifeq ($(shell uname),Linux)
+MKDIR=mkdir -p
 PLATFORM=x11
-else
-$(error Linux is currently the only supported platform)
-endif
+# Comment out to use the dummy platform instead
+# PLATFORM=dummy_platform
 
 BIN=qweyboard
 BINDIR=bin
@@ -15,14 +14,8 @@ CFLAGS=-D $(BUILDDIR)
 
 ifeq ($(PLATFORM),x11)
 LIBS=-lX11 -lXi -lXtst
-MKDIR=mkdir -p
-else
-LIBS=
-MKDIR=
 endif
 
-# comment out to use the test dummy platform
-# PLATFORM=dummy_platform
 all:
 	$(MKDIR) build
 	$(MKDIR) bin

@@ -1,7 +1,7 @@
 Qweyboard
 =========
 
-![Qweyboard standard layout image](https://raw.githubusercontent.com/kqr/qweyboard/master/qweyboard_standard.png)
+![Qweyboard standard layout image](https://raw.githubusercontent.com/kqr/qweyboard/master/images/standard-layout.png)
 
 Qweyboard aims to be an open source Velotype/Veyboard like experience on a
 regular standard computer keyboard.
@@ -15,33 +15,30 @@ means you generally make fewer keypresses than with regular keyboards.
 Try it!
 -------
 
-Currently Qweyboard only supports Linux/X11 systems, as that is what I have and
-use.
-
-You should be able to download and run it by typing
+Currently Qweyboard only supports X11-based systems, as that is what I have and
+use. You should be able to download and run it by typing
 
     $ git clone https://github.com/kqr/qweyboard
     $ cd qweyboard
     $ make
     $ ./bin/qweyboard
 
-While the program is running, you can do all your regular typing using the
-Qweyboard.
+While the program is running, you can type using the Qweyboard in any window and
+any application.
 
-All control, alt and super based key combinations retain their normal meaning
-when you use the Qweyboard, so something like CTRL-S to save a document is the
-same as it's always been for you. Only typing letters, symbols and numbers is
-different with the Qweyboard. If you want to temporarily disable the Qweyboard,
-press CTRL-SHIFT-X. This toggles the Qweyboard on and off, so it's a good
-shortcut to remember for passwords and whatnot.
+The Qweyboard program does *not* affect any keyboard shortcuts (like ctrl-s,
+alt-x, super-w and so on).
 
-Quit the program by typing CTRL-C.
+If you need to type a password or otherwise temporarily break out of the
+Qweyboard layout, you can do that by pressing ctrl-shift-x, which will disable
+the Qweyboard but keep the program running. Press ctrl-shift-x again to
+re-enable it.
 
 
 Dependencies
 ------------
 
-If it doesn't want to run or build (undefined symbol, linker errors or
+If Qweyboard doesn't want to run or build (undefined symbol, linker errors or
 whatnot), install the prerequisite dependencies:
 
  * GNAT (Ada compiler; Ada is compiled with GCC but the gnatmake frontend helps)
@@ -60,11 +57,11 @@ Short tutorial
 This is a short tutorial on how to use the Qweyboard. The Qweyboard is easy to
 learn, because it is a lot like a regular QWERTY keyboard in that each key
 produces a letter in the final word. THere are three main differences to your
-regular QWERTY keyboard:
+normal QWERTY keyboard:
 
 1. The most common letters are under your fingers already, which means less
 movement is required. By just learning the ten keys under your fingers, you can
-already type a lot of stuff. [Insert some number here if it turns out impressive]
+already type a lot of stuff.
 
 2. The keys are almost completely symmetrically laid out. This makes the
 Qweyboard surprisingly easy to learn. Your muscle memory loves symmetry.
@@ -77,59 +74,82 @@ order you pressed the keys in.
 ### Layout
 
 To start learning, refer to the following image, which illustrates a regular
-QWERTY keyboard with the Qweyboard layout on it.
+QWERTY keyboard with the Qweyboard layout on it. (This is the image that's also
+at the top of this document.)
 
-![Qweyboard standard layout image](https://raw.githubusercontent.com/kqr/qweyboard/master/qweyboard_standard.png)
+![Qweyboard standard layout image](https://raw.githubusercontent.com/kqr/qweyboard/master/standard-layout.png)
 
 The colourful circles indicate where your fingers go when they are in their
 neutral position, which you return to this once you've hit some keys. The purple
 circles are your thumbs. You'll want to use those when you type on the
-Qweyboard!
+Qweyboard! Below is a similar illustration, except the keys each finger is
+responsible for are lit up in the colour of that finger.
 
-When you type on the Qweyboard, you type what is practically entire *syllables*
-at once. A word like "tin" is produced by pressing the left T-key, the right
-I-key and the right N-key at the same time. Try it now! Press your left ring
-finger, your right index finger and your right thumb simultaneously. You don't
-have to move your fingers – you type a whole word by just striking down on a few
-fingers.
+![Qweyboard finger responsibilities](https://raw.githubusercontent.com/kqr/qweyboard/master/images/finger-keys.png)
+
+When you type on the Qweyboard, you type entire *syllables* at once. A word like
+"tin" is produced by pressing the left T-key, the right I-key and the right
+N-key at the same time. Try it now! Look at the picture below and press your
+left ring finger, your right index finger and your right thumb
+simultaneously.
+
+![Typing "tin"](https://raw.githubusercontent.com/kqr/qweyboard/master/images/tin.png)
+
+You don't have to move your fingers – you type a whole word by just striking
+down on a few fingers.
 
 > Oh, and you're on a laptop keyboard so your keyboard doesn't register that many
 key presses at once? Not a big problem. The Qweyboard is designed such that if
-you press several keys in rapid enough succession that counts as pressing them
+you press several keys in rapid enough succession, that counts as pressing them
 simultaneously. Any time I speak of pressing many keys at the same time, you can
 mentally translate that as "pressing keys in quick enough succession".
 
 > It doesn't matter in which order you press the keys. The final word is based
 on *which* keys you press, not in which order they are pressed.
 
+> How quick is "rapid enough"? That's configurable. At the moment, the default
+is 500 milliseconds, but this may change as I get more experience myself and
+can make better judgements about these things.
+
 So what if you want to type the reverse, "nit"? Use the *left* L-key instead, and
 then the right I-key and the right T-key. If you mirror the keys you press, the
 output word is also mirrored!
 
+![Typing "nit" instead](https://raw.githubusercontent.com/kqr/qweyboard/master/images/nit.png)
+
 You see how the output word is produced by the Qweyboard according to the order
-of the keys on the keyboard, not according to which order you pressed them.
+of the keys on the keyboard, not according to which order you pressed them in.
 
 
 ### Secondary Letters
 
 Some keys have two or more letters on them. The big central letters are the ones
 normally produced by the key. The other letters are produced by holding down
-several keys simultaneously. The most common of these are the "J combinations":
-as you can see, the J keys in the image have a little circle in the upper right
+several keys simultaneously. The most common of these are the "J combinations".
+
+As you can see, the J keys in the image have a little circle in the upper right
 corner. This circle indicates that if you combine the J key with any other key
 on the same side that has a small letter in the upper right, that letter will be
 produced instead. The most common example of this is probably how hitting both
 J and T on the same side will produce the letter D.
 
+In other words, to type a word like "does", you'll press T J O E S, where the T
+J combination represents the letter D. See the image below!
+
+TODO: add image here
+
 The same thing goes for R, except then we're talking about the lower right
 corner. A common example is probably R and N, which produces an M.
 
-There are three special cases, where you find small letters in the lower left
-corner. Those have to be remembered, and they are:
+There are three special cases. These are indicated on the image by small letters
+in the lower *left* corner. These have to be remembered, and they are:
 
 * O + I = A
-* C + F = Q
+* F + C = Q
 * K + Z = X
+
+The O+I combination may surprise you, but it's there because it makes a lot of
+words much more convenient. A is a common vowel.
 
 
 ### Multi-syllable Words
@@ -170,6 +190,8 @@ and play around.
 
 Language Variants
 -----------------
+
+langauges directory. standard is only an example. standard is not english. english needs to be added
 
 At the moment, only Swedish exists as a variation. The way this is done is very
 ad-hoc and unresearched, by simply replacing left I, O and E with Å, Ä and Ö in
