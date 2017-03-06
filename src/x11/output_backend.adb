@@ -152,6 +152,10 @@ package body Output_Backend is
       I : C.Int;
    begin
       I := XTestFakeKeyEvent (Display, Key, XTestPress, 0);
+      --  If we don't sync, the key press-and-release events may appear out of
+      --  order and/or just generally be mangled
+      I := XSync (Display, 0);
       I := XTestFakeKeyEvent (Display, Key, XTestRelease, 0);
+      I := XSync (Display, 0);
    end Fake_Press;
 end Output_Backend;
