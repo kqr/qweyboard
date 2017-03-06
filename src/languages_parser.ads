@@ -2,43 +2,29 @@ with Ada.Text_IO; use Ada.Text_IO;
 with Ada.Characters.Handling;
 with Ada.Characters.Latin_1;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
+with Logging; use Logging;
 with Languages;
 with Keys; use Keys;
 
 package Languages_Parser is
-   --  <language spec>
-   --      ::= e | <section> <language_spec>
-   --  
-   --  <section>
-   --      ::= '[' <section type>
-   --  <section type>
-   --      ::= <substitutions> | <keys>
-   --  
-   --  <substitutions>
-   --      ::= <substitution type> ']' <newline>
-   --          <substitution body>
-   --  <substitution type>
-   --      ::= 'left' | 'middle' | 'right'
-   --  <substitution body>
-   --      ::= e
-   --       |  <string> '=' <string> <newline>
-   --       |  <substitution body>
-   --  <string>
-   --      ::= e | <character> <string>
-   --  
-   --  <keys>
-   --      ::= <key name> ']' <newline>
-   --          <keys body>
-   --  <keys body>
-   --      ::= e
-   --       | <key name> '=' <character> <newline>
-   --         <keys body>
-   --  <key name>
-   --      ::= 'LZ' | 'RJ' | 'MSHI' | 'NOKEY' | ...
-   --  <character>
-   --      ::= Is_Graphic
+   --  <language spec>     ::= <section> *
+   --  <section>           ::= '.' <section type>
+   --  <section type>      ::= <substitutions> | <keys>
+   --  <substitutions>     ::= <substitution type> NL <substitution body> *
+   --  <substitution type> ::= 'left' | 'middle' | 'right'
+   --  <substitution body> ::= <string> '=' <string> NL
+   --  <string>            ::= <character> *
+   --  <keys>              ::= <key name> NL <keys body>*
+   --  <keys body>         ::= <key name> '=' <character> NL
+   --  <key name>          ::= 'LZ' | 'RJ' | 'MSHI' | 'NOKEY' | ...
+   --  <character>         ::= Is_Graphic
    --
-   --  TOKENS: [ = ] <string>
+   --  start --- '.' ---- subname --- NL -+--[subname]--> subs
+   --                                     |
+   --                                     +--[keyname]--> keys
+   --
+   --
+   --  TOKENS: . = <string>
    --  <string> can be special case inits, tails, key name and character
    
    Unexpected_Symbol : exception;
@@ -49,8 +35,7 @@ package Languages_Parser is
 private
    type Token_Variant is
      (Token_String,
-      Token_Open_Bracket,
-      Token_Close_Bracket,
+      Token_Period,
       Token_Equals,
       Token_None);
 
@@ -58,10 +43,8 @@ private
       case Variant is
          when Token_String =>
             String_Value : Unbounded_String;
-         when Token_Open_Bracket => null;
-         when Token_Close_Bracket => null;
-         when Token_Equals => null;
-         when Token_None => null;
+         when others =>
+            null;
       end case;
    end record;
 
@@ -69,8 +52,10 @@ private
       --  TODO: set up a controlled type around this?
       File : File_Type;
       Buffer : Unbounded_String;
-      Buffer_Open : Boolean := False;
+      In_String_State : Boolean;
+      String_Terminator : Character;
       Last_Token : Token_Type;
+      Line_Number : Positive := 1;
    end record;
 
    procedure Advance (State : Lexer_State);

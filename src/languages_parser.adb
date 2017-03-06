@@ -9,7 +9,13 @@ package body Languages_Parser is
          Language_Spec (State);
       exception
          --  TODO: exception handling here as well, if the parser fails?
-         when others => raise;
+         when others =>
+            Log.Error
+              ("[Languages_Parser] Caught exception when parsing " &
+               File_Name & " on line " &
+               Positive'Image (State.Line_Number));
+            Ada.Text_IO.Close (State.File);
+            raise;
       end;
       Ada.Text_IO.Close (State.File);
    end Parse;
@@ -17,15 +23,25 @@ package body Languages_Parser is
    function Next_Token (State : in out Lexer_State) return Token_Type is
       Symbol : Character;
       Newline : Boolean;
-
-      function String_Token return Token_Type is
-         String_Value : Unbounded_String := State.Buffer;
+      package Latin_1 renames Ada.Characters.Latin_1;
+      
+      procedure Enter_String_State (Terminator : Character) is
       begin
          State.Buffer := To_Unbounded_String ("");
-         State.Buffer_Open := False;
+         State.In_String_State := True;
+         State.String_Terminator := Terminator;
+      end Enter_String_State;
+
+      function Exit_String_State return Token_Type is
+         String_Value : Unbounded_String := State.Buffer;
+      begin
+         if not State.In_String_State Then
+            raise Parse_Error with "Trying to exit string state without being in it";
+         end if;
+         State.In_String_State := False;
          State.Last_Token := (Token_String, String_Value);
          return State.Last_Token;
-      end String_Token;
+      end Exit_String_State;
    begin
       if State.Last_Token.Variant /= Token_None then
          return State.Last_Token;
@@ -33,40 +49,39 @@ package body Languages_Parser is
       while not Ada.Text_IO.End_Of_File (State.File) loop
          Ada.Text_IO.Look_Ahead (State.File, Symbol, Newline);
 --         Ada.Text_IO.Put_Line ("Found symbol <" & Symbol & "> and newline? " & (if Newline then "yes" else "no"));
-         if Newline and State.Buffer_Open then
-            return String_Token;
+         if Newline and State.In_String_State and State.String_Terminator = Latin_1.LF then
+            return Exit_String_State;
          elsif Newline then
+            State.Line_Number := State.Line_Number + 1;
             Advance (State);
-         elsif Symbol = ' ' and not State.Buffer_Open then
+         elsif Symbol = ' ' then
+            --  TODO: or other kinds of illegal whitespace, including newlines
+            --  to make sure they are caught with a sensible error message
+            raise Parse_Error with "Whitespace not allowed in definitions";
+         elsif Symbol = '.' and not State.In_String_State then
+            Enter_String_State (Latin_1.LF);
             Advance (State);
-         elsif Symbol = '[' then
-            State.Buffer_Open := True;
-            Advance (State);
-            State.Last_Token := (Variant => Token_Open_Bracket);
+            State.Last_Token := (Variant => Token_Period);
             return State.Last_Token;
-         elsif Symbol = ']' and State.Buffer_Open then
-            return String_Token;
-         elsif Symbol = ']' then
+         elsif Symbol = State.String_Terminator and State.In_String_State then
+            return Exit_String_State;
+         elsif Symbol = State.String_Terminator then
+            Enter_String_State (Latin_1.LF);
             Advance (State);
-            State.Last_Token := (Variant => Token_Close_Bracket);
-            return State.Last_Token;
-         elsif Symbol = '=' and State.Buffer_Open then
-            return String_Token;
-         elsif Symbol = '=' then
-            Advance (State);
-            State.Buffer_Open := True;
             State.Last_Token := (Variant => Token_Equals);
             return State.Last_Token;
          elsif Ada.Characters.Handling.Is_Graphic (Symbol) then
-            State.Buffer_Open := True;
+            if not State.In_String_State then
+               Enter_String_State ('=');
+            end if;
             State.Buffer := State.Buffer & Symbol;
             Advance (State);
          else
             raise Unexpected_Symbol;
          end if;
       end loop;
-      if State.Buffer_Open then
-         return String_Token;
+      if State.In_String_State then
+         return Exit_String_State;
       end if;
 
       raise End_Of_File;
@@ -94,7 +109,7 @@ package body Languages_Parser is
       Unused : Token_Type;
    begin
       Ada.Text_IO.Put_Line (">> section");
-      Unused := Expecting (State, Token_Open_Bracket);
+      Unused := Expecting (State, Token_Period);
       Accept_Token (State);
       begin
          Substitutions (State);
@@ -108,7 +123,7 @@ package body Languages_Parser is
       Next : Token_Type;
    begin
       Next := Next_Token (State);
-      return Next.Variant = Token_Open_Bracket;
+      return Next.Variant = Token_Period;
    end New_Section;
    
    procedure Substitutions (State : in out Lexer_State) is
@@ -119,8 +134,6 @@ package body Languages_Parser is
    begin
       Ada.Text_IO.Put_Line (">>> substitutions");
       Position_Name (State, Position);
-      Accept_Token (State);
-      Unused := Expecting (State, Token_Close_Bracket);
       Accept_Token (State);
       loop
          Substitution_Body (State, Pattern, Replacement);
@@ -178,8 +191,6 @@ package body Languages_Parser is
    begin
       Ada.Text_IO.Put_Line (">>> keys");
       Key_Name (State, Modifier);
-      Accept_Token (State);
-      Unused := Expecting (State, Token_Close_Bracket);
       Accept_Token (State);
       loop
          Keys_Body (State, Key, Symbol);

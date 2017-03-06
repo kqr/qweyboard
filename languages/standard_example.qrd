@@ -1,4 +1,4 @@
-[nokey]
+.NOKEY
 LZ=Z
 LF=F
 LS=S
@@ -32,10 +32,10 @@ RF=F
 RS=S
 RZ=Z
 
-[LO]
+.LO
 RI=A
 
-[LJ]
+.LJ
 LF=V
 LP=B
 LT=D
@@ -43,7 +43,7 @@ LC=G
 LL=H
 LN=W
 
-[RJ]
+.RJ
 RF=V
 RN=W
 RL=H
@@ -51,25 +51,24 @@ RP=B
 RT=D
 RC=G
 
-[LR]
+.LR
 LL=V
 LN=M
-
-[RR]
+.RR
 RN=M
 RL=V
 
-[LC]
+.LC
 LF=Q
 RF=Q
 
-[LK]
+.LK
 LZ=X
 
-[RK]
+.RK
 RZ=X
 
-[MSHI]
+.MSHI
 LS=$
 LP=%
 LT=/
@@ -96,7 +95,7 @@ RC=)
 RF="
 RS=:
 
-[inits]
+.left
 BN=BR
 GN=GR
 DN=DR
@@ -110,7 +109,7 @@ ZT=TS
 CW=QU
 DH=TH
 
-[tails]
+.right
 SZ=STS
 YZ=YS
 NZ=NS
