@@ -39,5 +39,6 @@ package Languages is
 
       function Virtual_Layer (Layout : Layout_Type; Pressed : Key_Sets.Set) return Layer_Maps.Map;
       function Mod_Layer (Layout : Layout_Type; Modifier : Softkey; Pressed : Key_Sets.Set) return Layer_Maps.Map;
+      function Perform_Substitutions (Text : Unbounded_String; From : Substitution_Maps.Map) return Unbounded_String;
    end User_Language;
 end Languages;

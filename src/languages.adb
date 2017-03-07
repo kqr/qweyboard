@@ -19,13 +19,10 @@ package body Languages is
             end if;
          end loop;
          
-         -- TODO This is too simplistic. Need to do search & replace inside the string!
-         if Substitution_Maps.Contains (Substitutions (Left), Init) then
-            Init := Substitutions (Left) (Init);
-         end if;
-         -- TODO perform substitutions also on middle and right
-
-         return Init & Vowels & Tail;
+         return
+           Perform_Substitutions (Init, Substitutions (Left)) &
+           Perform_Substitutions (Vowels, Substitutions (Middle)) &
+           Perform_Substitutions (Tail, Substitutions (Right));
       end Decode;
 
       procedure Add_Key (Modifier : Softkey; Key : Softkey; Symbol : Character) is
@@ -81,6 +78,45 @@ package body Languages is
          end if;
          return Layer;
       end Mod_Layer;
+
+      function Perform_Substitutions (Text : Unbounded_String; From : Substitution_Maps.Map) return Unbounded_String is
+         Ret : Unbounded_String := Text;
+
+         function Substitute_Slice (Low, High : Positive) return Boolean is
+            Pattern : Unbounded_String := To_Unbounded_String (Slice (Ret, Low, High));
+         begin
+            if From.Contains (Pattern) then
+               Replace_Slice (Ret, Low, High, To_String (From (Pattern)));
+               return True;
+            else
+               return False;
+            end if;
+         end Substitute_Slice;
+
+         Substitution_Performed : Boolean;
+      begin
+         --  This entire thing is a bit iffy because it's not at all clear in
+         --  which order substitutions should be performed. It seems from a
+         --  grammatic argument "obvious" that substitutions should be
+         --  performed iteratively, i.e. if one substitution results in a
+         --  pattern for another substitution, they should both be performed.
+         --  However, ensuring this happens in the correct order at all times
+         --  is not a trivial problem, and much analysis is required. I defer
+         --  this concern to a later time, and just pick an arbitrary order
+         --  (left to right, long to short) for the time being.
+         loop
+            Substitution_Performed := False;
+            for Low in 1 .. Length (Ret) loop
+               for High in reverse Low .. Length (Ret) loop
+                  if Substitute_Slice (Low, High) then
+                     Substitution_Performed := True;
+                  end if;
+               end loop;
+            end loop;
+            exit when not Substitution_Performed;
+         end loop;
+         return Ret;
+      end Perform_Substitutions;
    end User_Language;
 begin
    User_Language.Add_Key (NOKEY, LZ, 'Z');
