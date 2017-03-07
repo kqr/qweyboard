@@ -1,0 +1,21 @@
+Here's a loose assortment of tips for anyone who wants to create an English
+language variant. Some of this is taken from the Velotype patent, as far as I
+could understand it.
+
+.left
+ZV=ZW
+TV=TW
+DV=DW
+
+.right
+GDF=DGE
+GHZ=GHT
+IESZ=IESS (?)
+BZ=BLE
+KT=CT
+AJ=AY
+OJ=OY
+UJ=UY
+EJ=EY
+IJ=Y
+ANJ=ANY

@@ -208,12 +208,12 @@ origin of the word is Greek, the reverse digraph can appear: psychology, psalm,
 psoriasis. "Psalm" is a one-syllable word, but going just by the key order on
 the Qweyboard, it takes three syllables to write: "p-sal-m".
 
-To make these cases easier to handle, the Qweyboard can substitute the letter
+   To make these cases easier to handle, the Qweyboard can substitute the letter
 combination "ZP" – when it occurs in the beginning of a word – with the letter
 combination "PS". So to type "psa" more easily on the Qweyboard, you actually
 press the keys for "zpa".
 
-(Another of these substitutions takes care of the end of the word so you can
+   (Another of these substitutions takes care of the end of the word so you can
 actually type "psalm" in one stroke.)
 
 2. Another common case is when the key order of letters *never* occur in common
@@ -221,8 +221,8 @@ writing. In English, this is the case with the letter combination "kc" at the
 end of a word. A word like "rock" is one syllable, but requires two syllables
 according to Qweyboard key order: "roc-k".
 
-However, the Qweyboard will substitute the letter combination "kc" at the end of
-a word for the more commonly occurring "ck", so if you type "rokc" in one
+   However, the Qweyboard will substitute the letter combination "KC" at the end of
+a word for the more commonly occurring "CK", so if you type "rokc" in one
 stroke, you will get "rock".
 
 3. Sometimes a certain common combination of letters is impossible, given the
@@ -232,28 +232,28 @@ the T key will produce the letter D, giving you the output "dh". It's
 impossible to type both T and H at the same time, since they both require
 different states of the J key.
 
-The Qweyboard solves this by substituting the letter combination "dh" at the
-start of a word for the much more common "th".
+   The Qweyboard solves this by substituting the letter combination "DH" at the
+start of a word for the much more common "TH".
 
 4. Another reason the Qweyboard may substitute a letter combination is simply
 for convenience. The letter combination "rp" is somewhat common at the end of a
 word, like in "chirp". However, actually pressing the R and the P key
 simultaneously requires you to strain your fingers quite a bit. We realise that
-the letter combination "kp" is much more rare, so we repurpose that: "kp" at
-the end of a word is replaced by "rp" – a much more convenient chord.
+the letter combination "kp" is much more rare, so we repurpose that: "KP" at
+the end of a word is replaced by "RP" – a much more convenient chord.
 
 5. The last reason to perform substitutions can be grammar. It's common for
 words to end in something like "de", as in "tide". By spelling, this is two
 syllables: "ti-de" or "tid-e". By sound, it's just one. The Qweyboard helps
-you add the "final e" by replacing the letter combination "df" with "de".
+you add the "final e" by replacing the letter combination "DF" with "DE".
 
-The F key is so commonly used this way as a "final e" that this purpose is
+   The F key is so commonly used this way as a "final e" that this purpose is
 marked on the key in the images you have seen above.
 
-This can be made even more advanced when you target a specific language. The
+   This can be made even more advanced when you target a specific language. The
 "ble" ending (as in "fallible", "culpable", "malleable") is common enough in
 English that an English language variant of the Qweyboard can let you type the
-"ble" ending by substituting the "bz" combination at the end of a word.
+"ble" ending by substituting the "BZ" combination at the end of a word.
 
 These are the most common cases that warrant substitutions. If you can come up
 with your own, you are of course free to use them by creating your own "language
@@ -263,7 +263,26 @@ that you should read the entire section on them below.
 
 ### Special Characters and Symbols
 
-To be implemented...
+The goal is to have a shift key that, when used in a chord, turns all letters
+into symbols instead, according to the language variant. This is not yet
+implemented.
+
+
+### Capitalisation
+
+The goal is to have auto-capitalisation at the start of new sentences, with the
+MCAP key to override it, very similar to the "nospace" key. This is not yet
+implemented.
+
+
+### About the H Key
+
+The real Velotype/Veyboard has the letter H on one of the palm keys. This makes
+some key combinations with H much more convenient, and as such it is used in a
+bunch of places where you wouldn't even expect the letter H. Since a regular
+keyboard has no palm key at all, I have simply thrown out the idea of a H key
+for the time being. This means some concessions need to be made in terms of
+key combinations and such. I welcome all and any advice.
 
 
 Language Variants
@@ -273,20 +292,45 @@ Since typing can be made so much faster and easier once you know about the
 language that is being written, the Qweyboard will - if you ask it – read in a
 "language variant" that customises its behaviour slightly.
 
-* consists of
-    * symbols for keys
-    * substitutions
-    * special format, see existing files for examples
-    * language directory contains some that ships with the qweyboard
-* there is a standard
-    * standard is hard coded
-    * this means standard_example.qrd is not actually read unless you ask it to, it is only an example and a references
-    * any languages you add build on top of the standard, i.e. you specify changes and additions
-    * no way of getting a completely blank slate (this can be discussed, of course)
-    * if you need to "remove" a substitution, simply redefine it to substitute with itself!
-* standard is not english
-    * compromise – if it doesn't work complain to me please
-    * english needs to be created
+A "language variant" consists of two things:
+
+* A key mapping, linking keys to the symbols (often letters) they produce, and
+* A substitute mapping, linking sequences of letters to other sequences of
+  letters they should be replaced with.
+
+These two things both go in a file called a "Qweyboard language variant
+definition" file, which has a special format. If you want to create one of these
+definitions, you should look at the existing files in the `languages` directory
+for inspiration. I can't promise it's exactly correct, but I've tried to make
+the format something like what is described here:
+https://github.com/kqr/qweyboard/blob/master/src/languages_parser.ads#L11-L21
+
+There is a "standard Qweyboard", which is what you get if you don't specify any
+language variant at all. This standard is hard-coded into the program and cannot
+be changed. (Which implies, correctly, that the `languages/standard_example.qrd`
+file is just an example – it is not actually read by the program unless you
+specifically ask it to.)
+
+Any language variant you choose will be applied *on top of* the standard. This
+means language variants contain changes and additions to the standard, they are
+not built from a blank slate. (And currently it's not possible to do so, either.
+This can be discussed, of course.) If you need to "remove" a substitution
+because it's bad for your language, you can simply redefine it to equal
+itself. (I.e. if your language file says "ZP=ZP" then that will override the
+standard "ZP=PS" definition.)
+
+It's important to note here that *standard is not English*. Standard is my
+attempt at a *compromise* that will work reasonably well for as many people
+as possible. If you speak a somewhat common language that is somewhat similar
+to English, you should be able to have a decent experience with the "standard"
+Qweyboard. You can get a *better* experience by creating a variant for your
+language, of course, but the standard should be good enough to get started.
+
+There is at the moment *no* English variant that ships with the Qweyboard.
+The reason for this is simple: I use the Swedish variant also for English,
+so I am not the right person to maintain an English variant. I have however
+collected a couple of completely arbitrary tips for anyone who wants to
+create an English version, which can be found in the `languages` directory.
 
 At the moment, only Swedish exists as a variation. The way this is done is very
 ad-hoc and unresearched, by simply replacing left I, O and E with Å, Ä and Ö in
@@ -329,66 +373,7 @@ These are roughly in order of importance, I guess. It's mostly a loose
 collection of personal notes and if anyone needs help interpreting any of them
 I'm glad to assist.
 
-* `[ ]` explain: Languages based on substitutions rather than dictionaries
-
-* `[ ]` explain: Standard layout does not contain all optimisations for english. Standard is
-  meant to be a compromise of as many languages as possible
-
-* `[ ]` explain: Qweyboard does not have a convenient H key, so some accomodations need to be made
-
-* `[x]` Q on C, V on F, E on RF
-
-* `[x]` Order inits: L and N last. Order tails: L and N first!
-
-* NEW DISCOVERIES AFTER READING THE PATENT!!
-
-* `[x]` FJ=V
-
-* `[x]` LC LR RR RC = backspace
-
-* `[ ]` Init substitutions
-
-    * [only in languages where its needed?] ZC=Ccedilla?
-
-    * [english only, not standard]
-        * ZV = ZW
-        * TV = TW
-        * DV = DW
-
-* `[ ]` tails substitutions
-
-    * SZ=STS
-    * YZ=YS
-    * NZ=NS
-    * DZ=DS
-    * MZ=MS
-    * TZ=TS
-    * SJ=SS
-    * CZ=CH
-    * CS=SH
-    * DZ=TH
-    * BF=BE
-    * CF=CE
-    * DF=DF (etc consonants)
-    * KP=RP
-    * KC=CK
-    * GZ=GT
-    * PZ=PT
-    * FZ=FT
-    * NC=GN
-
-    * [english only, not standard]
-        * GDF=DGE
-        * GHZ=GHT
-        * IESZ=IESS (?)
-        * BZ=BLE (doabz=doable)
-        * KT=CT
-        * AJ=AY
-        * OJ=OY
-        * UJ=UY
-        * EJ=EY
-        * IJ=Y
-        * ANJ=ANY
+* `[ ]` Fix XTest failing to press keys correctly sometimes
 
 * `[ ]` [swedish] LO = Ä, but LO+RO=OO: ÄO=OO substitution
 
@@ -397,15 +382,11 @@ I'm glad to assist.
 * `[ ]` shift = sssssymbol keys? actually trickier than I had thought...
      insight!! don't use the actual shift key on the keyboard dummy...
 
-* `[ ]` Actually read layout files...
-
 * `[ ]` do something about memory leaks
 
 * `[ ]` allow capitalisation somehow. perhaps find a spot for the MCAP key?
 
 * `[ ]` Unicodify the whole project. Painfully dependent on iso-8859-1 right now
-
-* `[ ]` come up with a way to define shortcuts on the fly?
 
 * `[ ]` Escape shortcut should be configurable with something like `-e <escape shortcut>`?
 

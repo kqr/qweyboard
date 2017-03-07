@@ -20,11 +20,6 @@ package Languages_Parser is
    --  <key name>          ::= 'LZ' | 'RJ' | 'MSHI' | 'NOKEY' | ...
    --  <character>         ::= Is_Graphic
    --
-   --  start --- '.' ---- subname --- NL -+--[subname]--> subs
-   --                                     |
-   --                                     +--[keyname]--> keys
-   --
-   --
    --  TOKENS: . = <string>
    --  <string> can be special case inits, tails, key name and character
    
