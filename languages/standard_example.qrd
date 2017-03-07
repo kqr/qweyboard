@@ -108,6 +108,7 @@ ZP=PS
 ZT=TS
 CW=QU
 DH=TH
+GH=CH
 
 .right
 SZ=STS
@@ -142,3 +143,5 @@ GZ=GT
 PZ=PT
 FZ=FT
 NC=GN
+WD=ND
+MV=LM

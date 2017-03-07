@@ -273,20 +273,20 @@ Since typing can be made so much faster and easier once you know about the
 language that is being written, the Qweyboard will - if you ask it – read in a
 "language variant" that customises its behaviour slightly.
 
+* there is a standard
+    * standard is hard coded
+    * this means standard_example.qrd is not actually read unless you ask it to, it is only an example and a references
+    * 
 * consists of
     * symbols for keys
     * substitutions
     * special format, see existing files for examples
     * language directory contains some that ships with the qweyboard
-* there is a standard
-    * standard is hard coded
-    * this means standard_example.qrd is not actually read unless you ask it to, it is only an example and a references
-    * any languages you add build on top of the standard, i.e. you specify changes and additions
-    * no way of getting a completely blank slate (this can be discussed, of course)
-    * if you need to "remove" a substitution, simply redefine it to substitute with itself!
 * standard is not english
     * compromise – if it doesn't work complain to me please
     * english needs to be created
+
+langauges directory. standard is only an example. standard is not english. english needs to be added. complaint about standard please let me know
 
 At the moment, only Swedish exists as a variation. The way this is done is very
 ad-hoc and unresearched, by simply replacing left I, O and E with Å, Ä and Ö in

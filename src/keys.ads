@@ -13,9 +13,9 @@ package Keys is
    --  >  mute "E" at the end of word
 
    type Softkey is
-     (LZ, LS, LF, LC, LT, LP, LR, LJ, LK, LE, LO, LI, LL, LN,
-      MY, MA, MU, MAPO,
-      RN, RL, RO, RI, RE, RK, RJ, RR, RP, RT, RC, RF, RS, RZ,
+     (LZ, LS, LF, LC, LT, LP, LR, LJ, LK, LL, LN,
+      LE, LO, LI, MY, MA, MU, MAPO, RO, RI, RE,
+      RN, RL, RK, RJ, RR, RP, RT, RC, RF, RS, RZ,
       --  Special keys that exist on the real hardware
       MSHI, CAPI, NOSP,
       --  Special keys we want (backspace, suspend and "no modifier pressed")
