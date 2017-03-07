@@ -1,4 +1,4 @@
-with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
+with Unicode_Strings; use Unicode_Strings;
 with Logging;
 
 package Output_Backend is
@@ -6,7 +6,7 @@ package Output_Backend is
 
    task Output is
       entry Ready_Wait;
-      entry Enter (Text : Unbounded_String; Continues_Word : Boolean);
+      entry Enter (Text : UString; Continues_Word : Boolean);
       entry Erase (Amount : Positive);
       entry Shut_Down;
    end Output;

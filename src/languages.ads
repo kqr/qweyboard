@@ -1,23 +1,16 @@
-with Ada.Strings.Unbounded;
-with Ada.Text_IO;
+with Unicode_Strings; use Unicode_Strings;
 with Ada.Containers.Vectors;
 with Ada.Containers.Ordered_Maps;
 with Ada.Characters.Latin_1;
 with Ada.Characters.Handling;
 with Keys; use Keys;
-
-with Logging;
+with Logging; use Logging;
 
 package Languages is
-   use Logging;
-   use Ada.Strings.Unbounded;
-   
-   PARSE_ERROR : Exception;
-
    package Key_Vectors is new Ada.Containers.Vectors (Index_Type => Positive, Element_Type => Softkey);
-   package Layer_Maps is new Ada.Containers.Ordered_Maps (Key_Type => Softkey, Element_Type => Character);
+   package Layer_Maps is new Ada.Containers.Ordered_Maps (Key_Type => Softkey, Element_Type => UChar);
    package Layout_Maps is new Ada.Containers.Ordered_Maps (Key_Type => Softkey, Element_Type => Layer_Maps.Map, "=" => Layer_Maps."=");
-   package Substitution_Maps is new Ada.Containers.Ordered_Maps (Key_Type => Unbounded_String, Element_Type => Unbounded_String);
+   package Substitution_Maps is new Ada.Containers.Ordered_Maps (Key_Type => UString, Element_Type => UString, "<" => Unicode_Strings."<");
 
    type Layout_Type is record
       --  This is a vector because we want the order they're declared in to matter...
@@ -30,15 +23,15 @@ package Languages is
    type Substitution_Dictionary is array (Substitution_Type) of Substitution_Maps.Map;
 
    protected User_Language is
-      function Decode (Released : Key_Sets.Set) return Unbounded_String;
-      procedure Add_Key (Modifier : Softkey; Key : Softkey; Symbol : Character);
-      procedure Add_Substitution (Position : Substitution_Type; Pattern : Unbounded_String; Replacement : Unbounded_String);
+      function Decode (Released : Key_Sets.Set) return UString;
+      procedure Add_Key (Modifier : Softkey; Key : Softkey; Symbol : UChar);
+      procedure Add_Substitution (Position : Substitution_Type; Pattern : UString; Replacement : UString);
    private
       Current_Layout : Layout_Type;
       Substitutions : Substitution_Dictionary;
 
       function Virtual_Layer (Layout : Layout_Type; Pressed : Key_Sets.Set) return Layer_Maps.Map;
       function Mod_Layer (Layout : Layout_Type; Modifier : Softkey; Pressed : Key_Sets.Set) return Layer_Maps.Map;
-      function Perform_Substitutions (Text : Unbounded_String; From : Substitution_Maps.Map) return Unbounded_String;
+      function Perform_Substitutions (Text : UString; From : Substitution_Maps.Map) return UString;
    end User_Language;
 end Languages;

@@ -13,7 +13,7 @@ package body Output_Backend is
       Display : Display_Access;
    end record;
 
-   procedure Fake_Input_String (Display : Display_Access; Text : String);
+   procedure Fake_Input_String (Display : Display_Access; Text : UString);
    procedure Fake_Input_Keysym (Display : Display_Access; Keysym : C.Unsigned_Long);
    function Scratch_Keycode (Display : Display_Access) return C.Int;
    procedure Fake_Press (Display : Display_Access; Key : C.Int);
@@ -28,7 +28,7 @@ package body Output_Backend is
    task body Output is
       XTest : XTest_Data;
       XTest_Opcode : C.Int;
-      Last_Output : Unbounded_String;
+      Last_Output : UString;
    begin
       Log.Chat ("[X11.Output] Opening display");
       XTest.Display := XOpenDisplay (C.Strings.Null_Ptr);
@@ -52,13 +52,13 @@ package body Output_Backend is
       Log.Chat ("[X11.Output] Entering loop");
       loop
          select
-            accept Enter (Text : Unbounded_String; Continues_Word : Boolean) do
-               Log.Chat ("Asked to enter """ & To_String (Text) & """");
+            accept Enter (Text : UString; Continues_Word : Boolean) do
+               Log.Chat ("Asked to enter """ & (+Text) & """");
                if Continues_Word then
                   Log.Chat ("First erasing space");
                   Fake_Input_Keysym (XTest.Display, 16#ff08#);
                end if;
-               Fake_Input_String (XTest.Display, To_String (Text) & " ");
+               Fake_Input_String (XTest.Display, Text & (+" "));
             end Enter;
          or
             accept Erase (Amount : Positive) do
@@ -76,20 +76,22 @@ package body Output_Backend is
    end Output;
 
 
-   procedure Fake_Input_String (Display : Display_Access; Text : String) is
-      function Is_Basic_Latin1 (Letter : Character) return Boolean is
+   procedure Fake_Input_String (Display : Display_Access; Text : UString) is
+      function Is_Basic_Latin1 (Letter : UChar) return Boolean is
       begin
-         return Character'Pos (Letter) >= 16#20# and Character'Pos (Letter) <= 16#fe#;
+         return UChar'Pos (Letter) >= 16#20# and UChar'Pos (Letter) <= 16#fe#;
       end Is_Basic_Latin1;
+      Letter : UChar;
    begin
-      Log.Info ("[X11] Outputting """ & Text & """");
-      for Letter of Text loop
+      Log.Info ("[X11] Outputting """ & (+Text) & """");
+      for I in 1 .. Length (Text) loop
+         Letter := Element (Text, I);
          if not Is_Basic_Latin1 (Letter) then
             raise ENCODING_ERROR with "Invalid character in string. Only basic Latin 1 has a simple mapping to Keysyms and that's as much as I'm prepared to deal with right now. Pull requests welcome!";
          end if;
          
          declare
-            Keysym : C.Unsigned_Long := Character'Pos (Letter);
+            Keysym : C.Unsigned_Long := UChar'Pos (Letter);
          begin
             Fake_Input_Keysym (Display, Keysym);
          end;

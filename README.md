@@ -373,9 +373,11 @@ These are roughly in order of importance, I guess. It's mostly a loose
 collection of personal notes and if anyone needs help interpreting any of them
 I'm glad to assist.
 
+* `[ ]` [swedish] LO = Ä, but LO+RO=OO: ÄO=OO substitution
+
 * `[ ]` Fix XTest failing to press keys correctly sometimes
 
-* `[ ]` [swedish] LO = Ä, but LO+RO=OO: ÄO=OO substitution
+* `[ ]` convert logging to ustring, and possibly in other places too
 
 * `[ ]` LZ RZ = return
 

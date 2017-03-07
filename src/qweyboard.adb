@@ -28,7 +28,7 @@ package body Qweyboard is
       end Erase;
 
       procedure Commit is
-         Result : Unbounded_String;
+         Result : UString;
          use type Key_Sets.Set;
       begin
          Result := Languages.User_Language.Decode (Released);
@@ -73,15 +73,15 @@ package body Qweyboard is
                         begin
                            if Released.Is_Empty and Pressed.Is_Empty then
                               if Event.Key = NOSP then
-                                 Last_Output := (Syllable, To_Unbounded_String (" "), False);
+                                 Last_Output := (Syllable, +" ", False);
                                  Output_Backend.Output.Enter (Last_Output.Text, Last_Output.Continues_Word);
                                  Special_Used := True;
                               elsif Event.Key = RO then
-                                 Last_Output := (Syllable, To_Unbounded_String ("."), True);
+                                 Last_Output := (Syllable, +".", True);
                                  Output_Backend.Output.Enter (Last_Output.Text, Last_Output.Continues_Word);
                                  Special_Used := True;
                               elsif Event.Key = RJ then
-                                 Last_Output := (Syllable, To_Unbounded_String (","), True);
+                                 Last_Output := (Syllable, +",", True);
                                  Output_Backend.Output.Enter (Last_Output.Text, Last_Output.Continues_Word);
                                  Special_Used := True;
                               end if;

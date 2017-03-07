@@ -1,9 +1,8 @@
 package body Languages_Parser is
-   
    procedure Parse (File_Name : String) is
       State : Lexer_State;
    begin
-      Ada.Text_IO.Open (State.File, Ada.Text_IO.In_File, File_Name);
+      IO.Open (State.File, IO.In_File, File_Name, "ENCODING=UTF8,WCEM=8");
       begin
          Language_Spec (State);
       exception
@@ -12,26 +11,26 @@ package body Languages_Parser is
               ("[Languages_Parser] Caught exception when parsing " &
                File_Name & " on line " &
                Positive'Image (State.Line_Number));
-            Ada.Text_IO.Close (State.File);
+            IO.Close (State.File);
             raise;
       end;
-      Ada.Text_IO.Close (State.File);
+      IO.Close (State.File);
    end Parse;
    
    function Next_Token (State : in out Lexer_State) return Token_Type is
-      Symbol : Character;
+      Symbol : UChar;
       Newline : Boolean;
       package Latin_1 renames Ada.Characters.Latin_1;
       
-      procedure Enter_String_State (Terminator : Character) is
+      procedure Enter_String_State (Terminator : UChar) is
       begin
-         State.Buffer := To_Unbounded_String ("");
+         State.Buffer := +"";
          State.In_String_State := True;
          State.String_Terminator := Terminator;
       end Enter_String_State;
 
       function Exit_String_State return Token_Type is
-         String_Value : Unbounded_String := State.Buffer;
+         String_Value : UString := State.Buffer;
       begin
          if not State.In_String_State Then
             raise Parse_Error
@@ -45,10 +44,10 @@ package body Languages_Parser is
       if State.Last_Token.Variant /= Token_None then
          return State.Last_Token;
       end if;
-      while not Ada.Text_IO.End_Of_File (State.File) loop
-         Ada.Text_IO.Look_Ahead (State.File, Symbol, Newline);
+      while not IO.End_Of_File (State.File) loop
+         IO.Look_Ahead (State.File, Symbol, Newline);
 --         Ada.Text_IO.Put_Line ("Found symbol <" & Symbol & "> and newline? " & (if Newline then "yes" else "no"));
-         if Newline and State.In_String_State and State.String_Terminator = Latin_1.LF then
+         if Newline and State.In_String_State and State.String_Terminator = +Latin_1.LF then
             return Exit_String_State;
          elsif Newline then
             State.Line_Number := State.Line_Number + 1;
@@ -58,18 +57,18 @@ package body Languages_Parser is
             --  they're not considered "graphic" characters
             raise Parse_Error with "Whitespace not allowed in definitions";
          elsif Symbol = '.' and not State.In_String_State then
-            Enter_String_State (Latin_1.LF);
+            Enter_String_State (+Latin_1.LF);
             Advance (State);
             State.Last_Token := (Variant => Token_Period);
             return State.Last_Token;
          elsif Symbol = State.String_Terminator and State.In_String_State then
             return Exit_String_State;
          elsif Symbol = State.String_Terminator then
-            Enter_String_State (Latin_1.LF);
+            Enter_String_State (+Latin_1.LF);
             Advance (State);
             State.Last_Token := (Variant => Token_Equals);
             return State.Last_Token;
-         elsif Ada.Characters.Handling.Is_Graphic (Symbol) then
+         elsif Wide_Wide_Character'Pos (Symbol) > 16#20# then
             if not State.In_String_State then
                Enter_String_State ('=');
             end if;
@@ -125,8 +124,8 @@ package body Languages_Parser is
    
    procedure Substitutions (State : in out Lexer_State) is
       Position : Languages.Substitution_Type;
-      Pattern : Unbounded_String;
-      Replacement : Unbounded_String;
+      Pattern : UString;
+      Replacement : UString;
       Unused : Token_Type;
    begin
       Position_Name (State, Position);
@@ -145,20 +144,20 @@ package body Languages_Parser is
       Position_Name : Token_Type;
    begin
       Position_Name := Expecting (State, Token_String);
-      if Position_Name.String_Value = "left" then
+      if Position_Name.String_Value = +"left" then
          Position := Languages.Left;
-      elsif Position_Name.String_Value = "middle" then
+      elsif Position_Name.String_Value = +"middle" then
          Position := Languages.Middle;
-      elsif Position_Name.String_Value = "right" then
+      elsif Position_Name.String_Value = +"right" then
          Position := Languages.Right;
       else
          raise Parse_Error with
-           "string """ & To_String (Position_Name.String_Value) &
+           "string """ & (+Position_Name.String_Value) &
            """ is not one of (left, middle, right)";
       end if;
    end Position_Name;
 
-   procedure Substitution_Body (State : in out Lexer_State; Pattern : out Unbounded_String; Replacement : out Unbounded_String) is
+   procedure Substitution_Body (State : in out Lexer_State; Pattern : out UString; Replacement : out UString) is
       Unused : Token_Type;
    begin
       Graphic_String (State, Pattern);
@@ -168,7 +167,7 @@ package body Languages_Parser is
       Graphic_String (State, Replacement);
    end Substitution_Body;
 
-   procedure Graphic_String (State : in out Lexer_State; Out_String : out Unbounded_String) is
+   procedure Graphic_String (State : in out Lexer_State; Out_String : out UString) is
       Token : Token_Type := Next_Token (State);
    begin
       Token := Expecting (State, Token_String);
@@ -178,7 +177,7 @@ package body Languages_Parser is
    procedure Keys (State : in out Lexer_State) is
       Modifier : Softkey;
       Key : Softkey;
-      Symbol : Character;
+      Symbol : UChar;
       Unused : Token_Type;
       Next : Token_Type;
    begin
@@ -194,7 +193,7 @@ package body Languages_Parser is
       end loop;
    end Keys;
 
-   procedure Keys_Body (State : in out Lexer_State; Out_Key : out Softkey; Out_Character : out Character) is
+   procedure Keys_Body (State : in out Lexer_State; Out_Key : out Softkey; Out_Character : out UChar) is
       Unused : Token_Type;
    begin
       Key_Name (State, Out_Key);
@@ -208,10 +207,10 @@ package body Languages_Parser is
       Key_Name : Token_Type;
    begin
       Key_Name := Expecting (State, Token_String);
-      Out_Key := Softkey'Value (To_String (Key_Name.String_Value));
+      Out_Key := Softkey'Value (+ (Key_Name.String_Value));
    end Key_Name;
 
-   procedure Graphic_Character (State : in out Lexer_State; Out_Character : out Character) is
+   procedure Graphic_Character (State : in out Lexer_State; Out_Character : out UChar) is
       Token : Token_Type;
    begin
       Token := Expecting (State, Token_String);
@@ -220,7 +219,7 @@ package body Languages_Parser is
          return;
       end if;
       raise Parse_Error with
-        "string """ & To_String (Token.String_Value) &
+        "string """ & (+Token.String_Value) &
         """ does not represent a character";
    end Graphic_Character;
 
@@ -238,14 +237,14 @@ package body Languages_Parser is
    end Expecting;
 
    procedure Advance (State : Lexer_State) is
-      Symbol : Character;
+      Symbol : UChar;
       Newline : Boolean;
    begin
-      Ada.Text_IO.Look_Ahead (State.File, Symbol, Newline);
+      IO.Look_Ahead (State.File, Symbol, Newline);
       if Newline then
-         Ada.Text_IO.Get_Immediate (State.File, Symbol);
+         IO.Get_Immediate (State.File, Symbol);
       else
-         Ada.Text_IO.Get (State.File, Symbol);
+         IO.Get (State.File, Symbol);
       end if;
    end Advance;
    

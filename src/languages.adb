@@ -1,9 +1,9 @@
 package body Languages is
    protected body User_Language is
-      function Decode (Released : Key_Sets.Set) return Unbounded_String is
-         Init : Unbounded_String;
-         Vowels : Unbounded_String;
-         Tail : Unbounded_String;
+      function Decode (Released : Key_Sets.Set) return UString is
+         Init : UString;
+         Vowels : UString;
+         Tail : UString;
       begin
          --  As if by accident, the declaration order of Softkey in conjunction with
          --  the implementation of Ordered_(Sets|Maps) means this iteration happens
@@ -25,7 +25,7 @@ package body Languages is
            Perform_Substitutions (Tail, Substitutions (Right));
       end Decode;
 
-      procedure Add_Key (Modifier : Softkey; Key : Softkey; Symbol : Character) is
+      procedure Add_Key (Modifier : Softkey; Key : Softkey; Symbol : UChar) is
          use Ada.Characters.Handling;
       begin
          if not Current_Layout.Layers.Contains (Modifier) then
@@ -37,7 +37,7 @@ package body Languages is
          Layer_Maps.Include (Current_Layout.Layers (Modifier), Key, Symbol);
       end Add_Key;
 
-      procedure Add_Substitution (Position : Substitution_Type; Pattern : Unbounded_String; Replacement : Unbounded_String) is
+      procedure Add_Substitution (Position : Substitution_Type; Pattern : UString; Replacement : UString) is
       begin
          Substitution_Maps.Include (Substitutions (Position), Pattern, Replacement);
       end Add_Substitution;
@@ -79,14 +79,14 @@ package body Languages is
          return Layer;
       end Mod_Layer;
 
-      function Perform_Substitutions (Text : Unbounded_String; From : Substitution_Maps.Map) return Unbounded_String is
-         Ret : Unbounded_String := Text;
+      function Perform_Substitutions (Text : UString; From : Substitution_Maps.Map) return UString is
+         Ret : UString := Text;
 
          function Substitute_Slice (Low, High : Positive) return Boolean is
-            Pattern : Unbounded_String := To_Unbounded_String (Slice (Ret, Low, High));
+            Pattern : UString := Slice (Ret, Low, High);
          begin
             if From.Contains (Pattern) then
-               Replace_Slice (Ret, Low, High, To_String (From (Pattern)));
+               Replace_Slice (Ret, Low, High, +From (Pattern));
                return True;
             else
                return False;
@@ -197,51 +197,51 @@ begin
    User_Language.Add_Key (MSHI, RC, ')');
    User_Language.Add_Key (MSHI, RF, '"');
    User_Language.Add_Key (MSHI, RS, ':');
-   User_Language.Add_Substitution (Left, To_Unbounded_String ("BN"), To_Unbounded_String ("BR"));
-   User_Language.Add_Substitution (Left, To_Unbounded_String ("GN"), To_Unbounded_String ("GR"));
-   User_Language.Add_Substitution (Left, To_Unbounded_String ("DN"), To_Unbounded_String ("DR"));
-   User_Language.Add_Substitution (Left, To_Unbounded_String ("VN"), To_Unbounded_String ("VR"));
-   User_Language.Add_Substitution (Left, To_Unbounded_String ("PK"), To_Unbounded_String ("PR"));
-   User_Language.Add_Substitution (Left, To_Unbounded_String ("TK"), To_Unbounded_String ("TR"));
-   User_Language.Add_Substitution (Left, To_Unbounded_String ("FK"), To_Unbounded_String ("FR"));
-   User_Language.Add_Substitution (Left, To_Unbounded_String ("CK"), To_Unbounded_String ("KR"));
-   User_Language.Add_Substitution (Left, To_Unbounded_String ("ZP"), To_Unbounded_String ("PS"));
-   User_Language.Add_Substitution (Left, To_Unbounded_String ("ZT"), To_Unbounded_String ("TS"));
-   User_Language.Add_Substitution (Left, To_Unbounded_String ("CW"), To_Unbounded_String ("QU"));
-   User_Language.Add_Substitution (Left, To_Unbounded_String ("DH"), To_Unbounded_String ("TH"));
-   User_Language.Add_Substitution (Left, To_Unbounded_String ("GH"), To_Unbounded_String ("CH"));
-   User_Language.Add_Substitution (Right, To_Unbounded_String ("SZ"), To_Unbounded_String ("STS"));
-   User_Language.Add_Substitution (Right, To_Unbounded_String ("YZ"), To_Unbounded_String ("YS"));
-   User_Language.Add_Substitution (Right, To_Unbounded_String ("NZ"), To_Unbounded_String ("NS"));
-   User_Language.Add_Substitution (Right, To_Unbounded_String ("DZ"), To_Unbounded_String ("DS"));
-   User_Language.Add_Substitution (Right, To_Unbounded_String ("MZ"), To_Unbounded_String ("MS"));
-   User_Language.Add_Substitution (Right, To_Unbounded_String ("TZ"), To_Unbounded_String ("TS"));
-   User_Language.Add_Substitution (Right, To_Unbounded_String ("SJ"), To_Unbounded_String ("SS"));
-   User_Language.Add_Substitution (Right, To_Unbounded_String ("CZ"), To_Unbounded_String ("CH"));
-   User_Language.Add_Substitution (Right, To_Unbounded_String ("CS"), To_Unbounded_String ("SH"));
-   User_Language.Add_Substitution (Right, To_Unbounded_String ("DZ"), To_Unbounded_String ("TH"));
-   User_Language.Add_Substitution (Right, To_Unbounded_String ("BF"), To_Unbounded_String ("BE"));
-   User_Language.Add_Substitution (Right, To_Unbounded_String ("CF"), To_Unbounded_String ("CE"));
-   User_Language.Add_Substitution (Right, To_Unbounded_String ("DF"), To_Unbounded_String ("DE"));
-   User_Language.Add_Substitution (Right, To_Unbounded_String ("GF"), To_Unbounded_String ("GE"));
-   User_Language.Add_Substitution (Right, To_Unbounded_String ("KF"), To_Unbounded_String ("KE"));
-   User_Language.Add_Substitution (Right, To_Unbounded_String ("LF"), To_Unbounded_String ("LE"));
-   User_Language.Add_Substitution (Right, To_Unbounded_String ("MF"), To_Unbounded_String ("ME"));
-   User_Language.Add_Substitution (Right, To_Unbounded_String ("NF"), To_Unbounded_String ("NE"));
-   User_Language.Add_Substitution (Right, To_Unbounded_String ("PF"), To_Unbounded_String ("PE"));
-   User_Language.Add_Substitution (Right, To_Unbounded_String ("RF"), To_Unbounded_String ("RE"));
-   User_Language.Add_Substitution (Right, To_Unbounded_String ("SF"), To_Unbounded_String ("SE"));
-   User_Language.Add_Substitution (Right, To_Unbounded_String ("TF"), To_Unbounded_String ("TE"));
-   User_Language.Add_Substitution (Right, To_Unbounded_String ("VF"), To_Unbounded_String ("VE"));
-   User_Language.Add_Substitution (Right, To_Unbounded_String ("WF"), To_Unbounded_String ("WE"));
-   User_Language.Add_Substitution (Right, To_Unbounded_String ("XF"), To_Unbounded_String ("XE"));
-   User_Language.Add_Substitution (Right, To_Unbounded_String ("ZF"), To_Unbounded_String ("ZE"));
-   User_Language.Add_Substitution (Right, To_Unbounded_String ("KP"), To_Unbounded_String ("RP"));
-   User_Language.Add_Substitution (Right, To_Unbounded_String ("KC"), To_Unbounded_String ("CK"));
-   User_Language.Add_Substitution (Right, To_Unbounded_String ("GZ"), To_Unbounded_String ("GT"));
-   User_Language.Add_Substitution (Right, To_Unbounded_String ("PZ"), To_Unbounded_String ("PT"));
-   User_Language.Add_Substitution (Right, To_Unbounded_String ("FZ"), To_Unbounded_String ("FT"));
-   User_Language.Add_Substitution (Right, To_Unbounded_String ("NC"), To_Unbounded_String ("GN"));
-   User_Language.Add_Substitution (Right, To_Unbounded_String ("WD"), To_Unbounded_String ("ND"));
-   User_Language.Add_Substitution (Right, To_Unbounded_String ("MV"), To_Unbounded_String ("LM"));
+   User_Language.Add_Substitution (Left, +"BN", +"BR");
+   User_Language.Add_Substitution (Left, +"GN", +"GR");
+   User_Language.Add_Substitution (Left, +"DN", +"DR");
+   User_Language.Add_Substitution (Left, +"VN", +"VR");
+   User_Language.Add_Substitution (Left, +"PK", +"PR");
+   User_Language.Add_Substitution (Left, +"TK", +"TR");
+   User_Language.Add_Substitution (Left, +"FK", +"FR");
+   User_Language.Add_Substitution (Left, +"CK", +"KR");
+   User_Language.Add_Substitution (Left, +"ZP", +"PS");
+   User_Language.Add_Substitution (Left, +"ZT", +"TS");
+   User_Language.Add_Substitution (Left, +"CW", +"QU");
+   User_Language.Add_Substitution (Left, +"DH", +"TH");
+   User_Language.Add_Substitution (Left, +"GH", +"CH");
+   User_Language.Add_Substitution (Right, +"SZ", +"STS");
+   User_Language.Add_Substitution (Right, +"YZ", +"YS");
+   User_Language.Add_Substitution (Right, +"NZ", +"NS");
+   User_Language.Add_Substitution (Right, +"DZ", +"DS");
+   User_Language.Add_Substitution (Right, +"MZ", +"MS");
+   User_Language.Add_Substitution (Right, +"TZ", +"TS");
+   User_Language.Add_Substitution (Right, +"SJ", +"SS");
+   User_Language.Add_Substitution (Right, +"CZ", +"CH");
+   User_Language.Add_Substitution (Right, +"CS", +"SH");
+   User_Language.Add_Substitution (Right, +"DZ", +"TH");
+   User_Language.Add_Substitution (Right, +"BF", +"BE");
+   User_Language.Add_Substitution (Right, +"CF", +"CE");
+   User_Language.Add_Substitution (Right, +"DF", +"DE");
+   User_Language.Add_Substitution (Right, +"GF", +"GE");
+   User_Language.Add_Substitution (Right, +"KF", +"KE");
+   User_Language.Add_Substitution (Right, +"LF", +"LE");
+   User_Language.Add_Substitution (Right, +"MF", +"ME");
+   User_Language.Add_Substitution (Right, +"NF", +"NE");
+   User_Language.Add_Substitution (Right, +"PF", +"PE");
+   User_Language.Add_Substitution (Right, +"RF", +"RE");
+   User_Language.Add_Substitution (Right, +"SF", +"SE");
+   User_Language.Add_Substitution (Right, +"TF", +"TE");
+   User_Language.Add_Substitution (Right, +"VF", +"VE");
+   User_Language.Add_Substitution (Right, +"WF", +"WE");
+   User_Language.Add_Substitution (Right, +"XF", +"XE");
+   User_Language.Add_Substitution (Right, +"ZF", +"ZE");
+   User_Language.Add_Substitution (Right, +"KP", +"RP");
+   User_Language.Add_Substitution (Right, +"KC", +"CK");
+   User_Language.Add_Substitution (Right, +"GZ", +"GT");
+   User_Language.Add_Substitution (Right, +"PZ", +"PT");
+   User_Language.Add_Substitution (Right, +"FZ", +"FT");
+   User_Language.Add_Substitution (Right, +"NC", +"GN");
+   User_Language.Add_Substitution (Right, +"WD", +"ND");
+   User_Language.Add_Substitution (Right, +"MV", +"LM");
 end Languages;
