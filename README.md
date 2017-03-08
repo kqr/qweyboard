@@ -380,7 +380,7 @@ I'm glad to assist.
 
 * `[ ]` do something about memory leaks
 
-* `[ ]` allow capitalisation somehow. perhaps find a spot for the MCAP key?
+* `[ ]` allow capitalisation somehow. perhaps find a spot for the MCAP key? auto-caps after sentence end
 
 * `[ ]` Escape shortcut should be configurable with something like `-e <escape shortcut>`?
 
