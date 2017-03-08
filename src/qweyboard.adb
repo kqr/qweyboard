@@ -32,6 +32,7 @@ package body Qweyboard is
          use type Key_Sets.Set;
       begin
          Result := Languages.User_Language.Decode (Released);
+         Translate (Result, Character_Maps.Lower_Case_Map);
 
          if Released = Return_Combo then
             Log.Warning ("[Qweyboard] Return press not implemented");
