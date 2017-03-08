@@ -8,10 +8,10 @@ package body Logging is
             when Normal =>
                null;
             when Abnormal =>
-               Put_Line (Standard_Error, "Something caused termination in task " & Image (T));
+               IO.Put_Line (IO.Current_Error, W ("Something caused termination in task " & Image (T)));
             when Unhandled_Exception =>
-               Put_Line (Standard_Error, "Uncaught exception terminated task " & Image (T) & ":");
-               Put_Line (Standard_Error, Exception_Information (X));
+               IO.Put_Line (IO.Current_Error, W ("Uncaught exception terminated task " & Image (T) & ":"));
+               IO.Put_Line (IO.Current_Error, W (Exception_Information (X)));
          end case;
       end Diagnostics;
    end Termination_Handler;
@@ -25,27 +25,27 @@ package body Logging is
                Verbosity := User_Verbosity;
             end Set_Verbosity;
          or
-            accept Chat (Text : String; Suffix : String := 1*Ada.Characters.Latin_1.LF) do
+            accept Chat (Text : Wide_Wide_String; Suffix : Wide_Wide_Character := Characters.LF) do
                if Verbosity >= Log_Chatty then
-                  Put (Standard_Error, Text & Suffix);
+                  IO.Put (IO.Current_Error, Text & Suffix);
                end if;
             end Chat;
          or
-            accept Info (Text : String; Suffix : String := 1*Ada.Characters.Latin_1.LF) do
+            accept Info (Text : Wide_Wide_String; Suffix : Wide_Wide_Character := Characters.LF) do
                if Verbosity >= Log_Info then
-                  Put (Standard_Error, Text & Suffix);
+                  IO.Put (IO.Current_Error, Text & Suffix);
                end if;
             end Info;
          or
-            accept Warning (Text : String; Suffix : String := 1*Ada.Characters.Latin_1.LF) do
+            accept Warning (Text : Wide_Wide_String; Suffix : Wide_Wide_Character := Characters.LF) do
                if Verbosity >= Log_Warning then
-                  Put (Standard_Error, Text & Suffix);
+                  IO.Put (IO.Current_Error, Text & Suffix);
                end if;
             end Warning;
          or
-            accept Error (Text : String; Suffix : String := 1*Ada.Characters.Latin_1.LF) do
+            accept Error (Text : Wide_Wide_String; Suffix : Wide_Wide_Character := Characters.LF) do
                if Verbosity >= Log_Error then
-                  Put (Standard_Error, Text & Suffix);
+                  IO.Put (IO.Current_Error, Text & Suffix);
                end if;
             end Error;
          or

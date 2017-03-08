@@ -1,3 +1,4 @@
+with String_Helpers; use String_Helpers;
 with Ada.Command_Line;
 with Ada.Task_Termination;
 with Ada.Task_Identification;
@@ -39,7 +40,7 @@ begin
 
 exception
    when Configuration.ARGUMENTS_ERROR =>
-      Log.Error ("Usage: " & Ada.Command_Line.Command_Name & " [OPTION]");
+      Log.Error ("Usage: " & W (Ada.Command_Line.Command_Name) & " [OPTION]");
       Log.Error ("                                                                      ");
       Log.Error ("[OPTION] is any combination of the following options:                 ");
       Log.Error ("                                                                      ");

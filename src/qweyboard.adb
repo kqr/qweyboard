@@ -28,7 +28,7 @@ package body Qweyboard is
       end Erase;
 
       procedure Commit is
-         Result : UString;
+         Result : Unbounded_Wide_Wide_String;
          use type Key_Sets.Set;
       begin
          Result := Languages.User_Language.Decode (Released);
@@ -51,7 +51,7 @@ package body Qweyboard is
          select
             accept Configure (Settings : Configuration.Settings) do
                Current_Timeout := Settings.Timeout;
-               Log.Chat ("[Qweyboard] Setting timeout to" & Duration'Image (Current_Timeout));
+               Log.Chat ("[Qweyboard] Setting timeout to" & W (Duration'Image (Current_Timeout)));
             end Configure;
          or
             accept Handle (Event : Key_Event) do
@@ -73,15 +73,15 @@ package body Qweyboard is
                         begin
                            if Released.Is_Empty and Pressed.Is_Empty then
                               if Event.Key = NOSP then
-                                 Last_Output := (Syllable, +" ", False);
+                                 Last_Output := (Syllable, To_Unbounded (" "), False);
                                  Output_Backend.Output.Enter (Last_Output.Text, Last_Output.Continues_Word);
                                  Special_Used := True;
                               elsif Event.Key = RO then
-                                 Last_Output := (Syllable, +".", True);
+                                 Last_Output := (Syllable, To_Unbounded ("."), True);
                                  Output_Backend.Output.Enter (Last_Output.Text, Last_Output.Continues_Word);
                                  Special_Used := True;
                               elsif Event.Key = RJ then
-                                 Last_Output := (Syllable, +",", True);
+                                 Last_Output := (Syllable, To_Unbounded (","), True);
                                  Output_Backend.Output.Enter (Last_Output.Text, Last_Output.Continues_Word);
                                  Special_Used := True;
                               end if;
@@ -112,14 +112,14 @@ package body Qweyboard is
    
    procedure Log_Board (Pressed : Key_Sets.Set; Released : Key_Sets.Set) is
    begin
-      Log.Info ("[Qweyboard] Pressed: [", Suffix => " ");
+      Log.Info ("[Qweyboard] Pressed: [", Suffix => ' ');
       for Key of Pressed loop
-         Log.Info (Softkey'Image (Key), Suffix => " ");
+         Log.Info (W (Softkey'Image (Key)), Suffix => ' ');
       end loop;
-      Log.Info ("]", Suffix => " ");
-      Log.Info ("Released: [", Suffix => " ");
+      Log.Info ("]", Suffix => ' ');
+      Log.Info ("Released: [", Suffix => ' ');
       for Key of Released loop
-         Log.Info (Softkey'Image (Key), Suffix => " ");
+         Log.Info (W (Softkey'Image (Key)), Suffix => ' ');
       end loop;
       Log.Info ("]");
    end Log_Board;

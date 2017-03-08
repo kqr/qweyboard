@@ -1,3 +1,4 @@
+with String_Helpers; use String_Helpers;
 with Ada.Finalization;
 with Interfaces.C;
 with Interfaces.C.Strings;
@@ -13,7 +14,7 @@ package body Output_Backend is
       Display : Display_Access;
    end record;
 
-   procedure Fake_Input_String (Display : Display_Access; Text : UString);
+   procedure Fake_Input_String (Display : Display_Access; Text : Unbounded_Wide_Wide_String);
    procedure Fake_Input_Keysym (Display : Display_Access; Keysym : C.Unsigned_Long);
    function Scratch_Keycode (Display : Display_Access) return C.Int;
    procedure Fake_Press (Display : Display_Access; Key : C.Int);
@@ -28,7 +29,7 @@ package body Output_Backend is
    task body Output is
       XTest : XTest_Data;
       XTest_Opcode : C.Int;
-      Last_Output : UString;
+      Last_Output : Unbounded_Wide_Wide_String;
    begin
       Log.Chat ("[X11.Output] Opening display");
       XTest.Display := XOpenDisplay (C.Strings.Null_Ptr);
@@ -52,17 +53,17 @@ package body Output_Backend is
       Log.Chat ("[X11.Output] Entering loop");
       loop
          select
-            accept Enter (Text : UString; Continues_Word : Boolean) do
-               Log.Chat ("Asked to enter """ & (+Text) & """");
+            accept Enter (Text : Unbounded_Wide_Wide_String; Continues_Word : Boolean) do
+               Log.Chat ("Asked to enter """ & From_Unbounded (Text) & """");
                if Continues_Word then
                   Log.Chat ("First erasing space");
                   Fake_Input_Keysym (XTest.Display, 16#ff08#);
                end if;
-               Fake_Input_String (XTest.Display, Text & (+" "));
+               Fake_Input_String (XTest.Display, Text & " ");
             end Enter;
          or
             accept Erase (Amount : Positive) do
-               Log.Chat ("[X11.Output] Simulating" & Positive'Image (Amount) & " backspace(s)...");
+               Log.Chat ("[X11.Output] Simulating" & W (Positive'Image (Amount)) & " backspace(s)...");
                for I in 1 .. Amount loop
                   Fake_Input_Keysym (XTest.Display, 16#ff08#);
                end loop;
@@ -76,14 +77,14 @@ package body Output_Backend is
    end Output;
 
 
-   procedure Fake_Input_String (Display : Display_Access; Text : UString) is
-      function Is_Basic_Latin1 (Letter : UChar) return Boolean is
+   procedure Fake_Input_String (Display : Display_Access; Text : Unbounded_Wide_Wide_String) is
+      function Is_Basic_Latin1 (Letter : Wide_Wide_Character) return Boolean is
       begin
-         return UChar'Pos (Letter) >= 16#20# and UChar'Pos (Letter) <= 16#fe#;
+         return Wide_Wide_Character'Pos (Letter) >= 16#20# and Wide_Wide_Character'Pos (Letter) <= 16#fe#;
       end Is_Basic_Latin1;
-      Letter : UChar;
+      Letter : Wide_Wide_Character;
    begin
-      Log.Info ("[X11] Outputting """ & (+Text) & """");
+      Log.Info ("[X11] Outputting """ & From_Unbounded (Text) & """");
       for I in 1 .. Length (Text) loop
          Letter := Element (Text, I);
          if not Is_Basic_Latin1 (Letter) then
@@ -91,7 +92,7 @@ package body Output_Backend is
          end if;
          
          declare
-            Keysym : C.Unsigned_Long := UChar'Pos (Letter);
+            Keysym : C.Unsigned_Long := Wide_Wide_Character'Pos (Letter);
          begin
             Fake_Input_Keysym (Display, Keysym);
          end;

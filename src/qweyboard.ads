@@ -1,4 +1,5 @@
-with Unicode_Strings; use Unicode_Strings;
+with Ada.Strings.Wide_Wide_Unbounded; use Ada.Strings.Wide_Wide_Unbounded;
+with String_Helpers; use String_Helpers;
 with Configuration;
 with Keys; use Keys;
 private with Languages;
@@ -18,7 +19,7 @@ package Qweyboard is
          when Nothing =>
             null;
          when Syllable =>
-            Text : UString;
+            Text : Unbounded_Wide_Wide_String;
             Continues_Word : Boolean;
          when Erase =>
             Amount : Positive;

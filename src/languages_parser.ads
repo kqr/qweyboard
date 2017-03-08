@@ -1,6 +1,6 @@
-with Unicode_Strings; use Unicode_Strings;
+with String_Helpers; use String_Helpers;
 with Ada.Wide_Wide_Characters.Handling;
-with Ada.Characters.Latin_1;
+with Ada.Strings.Wide_Wide_Unbounded; use Ada.Strings.Wide_Wide_Unbounded;
 with Ada.Finalization;
 with Logging; use Logging;
 with Languages;
@@ -37,7 +37,7 @@ private
    type Token_Type (Variant : Token_Variant := Token_None) is record
       case Variant is
          when Token_String =>
-            String_Value : UString;
+            String_Value : Unbounded_Wide_Wide_String;
          when others =>
             null;
       end case;
@@ -46,9 +46,9 @@ private
    --  TODO: set up a controlled type around this?
    type Lexer_State is record
       File : IO.File_Type;
-      Buffer : UString;
+      Buffer : Unbounded_Wide_Wide_String;
       In_String_State : Boolean;
-      String_Terminator : UChar;
+      String_Terminator : Wide_Wide_Character;
       Last_Token : Token_Type;
       Line_Number : Positive := 1;
    end record;
@@ -63,11 +63,11 @@ private
    function New_Section (State : in out Lexer_State) return Boolean;
    procedure Substitutions (State : in out Lexer_State);
    procedure Position_Name (State : in out Lexer_State; Position : out Languages.Substitution_Type);
-   procedure Substitution_Body (State : in out Lexer_State; Pattern : out UString; Replacement : out UString);
-   procedure Graphic_String (State : in out Lexer_State; Out_String : out UString);
+   procedure Substitution_Body (State : in out Lexer_State; Pattern : out Unbounded_Wide_Wide_String; Replacement : out Unbounded_Wide_Wide_String);
+   procedure Graphic_String (State : in out Lexer_State; Out_String : out Unbounded_Wide_Wide_String);
    procedure Keys (State : in out Lexer_State);
    procedure Key_Name (State : in out Lexer_State; Out_Key : out Softkey);
-   procedure Keys_Body (State : in out Lexer_State; Out_Key : out Softkey; Out_Character : out UChar);
-   procedure Graphic_Character (State : in out Lexer_State; Out_Character : out UChar);
+   procedure Keys_Body (State : in out Lexer_State; Out_Key : out Softkey; Out_Character : out Wide_Wide_Character);
+   procedure Graphic_Character (State : in out Lexer_State; Out_Character : out Wide_Wide_Character);
    function Expecting (State : in out Lexer_State; Variant : Token_Variant) return Token_Type;
 end Languages_Parser;
