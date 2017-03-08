@@ -285,7 +285,6 @@ begin
    From_Keycode.Insert (47, Keys.RS);
    From_Keycode.Insert (48, Keys.RZ);
    From_Keycode.Insert (49, Keys.NOKEY);
-   From_Keycode.Insert (50, Keys.MSHI);
    From_Keycode.Insert (51, Keys.NOKEY);
    From_Keycode.Insert (52, Keys.NOKEY);
    From_Keycode.Insert (53, Keys.NOKEY);
@@ -297,6 +296,5 @@ begin
    From_Keycode.Insert (59, Keys.NOKEY);
    From_Keycode.Insert (60, Keys.NOKEY);
    From_Keycode.Insert (61, Keys.NOKEY);
-   From_Keycode.Insert (62, Keys.MSHI);
    From_Keycode.Insert (65, Keys.NOSP);
 end Input_Backend;
