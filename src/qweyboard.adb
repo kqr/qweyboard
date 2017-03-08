@@ -40,7 +40,7 @@ package body Qweyboard is
             Erase;
          elsif Length (Result) > 0 then
             Last_Output := (Syllable, Result, Released.Contains (NOSP));
-            Output_Backend.Output.Enter (Result, Released.Contains (NOSP));
+            Output_Backend.Output.Enter (From_Unbounded (Result), Released.Contains (NOSP));
          end if;
          Released.Clear;
       end Commit;
@@ -74,15 +74,15 @@ package body Qweyboard is
                            if Released.Is_Empty and Pressed.Is_Empty then
                               if Event.Key = NOSP then
                                  Last_Output := (Syllable, To_Unbounded (" "), False);
-                                 Output_Backend.Output.Enter (Last_Output.Text, Last_Output.Continues_Word);
+                                 Output_Backend.Output.Enter (From_Unbounded (Last_Output.Text), Last_Output.Continues_Word);
                                  Special_Used := True;
                               elsif Event.Key = RO then
                                  Last_Output := (Syllable, To_Unbounded ("."), True);
-                                 Output_Backend.Output.Enter (Last_Output.Text, Last_Output.Continues_Word);
+                                 Output_Backend.Output.Enter (From_Unbounded (Last_Output.Text), Last_Output.Continues_Word);
                                  Special_Used := True;
                               elsif Event.Key = RJ then
                                  Last_Output := (Syllable, To_Unbounded (","), True);
-                                 Output_Backend.Output.Enter (Last_Output.Text, Last_Output.Continues_Word);
+                                 Output_Backend.Output.Enter (From_Unbounded (Last_Output.Text), Last_Output.Continues_Word);
                                  Special_Used := True;
                               end if;
                            end if;

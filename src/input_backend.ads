@@ -1,4 +1,5 @@
 with Qweyboard;
+with Keys; use Keys;
 with Configuration;
 with Logging;
 

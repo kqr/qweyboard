@@ -1,4 +1,11 @@
 package body Languages_Parser is
+   procedure Finalize (State : in out Lexer_State) is
+   begin
+      if IO.Is_Open (State.File) then
+         IO.Close (State.File);
+      end if;
+   end Finalize;
+
    procedure Parse (File_Name : String) is
       State : Lexer_State;
    begin

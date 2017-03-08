@@ -1,7 +1,5 @@
-with Ada.Text_IO;
-
 package body Input_Backend is
-   type Key_Array is array (Positive range <>) of Qweyboard.Softkey;
+   type Key_Array is array (Positive range <>) of Softkey;
 
    procedure Chord (Keys : Key_Array) is
    begin
@@ -13,21 +11,19 @@ package body Input_Backend is
       end loop;
    end;
    
-   function Single (Key : Qweyboard.Softkey) return Key_Array is
+   function Single (Key : Softkey) return Key_Array is
       A : Key_Array (1..1) := (others => Key);
    begin
       return A;
    end;
 
    task body Input is
-      --  So we get convenient access to the key symbols
-      package Q renames Qweyboard;
-      use Q;
    begin
       accept Ready_Wait;
       --  This is not something input backends should generally do, but we
       --  do it here to ensure the "test" works, regardless of user settings.
-      Qweyboard.Softboard.Set_Timeout (0.2);
+
+      Qweyboard.Softboard.Configure ((0.2, others => <>));
 
       --  Begin pressing keys!
       Chord (Single (RI));
@@ -36,21 +32,19 @@ package body Input_Backend is
       delay 0.3;
       Chord ((LT, LO));
       delay 0.3;
-      Chord ((LT, MY, RP, NOSP));
-      delay 0.3;
-      Chord (Single (RE));
+      Chord ((LT, MY, RP, RF));
       delay 0.3;
       Chord ((LO, RN));
       delay 0.3;
       Chord (Single (MA));
       delay 0.3;
-      Chord ((LC, LF, NOSP));
+      Chord ((LC, LF));
       delay 0.3;
       Chord ((LJ, LN, LE, MY, NOSP));
       delay 0.3;
-      Chord ((LJ, LP, LO, MA, RR, RJ, RT));
+      Chord ((LJ, LP, LO, MA, RR, RJ, RT, NOSP));
       delay 0.3;
-      Chord ((LC, RO, RN, NOSP));
+      Chord ((LC, RO, RN));
       delay 0.3;
       Chord ((LS, LT, MA, RN, RT, NOSP));
       delay 0.3;

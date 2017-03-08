@@ -1,6 +1,4 @@
 with String_Helpers; use String_Helpers;
-with Ada.Wide_Wide_Characters.Handling;
-with Ada.Strings.Wide_Wide_Unbounded; use Ada.Strings.Wide_Wide_Unbounded;
 with Ada.Finalization;
 with Logging; use Logging;
 with Languages;
@@ -28,6 +26,8 @@ package Languages_Parser is
    
    procedure Parse (File_Name : String);
 private
+   use Unbounded;
+
    type Token_Variant is
      (Token_String,
       Token_Period,
@@ -43,8 +43,7 @@ private
       end case;
    end record;
 
-   --  TODO: set up a controlled type around this?
-   type Lexer_State is record
+   type Lexer_State is new Ada.Finalization.Limited_Controlled with record
       File : IO.File_Type;
       Buffer : Unbounded_Wide_Wide_String;
       In_String_State : Boolean;
@@ -52,6 +51,7 @@ private
       Last_Token : Token_Type;
       Line_Number : Positive := 1;
    end record;
+   procedure Finalize (State : in out Lexer_State);
    
    procedure Advance (State : Lexer_State);
    

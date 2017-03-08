@@ -1,4 +1,3 @@
-with Ada.Strings.Wide_Wide_Unbounded; use Ada.Strings.Wide_Wide_Unbounded;
 with String_Helpers; use String_Helpers;
 with Configuration;
 with Keys; use Keys;
@@ -7,6 +6,8 @@ private with Logging;
 private with Output_Backend;
 
 package Qweyboard is
+   use Unbounded;
+
    type Key_Event_Variant_Type is (Key_Press, Key_Release);
    type Key_Event is record
       Key : Softkey;
@@ -32,7 +33,7 @@ package Qweyboard is
       entry Handle (Event : Key_Event);
       entry Shut_Down;
    end Softboard;
-   
+
 private
    use Logging;
 
