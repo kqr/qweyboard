@@ -373,12 +373,6 @@ These are roughly in order of importance, I guess. It's mostly a loose
 collection of personal notes and if anyone needs help interpreting any of them
 I'm glad to assist.
 
-* `[ ]` [swedish] LO = Ä, but LO+RO=OO: ÄO=OO substitution
-
-* `[ ]` Fix XTest failing to press keys correctly sometimes
-
-* `[ ]` convert logging to ustring, and possibly in other places too
-
 * `[ ]` LZ RZ = return
 
 * `[ ]` shift = sssssymbol keys? actually trickier than I had thought...
@@ -387,8 +381,6 @@ I'm glad to assist.
 * `[ ]` do something about memory leaks
 
 * `[ ]` allow capitalisation somehow. perhaps find a spot for the MCAP key?
-
-* `[ ]` Unicodify the whole project. Painfully dependent on iso-8859-1 right now
 
 * `[ ]` Escape shortcut should be configurable with something like `-e <escape shortcut>`?
 

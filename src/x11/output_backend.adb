@@ -1,5 +1,7 @@
 with String_Helpers; use String_Helpers;
 with Ada.Finalization;
+with Ada.Containers.Ordered_Maps;
+with Ada.Containers.Ordered_Sets;
 with Interfaces.C;
 with Interfaces.C.Strings;
 with Interfaces.C.Pointers;
@@ -7,21 +9,38 @@ with XLib_H, XTest_H;
 
 package body Output_Backend is
    package C renames Interfaces.C;
-   use type C.Int;
+   use type C.Int, C.Unsigned_Long;
    use XLib_H, XTest_H;
 
+   package Keysym_To_Keycode is new Ada.Containers.Ordered_Maps (Key_Type => C.Unsigned_Long, Element_Type => C.Int);
+   package Keycode_To_Keysym is new Ada.Containers.Ordered_Maps (Key_Type => C.Int, Element_Type => C.Unsigned_Long);
+   package Keycode_Sets is new Ada.Containers.Ordered_Sets (Element_Type => C.Int);
+   type Key_Mapping is record
+      Keysyms : Keysym_To_Keycode.Map;
+      Keycodes : Keycode_To_Keysym.Map;
+      Available : Keycode_Sets.Set;
+      Recently_Used : Keycode_Sets.Set;
+   end record;
    type XTest_Data is new Ada.Finalization.Controlled with record
       Display : Display_Access;
+      Key_Map : Key_Mapping;
    end record;
 
-   procedure Fake_Input_String (Display : Display_Access; Text : Wide_Wide_String);
-   procedure Fake_Input_Keysym (Display : Display_Access; Keysym : C.Unsigned_Long);
-   function Scratch_Keycode (Display : Display_Access) return C.Int;
+   procedure Fake_Input_String (Display : Display_Access; Key_Map : in out Key_Mapping; Text : Wide_Wide_String);
+   procedure Fake_Input_Keysym (Display : Display_Access; Key_Map : in out Key_Mapping; Keysym : C.Unsigned_Long);
+   function Get_Keycode (Display : Display_Access; Key_Map : in out Key_Mapping; Keysym : C.Unsigned_Long) return C.Int;
+   procedure Update_Mapping (Display : Display_Access; Key_Map : in out Key_Mapping);
    procedure Fake_Press (Display : Display_Access; Key : C.Int);
 
    procedure Finalize (XTest : in out XTest_Data) is
       I : C.Int;
+      All_Keycodes : Keycode_Sets.Set := Keycode_Sets.Union(XTest.Key_Map.Available, XTest.Key_Map.Recently_Used);
+      No_Symbol : C.Unsigned_Long := 0;
    begin
+      for Keycode of All_Keycodes loop
+         I := XChangeKeyboardMapping (XTest.Display, Keycode, 1, No_Symbol, 1);
+         I := XSync (XTest.Display, 0);
+      end loop;
       Log.Warning ("[X11.Output] Closing display");
       I := XCloseDisplay (XTest.Display);
    end;
@@ -47,6 +66,8 @@ package body Output_Backend is
          C.Strings.Free (Ext_Name);
          Log.Chat ("[X11.Output] C string free'd");
       end;
+      
+      Update_Mapping (XTest.Display, XTest.Key_Map);
 
       accept Ready_Wait;
       Log.Chat ("[X11.Output] Entering loop");
@@ -56,15 +77,15 @@ package body Output_Backend is
                Log.Chat ("Asked to enter """ & Text & """");
                if Continues_Word then
                   Log.Chat ("First erasing space");
-                  Fake_Input_Keysym (XTest.Display, 16#ff08#);
+                  Fake_Input_Keysym (XTest.Display, XTest.Key_Map, 16#ff08#);
                end if;
-               Fake_Input_String (XTest.Display, Text & " ");
+               Fake_Input_String (XTest.Display, XTest.Key_Map, Text & " ");
             end Enter;
          or
             accept Erase (Amount : Positive) do
                Log.Chat ("[X11.Output] Simulating" & W (Positive'Image (Amount)) & " backspace(s)...");
                for I in 1 .. Amount loop
-                  Fake_Input_Keysym (XTest.Display, 16#ff08#);
+                  Fake_Input_Keysym (XTest.Display, XTest.Key_Map, 16#ff08#);
                end loop;
             end Erase;
          or
@@ -76,16 +97,14 @@ package body Output_Backend is
    end Output;
 
 
-   procedure Fake_Input_String (Display : Display_Access; Text : Wide_Wide_String) is
+   procedure Fake_Input_String (Display : Display_Access; Key_Map : in out Key_Mapping; Text : Wide_Wide_String) is
       function Is_Basic_Latin1 (Letter : Wide_Wide_Character) return Boolean is
       begin
          return Wide_Wide_Character'Pos (Letter) >= 16#20# and Wide_Wide_Character'Pos (Letter) <= 16#fe#;
       end Is_Basic_Latin1;
---      Letter : Wide_Wide_Character;
    begin
       Log.Info ("[X11] Outputting """ & Text & """");
       for Letter of Text loop
---         Letter := Element (Text, I);
          if not Is_Basic_Latin1 (Letter) then
             raise ENCODING_ERROR with "Invalid character in string. Only basic Latin 1 has a simple mapping to Keysyms and that's as much as I'm prepared to deal with right now. Pull requests welcome!";
          end if;
@@ -93,28 +112,55 @@ package body Output_Backend is
          declare
             Keysym : C.Unsigned_Long := Wide_Wide_Character'Pos (Letter);
          begin
-            Fake_Input_Keysym (Display, Keysym);
+            Fake_Input_Keysym (Display, Key_Map, Keysym);
          end;
       end loop;
    end Fake_Input_String;
    
-   procedure Fake_Input_Keysym (Display : Display_Access; Keysym : C.Unsigned_Long) is
-      KS : C.Unsigned_Long := Keysym;
-      Key : C.Int := Scratch_Keycode (Display);
+
+   procedure Fake_Input_Keysym (Display : Display_Access; Key_Map : in out Key_Mapping; Keysym : C.Unsigned_Long) is
+      Key : C.Int := Get_Keycode (Display, Key_Map, Keysym);
       I : C.Int := 0;
-      No_Symbol : C.Unsigned_Long := 0;
    begin
-      I := XChangeKeyboardMapping (Display, Key, 1, KS, 1);
-      I := XSync (Display, 0);
       Fake_Press (Display, Key);
-      I := XSync (Display, 0);
-      I := XChangeKeyboardMapping (Display, Key, 1, No_Symbol, 1);
-      I := XSync (Display, 0);
    end Fake_Input_Keysym;
    
-   function Scratch_Keycode (Display : Display_Access) return C.Int is
-      use type C.Unsigned_Long;
+
+   function Get_Keycode (Display : Display_Access; Key_Map : in out Key_Mapping; Keysym : C.Unsigned_Long) return C.Int is
+      I : C.Int;
+   begin
+      if Key_Map.Keysyms.Contains (Keysym) then
+         return Key_Map.Keysyms.Element (Keysym);
+      end if;
       
+      if Key_Map.Available.Is_Empty then
+         Key_Map.Available := Key_Map.Recently_Used.Copy;
+         Key_Map.Recently_Used.Clear;
+      end if;
+
+      declare
+         Key : C.Int := Key_Map.Available.First_Element;
+         KS : C.Unsigned_Long := Keysym;
+      begin
+         if Key_Map.Keycodes.Contains (Key) then
+            Key_Map.Keysyms.Delete (Key_Map.Keycodes.Element (Key));
+            Key_Map.Keycodes.Delete (Key);
+         end if;
+
+         Key_Map.Keycodes.Insert (Key, Keysym);
+         Key_Map.Keysyms.Insert (Keysym, Key);
+
+         I := XChangeKeyboardMapping (Display, Key, 1, KS, 1);
+         I := XSync (Display, 0);
+         
+         Key_Map.Available.Delete (Key);
+         Key_Map.Recently_Used.Insert (Key);
+         return Key;
+      end;
+   end Get_Keycode;
+
+
+   procedure Update_Mapping (Display : Display_Access; Key_Map : in out Key_Mapping) is
       No_Symbol : C.Unsigned_Long := 0;
       Min_Keycode : C.Int := 0;
       Max_Keycode : C.Int := 0;
@@ -138,15 +184,17 @@ package body Output_Backend is
                   end if;
                end loop;
                if Key_Is_Empty then
-                  Unused := XFree (Keysyms_Ptr.all'Address);
-                  return Key;
+                  Key_Map.Available.Include (Key);
                end if;
             end;
          end loop;
          Unused := XFree (Keysyms_Ptr.all'Address);
       end;
-      raise GENERAL_X11_ERROR with "No empty key available as scratch space. This is technically not a problem but so unusual that I haven't bothered to code for this scenario...";
-   end;
+      if Key_Map.Available.Is_Empty then
+         raise GENERAL_X11_ERROR with "No empty key available as scratch space. This is technically not a problem but so unusual that I haven't bothered to code for this scenario...";
+      end if;
+   end Update_Mapping;
+
 
    procedure Fake_Press (Display : Display_Access; Key : C.Int) is
       XTestRelease : constant C.Int := 0;
@@ -154,8 +202,6 @@ package body Output_Backend is
       I : C.Int;
    begin
       I := XTestFakeKeyEvent (Display, Key, XTestPress, 0);
-      --  If we don't sync, the key press-and-release events may appear out of
-      --  order and/or just generally be mangled
       I := XSync (Display, 0);
       I := XTestFakeKeyEvent (Display, Key, XTestRelease, 0);
       I := XSync (Display, 0);
