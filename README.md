@@ -34,6 +34,28 @@ Qweyboard layout, you can do that by pressing ctrl-shift-x, which will disable
 the Qweyboard but keep the program running. Press ctrl-shift-x again to
 re-enable it.
 
+The software takes a few command-line switches that configure its behaviour.
+
+    Usage: ./bin/qweyboard [OPTION]
+    
+    [OPTION] is any combination of the following options:
+    
+        -l <language file>   : Modifies the standard layout with the
+                               key mappings indicated in the specified
+                               language file.
+    
+        -t <milliseconds>    : Set the timeout for what counts as one
+                               stroke. If you want 0, NKRO is strongly
+                               recommended. Default value is 500, which
+                               is probably way too high.
+    
+        -d <dictionary file> : Specifies a file of abbreviations to use.
+    
+        -v,-vv,-vvv          : Sets the log level of the software. If you
+                               want to know what goes on inside, this is
+                               where to poke...
+
+
 
 Dependencies
 ------------
