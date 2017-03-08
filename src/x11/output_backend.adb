@@ -11,6 +11,11 @@ package body Output_Backend is
    package C renames Interfaces.C;
    use type C.Int, C.Unsigned_Long;
    use XLib_H, XTest_H;
+   
+   --  When we map a key, we map it with (Keysym, Qweyboard_Marker) to indicate
+   --  for ourselves that we have used this key. This is useful in case of 
+   --  program crashes or whatever, because we don't need to leak keys.
+   Qweyboard_Marker : C.Unsigned_Long := 16#01fffffe#;
 
    package Keysym_To_Keycode is new Ada.Containers.Ordered_Maps (Key_Type => C.Unsigned_Long, Element_Type => C.Int);
    package Keycode_To_Keysym is new Ada.Containers.Ordered_Maps (Key_Type => C.Int, Element_Type => C.Unsigned_Long);
@@ -36,9 +41,10 @@ package body Output_Backend is
       I : C.Int;
       All_Keycodes : Keycode_Sets.Set := Keycode_Sets.Union(XTest.Key_Map.Available, XTest.Key_Map.Recently_Used);
       No_Symbol : C.Unsigned_Long := 0;
+      Empty_Key : aliased Keysym_Array (0..1) := (others => No_Symbol);
    begin
       for Keycode of All_Keycodes loop
-         I := XChangeKeyboardMapping (XTest.Display, Keycode, 1, No_Symbol, 1);
+         I := XChangeKeyboardMapping (XTest.Display, Keycode, 2, Empty_Key, 1);
          I := XSync (XTest.Display, 0);
       end loop;
       Log.Warning ("[X11.Output] Closing display");
@@ -140,7 +146,7 @@ package body Output_Backend is
 
       declare
          Key : C.Int := Key_Map.Available.First_Element;
-         KS : C.Unsigned_Long := Keysym;
+         Marked_Keysym : Keysym_Array (0..1) := (Keysym, Qweyboard_Marker);
       begin
          if Key_Map.Keycodes.Contains (Key) then
             Key_Map.Keysyms.Delete (Key_Map.Keycodes.Element (Key));
@@ -150,7 +156,7 @@ package body Output_Backend is
          Key_Map.Keycodes.Insert (Key, Keysym);
          Key_Map.Keysyms.Insert (Keysym, Key);
 
-         I := XChangeKeyboardMapping (Display, Key, 1, KS, 1);
+         I := XChangeKeyboardMapping (Display, Key, 2, Marked_Keysym, 1);
          I := XSync (Display, 0);
          
          Key_Map.Available.Delete (Key);
@@ -175,14 +181,13 @@ package body Output_Backend is
       begin
          for Key in Min_Keycode .. Max_Keycode loop
             declare
-               Key_Is_Empty : Boolean := True;
+               use type C.Unsigned;
+               Low : C.Unsigned := C.Unsigned ((Key - Min_Keycode) * Keysyms_Per_Key);
+               High : C.Unsigned := (Low + C.Unsigned (Keysyms_Per_Key) - 1);
+               Key_Is_Empty : Boolean :=
+                 Keysyms (Low+1) = Qweyboard_Marker or
+                 (for all KS of Keysyms (Low .. High) => KS = No_Symbol);
             begin
-               for I in 0 .. Keysyms_Per_Key - 1 loop
-                  if Keysyms (C.Unsigned ((Key - Min_Keycode) * Keysyms_Per_Key + I)) /= No_Symbol then
-                     Key_Is_Empty := False;
-                     exit;
-                  end if;
-               end loop;
                if Key_Is_Empty then
                   Key_Map.Available.Include (Key);
                end if;

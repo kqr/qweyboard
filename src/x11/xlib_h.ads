@@ -51,6 +51,6 @@ package XLib_H is
    function XGetKeyboardMapping (Display : Display_Access; Key : C.Int; Keycode_Count : C.Int; Keysyms_Count : out C.Int) return Keysym_Accesses.Pointer;
    pragma Import (C, XGetKeyboardMapping, "XGetKeyboardMapping");
 
-   function XChangeKeyboardMapping (Display : Display_Access; Keycode : C.Int; Keysyms_Per_Key : C.Int; KeySyms : out Keysym; Num_Codes : C.Int) return C.Int;
+   function XChangeKeyboardMapping (Display : Display_Access; Keycode : C.Int; Keysyms_Per_Key : C.Int; KeySyms : Keysym_Array; Num_Codes : C.Int) return C.Int;
    pragma Import (C, XChangeKeyboardMapping, "XChangeKeyboardMapping");
 end XLib_H;
