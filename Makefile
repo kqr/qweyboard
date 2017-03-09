@@ -19,7 +19,7 @@ endif
 all:
 	$(MKDIR) build
 	$(MKDIR) bin
-	$(CC) -aI$(SRCDIR)/$(PLATFORM) $(CFLAGS) $(LANGVARIANT) -o $(BINDIR)/$(BIN) $(SRCDIR)/main -largs $(LIBS)
+	$(CC) -aI$(SRCDIR)/qweyboard -aI$(SRCDIR)/backends -aI$(SRCDIR)/backends/$(PLATFORM) $(CFLAGS) $(LANGVARIANT) -o $(BINDIR)/$(BIN) $(SRCDIR)/main -largs $(LIBS)
 
 clean:
 	$(RM) $(BUILDDIR)/*.o $(BUILDDIR)/*.ali $(BINDIR)/$(BIN)

@@ -1,12 +1,10 @@
-with String_Helpers; use String_Helpers;
 with Configuration;
-private with Languages;
+private with String_Helpers;
+private with Qweyboard.Languages;
 private with Logging;
 private with Output_Backend;
 
 package Qweyboard.Emulation is
-   use Unbounded;
-
    task Process is
       entry Ready_Wait;
       entry Configure (Settings : Configuration.Settings);
@@ -14,6 +12,7 @@ package Qweyboard.Emulation is
       entry Shut_Down;
    end Process;
 private
+   use Unbounded;
    use Logging;
 
    procedure Log_Board (Pressed : Key_Sets.Set; Released : Key_Sets.Set);

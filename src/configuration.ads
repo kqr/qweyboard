@@ -1,12 +1,11 @@
-with Ada.Text_IO;
+--  Using non-wide strings for file names only
 with Ada.Strings.Unbounded;
-with Ada.Command_Line;
-with Languages.Parser;
 with Logging;
+private with Ada.Command_Line;
+private with Qweyboard.Languages.Parser;
 
 package Configuration is
    use Ada.Strings.Unbounded;
-   package CLI renames Ada.Command_Line;
    
    ARGUMENTS_ERROR : exception;
    
@@ -19,6 +18,8 @@ package Configuration is
    procedure Get_Settings (Config : in out Settings);
    procedure Load_Language (Config : in out Settings);
 private
+   package CLI renames Ada.Command_Line;
+
    function Get_Argument (Count : in out Positive; Flag : String; File_Name : in out Unbounded_String) return Boolean;
    function Get_Argument (Count : in out Positive; Flag : String; Verbosity : in out Logging.Verbosity_Level) return Boolean;
    function Get_Argument (Count : in out Positive; Flag : String; Timeout : in out Duration) return Boolean;

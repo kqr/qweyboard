@@ -16,9 +16,9 @@ procedure Main is
 begin
    Ada.Task_Termination.Set_Specific_Handler
      (Ada.Task_Identification.Current_Task,
-      Logging.Termination_Handler.Diagnostics'Access);
+      Logging.Logging_Termination_Handler.Log_Termination_Cause'Access);
    Ada.Task_Termination.Set_Dependents_Fallback_Handler
-     (Logging.Termination_Handler.Diagnostics'Access);
+     (Logging.Logging_Termination_Handler.Log_Termination_Cause'Access);
 
    Configuration.Get_Settings (Settings);
    Log.Set_Verbosity (Settings.Log_Level);

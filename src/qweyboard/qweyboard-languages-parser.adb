@@ -1,4 +1,4 @@
-package body Languages.Parser is
+package body Qweyboard.Languages.Parser is
    procedure Finalize (State : in out Lexer_State) is
    begin
       if IO.Is_Open (State.File) then
@@ -254,4 +254,4 @@ package body Languages.Parser is
       end if;
    end Advance;
    
-end Languages.Parser;
+end Qweyboard.Languages.Parser;

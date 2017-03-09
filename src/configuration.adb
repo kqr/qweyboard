@@ -1,5 +1,4 @@
 package body Configuration is
-
    procedure Get_Settings (Config : in out Settings) is
       I : Positive := 1;
    begin
@@ -15,14 +14,12 @@ package body Configuration is
       end loop;
    end Get_Settings;
 
-
    procedure Load_Language (Config : in out Settings) is
    begin
       if Length (Config.Language_File_Name) > 0 then
-         Languages.Parser.Parse (To_String (Config.Language_File_Name));
+         Qweyboard.Languages.Parser.Parse (To_String (Config.Language_File_Name));
       end if;
    end;
-
 
    function Get_Argument (Count : in out Positive; Flag : String; File_Name : in out Unbounded_String) return Boolean is
    begin
@@ -68,5 +65,4 @@ package body Configuration is
       Count := Count + 1;
       return True;
    end;
-
 end Configuration;

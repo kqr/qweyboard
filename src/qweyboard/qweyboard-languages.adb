@@ -1,4 +1,4 @@
-package body Languages is
+package body Qweyboard.Languages is
    protected body User_Language is
       function Decode (Released : Key_Sets.Set) return Unbounded_Wide_Wide_String is
          Init : Unbounded_Wide_Wide_String;
@@ -25,7 +25,7 @@ package body Languages is
            Perform_Substitutions (Tail, Substitutions (Right));
       end Decode;
 
-      procedure Add_Key (Modifier : Qweyboard.Softkey; Key : Qweyboard.Softkey; Symbol : Wide_Wide_Character) is
+      procedure Add_Key (Modifier : Softkey; Key : Softkey; Symbol : Wide_Wide_Character) is
       begin
          if not Current_Layout.Layers.Contains (Modifier) then
             if Modifier /= NOKEY then
@@ -45,7 +45,7 @@ package body Languages is
          Final_Presses : Layer_Maps.Map;
          Already_Handled : Key_Sets.Set;
          
-         procedure Handle_Modifier (Modifier : Qweyboard.Softkey) is
+         procedure Handle_Modifier (Modifier : Softkey) is
             Layer : Layer_Maps.Map := Mod_Layer (Layout, Modifier, Key_Sets.Difference (Pressed, Already_Handled));
          begin
             if not Layer.Is_Empty then
@@ -65,7 +65,7 @@ package body Languages is
          return Final_Presses;
       end Virtual_Layer;
 
-      function Mod_Layer (Layout : Layout_Type; Modifier : Qweyboard.Softkey; Pressed : Key_Sets.Set) return Layer_Maps.Map is
+      function Mod_Layer (Layout : Layout_Type; Modifier : Softkey; Pressed : Key_Sets.Set) return Layer_Maps.Map is
          Layer : Layer_Maps.Map;
       begin
          if Modifier = NOKEY or Pressed.Contains (Modifier) then
@@ -243,4 +243,4 @@ begin
    User_Language.Add_Substitution (Right, To_Unbounded ("NC"), To_Unbounded ("GN"));
    User_Language.Add_Substitution (Right, To_Unbounded ("WD"), To_Unbounded ("ND"));
    User_Language.Add_Substitution (Right, To_Unbounded ("MV"), To_Unbounded ("LM"));
-end Languages;
+end Qweyboard.Languages;

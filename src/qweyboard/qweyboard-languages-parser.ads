@@ -1,8 +1,8 @@
-with String_Helpers; use String_Helpers;
-with Ada.Finalization;
-with Logging; use Logging;
+private with String_Helpers;
+private with Ada.Finalization;
+private with Logging;
 
-package Languages.Parser is
+package Qweyboard.Languages.Parser is
    --  <language spec>     ::= <section> *
    --  <section>           ::= '.' <section type>
    --  <section type>      ::= <substitutions> | <keys>
@@ -24,7 +24,9 @@ package Languages.Parser is
    
    procedure Parse (File_Name : String);
 private
+   use String_Helpers;
    use Unbounded;
+   use Logging;
 
    type Token_Variant is
      (Token_String,
@@ -68,4 +70,4 @@ private
    procedure Keys_Body (State : in out Lexer_State; Out_Key : out Softkey; Out_Character : out Wide_Wide_Character);
    procedure Graphic_Character (State : in out Lexer_State; Out_Character : out Wide_Wide_Character);
    function Expecting (State : in out Lexer_State; Variant : Token_Variant) return Token_Type;
-end Languages.Parser;
+end Qweyboard.Languages.Parser;
