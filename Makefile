@@ -1,4 +1,3 @@
-MKDIR=mkdir -p
 PLATFORM=x11
 # Comment out to use the dummy platform instead
 # PLATFORM=dummy_platform
@@ -8,9 +7,7 @@ LIBS=-lX11 -lXi -lXtst
 endif
 
 all:
-	$(MKDIR) build
-	$(MKDIR) bin
-	gprbuild
+	gprbuild -p
 
 clean:
 	gprclean
