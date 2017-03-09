@@ -1,10 +1,8 @@
 with String_Helpers; use String_Helpers;
 with Ada.Finalization;
 with Logging; use Logging;
-with Languages;
-with Keys; use Keys;
 
-package Languages_Parser is
+package Languages.Parser is
    --  <language spec>     ::= <section> *
    --  <section>           ::= '.' <section type>
    --  <section type>      ::= <substitutions> | <keys>
@@ -62,7 +60,7 @@ private
    procedure Section (State : in out Lexer_State);
    function New_Section (State : in out Lexer_State) return Boolean;
    procedure Substitutions (State : in out Lexer_State);
-   procedure Position_Name (State : in out Lexer_State; Position : out Languages.Substitution_Type);
+   procedure Position_Name (State : in out Lexer_State; Position : out Substitution_Type);
    procedure Substitution_Body (State : in out Lexer_State; Pattern : out Unbounded_Wide_Wide_String; Replacement : out Unbounded_Wide_Wide_String);
    procedure Graphic_String (State : in out Lexer_State; Out_String : out Unbounded_Wide_Wide_String);
    procedure Keys (State : in out Lexer_State);
@@ -70,4 +68,4 @@ private
    procedure Keys_Body (State : in out Lexer_State; Out_Key : out Softkey; Out_Character : out Wide_Wide_Character);
    procedure Graphic_Character (State : in out Lexer_State; Out_Character : out Wide_Wide_Character);
    function Expecting (State : in out Lexer_State; Variant : Token_Variant) return Token_Type;
-end Languages_Parser;
+end Languages.Parser;

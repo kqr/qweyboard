@@ -1,8 +1,8 @@
-package body Qweyboard is
+package body Qweyboard.Emulation is
    Return_Combo : Key_Sets.Set;
    Backspace_Combo : Key_Sets.Set;
 
-   task body Softboard is
+   task body Process is
       Current_Timeout : Duration;
       Pressed : Key_Sets.Set;
       Released : Key_Sets.Set;
@@ -109,7 +109,7 @@ package body Qweyboard is
             end if;
          end select;
       end loop;
-   end Softboard;
+   end Process;
    
    procedure Log_Board (Pressed : Key_Sets.Set; Released : Key_Sets.Set) is
    begin
@@ -131,6 +131,5 @@ begin
    Backspace_Combo.Insert (LR);
    Backspace_Combo.Insert (RR);
    Backspace_Combo.Insert (RC);
-end Qweyboard;
-
+end Qweyboard.Emulation;
 

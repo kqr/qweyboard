@@ -4,7 +4,7 @@ with Ada.Task_Termination;
 with Ada.Task_Identification;
 with Configuration;
 with Logging;
-with Qweyboard;
+with Qweyboard.Emulation;
 with Input_Backend;
 with Output_Backend;
 
@@ -14,8 +14,11 @@ procedure Main is
 
    Settings : Configuration.Settings;
 begin
-   Ada.Task_Termination.Set_Specific_Handler (Ada.Task_Identification.Current_Task, Logging.Termination_Handler.Diagnostics'Access);
-   Ada.Task_Termination.Set_Dependents_Fallback_Handler (Logging.Termination_Handler.Diagnostics'Access);
+   Ada.Task_Termination.Set_Specific_Handler
+     (Ada.Task_Identification.Current_Task,
+      Logging.Termination_Handler.Diagnostics'Access);
+   Ada.Task_Termination.Set_Dependents_Fallback_Handler
+     (Logging.Termination_Handler.Diagnostics'Access);
 
    Configuration.Get_Settings (Settings);
    Log.Set_Verbosity (Settings.Log_Level);
@@ -24,12 +27,12 @@ begin
    Log.Chat ("[Main] Loading language");
    Configuration.Load_Language (Settings);
 
-   --  Then kick off the Softboard!
-   Qweyboard.Softboard.Ready_Wait;
-   Log.Chat ("[Main] Softboard started");
+   --  Then kick off the emulation!
+   Qweyboard.Emulation.Process.Ready_Wait;
+   Log.Chat ("[Main] Emulation started");
    -- Configure softboard
-   Qweyboard.Softboard.Configure (Settings);
-   Log.Chat ("[Main] Softboard configured");
+   Qweyboard.Emulation.Process.Configure (Settings);
+   Log.Chat ("[Main] Emulation configured");
 
    --  First wait for the output backend to be ready
    Output_Backend.Output.Ready_Wait;

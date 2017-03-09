@@ -1,4 +1,4 @@
-package body Languages_Parser is
+package body Languages.Parser is
    procedure Finalize (State : in out Lexer_State) is
    begin
       if IO.Is_Open (State.File) then
@@ -15,7 +15,7 @@ package body Languages_Parser is
       exception
          when others =>
             Log.Error
-              ("[Languages_Parser] Caught exception when parsing " &
+              ("[Languages.Parser] Caught exception when parsing " &
                W (File_Name) & " on line " &
                W (Positive'Image (State.Line_Number)));
             IO.Close (State.File);
@@ -129,7 +129,7 @@ package body Languages_Parser is
    end New_Section;
    
    procedure Substitutions (State : in out Lexer_State) is
-      Position : Languages.Substitution_Type;
+      Position : Substitution_Type;
       Pattern : Unbounded_Wide_Wide_String;
       Replacement : Unbounded_Wide_Wide_String;
       Unused : Token_Type;
@@ -139,23 +139,23 @@ package body Languages_Parser is
       loop
          Substitution_Body (State, Pattern, Replacement);
          Accept_Token (State);
-         Languages.User_Language.Add_Substitution (Position, Pattern, Replacement);
+         User_Language.Add_Substitution (Position, Pattern, Replacement);
          if New_Section (State) then
             exit;
          end if;
       end loop;
    end Substitutions;
    
-   procedure Position_Name (State : in out Lexer_State; Position : out Languages.Substitution_Type) is
+   procedure Position_Name (State : in out Lexer_State; Position : out Substitution_Type) is
       Position_Name : Token_Type;
    begin
       Position_Name := Expecting (State, Token_String);
       if Position_Name.String_Value = "left" then
-         Position := Languages.Left;
+         Position := Left;
       elsif Position_Name.String_Value = "middle" then
-         Position := Languages.Middle;
+         Position := Middle;
       elsif Position_Name.String_Value = "right" then
-         Position := Languages.Right;
+         Position := Right;
       else
          raise Parse_Error with
            "string """ & Conversions.To_String (From_Unbounded (Position_Name.String_Value), Substitute => '?') &
@@ -192,7 +192,7 @@ package body Languages_Parser is
       loop
          Keys_Body (State, Key, Symbol);
          Accept_Token (State);
-         Languages.User_Language.Add_Key (Modifier, Key, Symbol);
+         User_Language.Add_Key (Modifier, Key, Symbol);
          if New_Section (State) then
             exit;
          end if;
@@ -254,4 +254,4 @@ package body Languages_Parser is
       end if;
    end Advance;
    
-end Languages_Parser;
+end Languages.Parser;

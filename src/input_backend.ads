@@ -1,5 +1,5 @@
-with Qweyboard;
-with Keys; use Keys;
+with Qweyboard; use Qweyboard;
+with Qweyboard.Emulation;
 with Configuration;
 with Logging;
 

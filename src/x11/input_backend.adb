@@ -8,13 +8,12 @@ with Interfaces.C;
 with Interfaces.C.Strings;
 with Ada.Containers.Ordered_Maps;
 with Ada.Containers.Ordered_Sets;
-with Keys;
 
 package body Input_Backend is
    package C renames Interfaces.C;
    use type C.Int;
 
-   package Keycode_Mapping is new Ada.Containers.Ordered_Maps (Key_Type => C.Int, Element_Type => Keys.Softkey, "=" => Keys."=");
+   package Keycode_Mapping is new Ada.Containers.Ordered_Maps (Key_Type => C.Int, Element_Type => Softkey);
    From_Keycode : Keycode_Mapping.Map;
 
    function "<" (A : XIDeviceInfo; B : XIDeviceInfo) return Boolean is
@@ -34,8 +33,8 @@ package body Input_Backend is
    procedure Setup_Keygrabs (Grab : in out Grab_Status);
    procedure Register_Real_Keyboards (Grab : in out Grab_Status);
    procedure Grab_Keys (Grab : in out Grab_Status; Ungrab : Boolean := False);
-   function Next_Event (Display : Display_Access; XInput_Opcode : C.Int; Devices : Device_Sets.Set) return Qweyboard.Key_Event;
-   function Convert_Event (Device_Event : XIDeviceEvent_Access) return Qweyboard.Key_Event;
+   function Next_Event (Display : Display_Access; XInput_Opcode : C.Int; Devices : Device_Sets.Set) return Key_Event;
+   function Convert_Event (Device_Event : XIDeviceEvent_Access) return Key_Event;
    function Key_Event_Mask (Device_Id : C.Int) return XIEventMask;
 
    procedure Finalize (Grab : in out Grab_Status) is
@@ -51,7 +50,7 @@ package body Input_Backend is
    task body Input is
       Grab : Grab_Status;
       XInput_Opcode : C.Int;
-      Last_Event : Qweyboard.Key_Event;
+      Last_Event : Key_Event;
       Suspended : Boolean := False;
    begin
       Log.Chat ("[X11.Input] Opening display");
@@ -86,10 +85,10 @@ package body Input_Backend is
 
          if not Suspended then
             Log.Chat ("[X11.Input] Telling backend about event");
-            Qweyboard.Softboard.Handle (Last_Event);
+            Qweyboard.Emulation.Process.Handle (Last_Event);
          end if;
          
-         if Keys."=" (Last_Event.Key, Keys.Susp) then
+         if Last_Event.Key = Susp then
             Suspended := not Suspended;
          end if;
       end loop;
@@ -169,7 +168,7 @@ package body Input_Backend is
       end loop;
    end Grab_Keys;
 
-   function Next_Event (Display : Display_Access; XInput_Opcode : C.Int; Devices : Device_Sets.Set) return Qweyboard.Key_Event is
+   function Next_Event (Display : Display_Access; XInput_Opcode : C.Int; Devices : Device_Sets.Set) return Key_Event is
       function Correct_Device (Event : XIDeviceEvent_Access) return Boolean is
       begin
          for Device of Devices loop
@@ -214,9 +213,7 @@ package body Input_Backend is
       end loop;
    end;
       
-   function Convert_Event (Device_Event : XIDeviceEvent_Access) return Qweyboard.Key_Event is
-      use Keys; use Qweyboard;
-
+   function Convert_Event (Device_Event : XIDeviceEvent_Access) return Key_Event is
       Variant : Key_Event_Variant_Type :=
         (if Device_Event.Evtype = XIKeyPress
            then Key_Press
@@ -249,52 +246,52 @@ package body Input_Backend is
 
 begin
    Log.Chat ("[Backend] Setting up keycode table");
-   From_Keycode.Insert (10, Keys.NOKEY);
-   From_Keycode.Insert (11, Keys.NOKEY);
-   From_Keycode.Insert (12, Keys.LP);
-   From_Keycode.Insert (13, Keys.LK);
-   From_Keycode.Insert (14, Keys.LI);
-   From_Keycode.Insert (15, Keys.MAPO);
-   From_Keycode.Insert (16, Keys.RO);
-   From_Keycode.Insert (17, Keys.RK);
-   From_Keycode.Insert (18, Keys.RP);
-   From_Keycode.Insert (19, Keys.NOKEY);
-   From_Keycode.Insert (20, Keys.NOKEY);
-   From_Keycode.Insert (21, Keys.NOKEY);
-   From_Keycode.Insert (24, Keys.NOKEY);
-   From_Keycode.Insert (25, Keys.LF);
-   From_Keycode.Insert (26, Keys.LT);
-   From_Keycode.Insert (27, Keys.LJ);
-   From_Keycode.Insert (28, Keys.LO);
-   From_Keycode.Insert (29, Keys.MU);
-   From_Keycode.Insert (30, Keys.RI);
-   From_Keycode.Insert (31, Keys.RJ);
-   From_Keycode.Insert (32, Keys.RT);
-   From_Keycode.Insert (33, Keys.RF);
-   From_Keycode.Insert (34, Keys.NOKEY);
-   From_Keycode.Insert (35, Keys.NOKEY);
-   From_Keycode.Insert (38, Keys.LZ);
-   From_Keycode.Insert (39, Keys.LS);
-   From_Keycode.Insert (40, Keys.LC);
-   From_Keycode.Insert (41, Keys.LR);
-   From_Keycode.Insert (42, Keys.LE);
-   From_Keycode.Insert (43, Keys.MA);
-   From_Keycode.Insert (44, Keys.RE);
-   From_Keycode.Insert (45, Keys.RR);
-   From_Keycode.Insert (46, Keys.RC);
-   From_Keycode.Insert (47, Keys.RS);
-   From_Keycode.Insert (48, Keys.RZ);
-   From_Keycode.Insert (49, Keys.NOKEY);
-   From_Keycode.Insert (51, Keys.NOKEY);
-   From_Keycode.Insert (52, Keys.NOKEY);
-   From_Keycode.Insert (53, Keys.NOKEY);
-   From_Keycode.Insert (54, Keys.LL);
-   From_Keycode.Insert (55, Keys.LN);
-   From_Keycode.Insert (56, Keys.MY);
-   From_Keycode.Insert (57, Keys.RN);
-   From_Keycode.Insert (58, Keys.RL);
-   From_Keycode.Insert (59, Keys.NOKEY);
-   From_Keycode.Insert (60, Keys.NOKEY);
-   From_Keycode.Insert (61, Keys.NOKEY);
-   From_Keycode.Insert (65, Keys.NOSP);
+   From_Keycode.Insert (10, NOKEY);
+   From_Keycode.Insert (11, NOKEY);
+   From_Keycode.Insert (12, LP);
+   From_Keycode.Insert (13, LK);
+   From_Keycode.Insert (14, LI);
+   From_Keycode.Insert (15, MAPO);
+   From_Keycode.Insert (16, RO);
+   From_Keycode.Insert (17, RK);
+   From_Keycode.Insert (18, RP);
+   From_Keycode.Insert (19, NOKEY);
+   From_Keycode.Insert (20, NOKEY);
+   From_Keycode.Insert (21, NOKEY);
+   From_Keycode.Insert (24, NOKEY);
+   From_Keycode.Insert (25, LF);
+   From_Keycode.Insert (26, LT);
+   From_Keycode.Insert (27, LJ);
+   From_Keycode.Insert (28, LO);
+   From_Keycode.Insert (29, MU);
+   From_Keycode.Insert (30, RI);
+   From_Keycode.Insert (31, RJ);
+   From_Keycode.Insert (32, RT);
+   From_Keycode.Insert (33, RF);
+   From_Keycode.Insert (34, NOKEY);
+   From_Keycode.Insert (35, NOKEY);
+   From_Keycode.Insert (38, LZ);
+   From_Keycode.Insert (39, LS);
+   From_Keycode.Insert (40, LC);
+   From_Keycode.Insert (41, LR);
+   From_Keycode.Insert (42, LE);
+   From_Keycode.Insert (43, MA);
+   From_Keycode.Insert (44, RE);
+   From_Keycode.Insert (45, RR);
+   From_Keycode.Insert (46, RC);
+   From_Keycode.Insert (47, RS);
+   From_Keycode.Insert (48, RZ);
+   From_Keycode.Insert (49, NOKEY);
+   From_Keycode.Insert (51, NOKEY);
+   From_Keycode.Insert (52, NOKEY);
+   From_Keycode.Insert (53, NOKEY);
+   From_Keycode.Insert (54, LL);
+   From_Keycode.Insert (55, LN);
+   From_Keycode.Insert (56, MY);
+   From_Keycode.Insert (57, RN);
+   From_Keycode.Insert (58, RL);
+   From_Keycode.Insert (59, NOKEY);
+   From_Keycode.Insert (60, NOKEY);
+   From_Keycode.Insert (61, NOKEY);
+   From_Keycode.Insert (65, NOSP);
 end Input_Backend;

@@ -1,7 +1,7 @@
 with Ada.Text_IO;
 with Ada.Strings.Unbounded;
 with Ada.Command_Line;
-with Languages_Parser;
+with Languages.Parser;
 with Logging;
 
 package Configuration is
