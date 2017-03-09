@@ -224,8 +224,7 @@ situations when the order of keys doesn't cut it. There are several different
 kinds of these cases in English:
 
 1. Words normally start with the digraph "sp" in that order: "special",
-"spring", "sponsor" and so on. However, when the origin of the word is Greek,
-the reverse digraph can appear: psychology, psalm, psoriasis However, when the
+"spring", "sponsor" and so on. However, when the
 origin of the word is Greek, the reverse digraph can appear: psychology, psalm,
 psoriasis. "Psalm" is a one-syllable word, but going just by the key order on
 the Qweyboard, it takes three syllables to write: "p-sal-m".
