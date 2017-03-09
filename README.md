@@ -395,6 +395,8 @@ These are roughly in order of importance, I guess. It's mostly a loose
 collection of personal notes and if anyone needs help interpreting any of them
 I'm glad to assist.
 
+* `[ ]` to add to standard: $FS=SE, $IWG=ING
+
 * `[ ]` LZ RZ = return
 
 * `[ ]` shift = sssssymbol keys? actually trickier than I had thought...
