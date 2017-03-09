@@ -10,7 +10,6 @@ with Output_Backend;
 
 
 procedure Main is
-   package Lλgging renames Logging;
    use Logging;
 
    Settings : Configuration.Settings;
