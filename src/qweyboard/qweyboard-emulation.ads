@@ -1,5 +1,5 @@
 with Configuration;
-private with String_Helpers;
+private with Unicode_Strings;
 private with Qweyboard.Languages;
 private with Logging;
 private with Output_Backend;

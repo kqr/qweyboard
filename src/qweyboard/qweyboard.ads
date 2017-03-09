@@ -1,4 +1,4 @@
-with String_Helpers; use String_Helpers;
+with Unicode_Strings; use Unicode_Strings;
 with Ada.Containers.Ordered_Sets;
 
 package Qweyboard is

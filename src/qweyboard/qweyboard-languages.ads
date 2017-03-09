@@ -1,4 +1,4 @@
-with String_Helpers; use String_Helpers;
+with Unicode_Strings; use Unicode_Strings;
 with Ada.Containers.Vectors;
 with Ada.Containers.Ordered_Maps;
 private with Logging;

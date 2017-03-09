@@ -5,7 +5,7 @@ with Ada.Wide_Wide_Text_IO;
 
 --  Package to make it easier to deal with strings in general, but wide,
 --  international strings in particular.
-package String_Helpers is
+package Unicode_Strings is
    package Unbounded
      renames Ada.Strings.Wide_Wide_Unbounded;
    package Conversions
@@ -27,11 +27,7 @@ package String_Helpers is
      return Unbounded.Unbounded_Wide_Wide_String
      renames Unbounded.To_Unbounded_Wide_Wide_String;
    
---   function To_Lower (Item : Unbounded.Unbounded_Wide_Wide_String)
---     return Unbounded.Unbounded_Wide_Wide_String is
---     (Unbounded.Translate (Item, Character_Maps.Lower_Case_Map));
-   
    package Characters is
       LF : constant Wide_Wide_Character := Wide_Wide_Character'Val (16#0a#); 
    end Characters;
-end String_Helpers;
+end Unicode_Strings;

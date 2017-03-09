@@ -1,4 +1,4 @@
-with String_Helpers; use String_Helpers;
+with Unicode_Strings; use Unicode_Strings;
 with Ada.Command_Line;
 with Ada.Task_Termination;
 with Ada.Task_Identification;

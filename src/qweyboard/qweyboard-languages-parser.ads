@@ -1,4 +1,4 @@
-private with String_Helpers;
+private with Unicode_Strings;
 private with Ada.Finalization;
 private with Logging;
 
@@ -24,7 +24,7 @@ package Qweyboard.Languages.Parser is
    
    procedure Parse (File_Name : String);
 private
-   use String_Helpers;
+   use Unicode_Strings;
    use Unbounded;
    use Logging;
 
