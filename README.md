@@ -63,7 +63,8 @@ Dependencies
 If Qweyboard doesn't want to run or build (undefined symbol, linker errors or
 whatnot), install the prerequisite dependencies:
 
- * GNAT (Ada compiler; Ada is compiled with GCC but the gnatmake frontend helps)
+ * GNAT (Ada compiler; Ada is compiled with GCC but the GNAT frontend helps)
+ * GPRBuild (should come with GNAT; alert me if it does not)
  * Xlib (X11 client programming library)
  * XInput2 (support for more advanced input in X11)
  * XTest (extension that enables clients to create input events as if from a real device)
@@ -78,7 +79,7 @@ Short tutorial
 
 This is a short tutorial on how to use the Qweyboard. The Qweyboard is easy to
 learn, because it is a lot like a regular QWERTY keyboard in that each key
-produces a letter in the final word. THere are three main differences to your
+produces a letter in the final word. There are three main differences to your
 normal QWERTY keyboard:
 
 1. The most common letters are under your fingers already, which means less
