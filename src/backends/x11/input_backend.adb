@@ -85,7 +85,7 @@ package body Input_Backend is
 
          if not Suspended then
             Log.Chat ("[X11.Input] Telling backend about event");
-            Qweyboard.Emulation.Process.Handle (Last_Event);
+            Qweyboard.Emulation.Softboard.Handle (Last_Event);
          end if;
          
          if Last_Event.Key = Susp then

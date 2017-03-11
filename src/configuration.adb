@@ -31,16 +31,13 @@ package body Configuration is
       return True;
    end Get_Argument;
    
-   function Get_Argument (Count : in out Positive; Flag : String; Timeout : in out Duration) return Boolean is
+   function Get_Argument (Count : in out Positive; Flag : String; Timeout : in out Ada.Real_Time.Time_Span) return Boolean is
    begin
       if CLI.Argument (Count) /= Flag then
          return False;
       end if;
-      declare
-         Value : Natural := Natural'Value (CLI.Argument (Count + 1));
-      begin
-         Timeout := Duration (Value) / 1000.0;
-      end;
+      Timeout := Ada.Real_Time.Milliseconds
+        (Natural'Value (CLI.Argument (Count + 1)));
       Count := Count + 2;
       return True;
    exception

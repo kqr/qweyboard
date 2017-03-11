@@ -28,10 +28,10 @@ begin
    Configuration.Load_Language (Settings);
 
    --  Then kick off the emulation!
-   Qweyboard.Emulation.Process.Ready_Wait;
+   --Qweyboard.Emulation.Process.Ready_Wait;
    Log.Chat ("[Main] Emulation started");
    -- Configure softboard
-   Qweyboard.Emulation.Process.Configure (Settings);
+   --Qweyboard.Emulation.Process.Configure (Settings);
    Log.Chat ("[Main] Emulation configured");
 
    --  First wait for the output backend to be ready
