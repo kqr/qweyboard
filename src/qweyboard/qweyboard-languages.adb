@@ -222,6 +222,7 @@ begin
    User_Language.Add_Substitution (Right, To_Unbounded ("BF"), To_Unbounded ("BE"));
    User_Language.Add_Substitution (Right, To_Unbounded ("CF"), To_Unbounded ("CE"));
    User_Language.Add_Substitution (Right, To_Unbounded ("DF"), To_Unbounded ("DE"));
+   User_Language.Add_Substitution (Right, To_Unbounded ("FS"), To_Unbounded ("FE"));
    User_Language.Add_Substitution (Right, To_Unbounded ("GF"), To_Unbounded ("GE"));
    User_Language.Add_Substitution (Right, To_Unbounded ("KF"), To_Unbounded ("KE"));
    User_Language.Add_Substitution (Right, To_Unbounded ("LF"), To_Unbounded ("LE"));
@@ -243,4 +244,5 @@ begin
    User_Language.Add_Substitution (Right, To_Unbounded ("NC"), To_Unbounded ("GN"));
    User_Language.Add_Substitution (Right, To_Unbounded ("WD"), To_Unbounded ("ND"));
    User_Language.Add_Substitution (Right, To_Unbounded ("MV"), To_Unbounded ("LM"));
+   User_Language.Add_Substitution (Right, To_Unbounded ("IWG"), To_Unbounded ("ING"));
 end Qweyboard.Languages;
