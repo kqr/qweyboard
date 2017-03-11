@@ -24,7 +24,7 @@ package body Qweyboard.Languages.Parser is
       IO.Close (State.File);
    end Parse;
    
-   function Next_Token (State : in out Lexer_State) return Token_Type is
+   procedure Next_Token (State : in out Lexer_State) is
       Symbol : Wide_Wide_Character;
       Newline : Boolean;
       
@@ -35,7 +35,7 @@ package body Qweyboard.Languages.Parser is
          State.String_Terminator := Terminator;
       end Enter_String_State;
 
-      function Exit_String_State return Token_Type is
+      procedure Exit_String_State is
          String_Value : Unbounded_Wide_Wide_String := State.Buffer;
       begin
          if not State.In_String_State Then
@@ -43,18 +43,15 @@ package body Qweyboard.Languages.Parser is
               with "Trying to exit string state without being in it";
          end if;
          State.In_String_State := False;
-         State.Last_Token := (Token_String, String_Value);
-         return State.Last_Token;
+         State.Current_Token := (Token_String, String_Value);
       end Exit_String_State;
    begin
-      if State.Last_Token.Variant /= Token_None then
-         return State.Last_Token;
-      end if;
       while not IO.End_Of_File (State.File) loop
          IO.Look_Ahead (State.File, Symbol, Newline);
 --         Ada.Text_IO.Put_Line ("Found symbol <" & Symbol & "> and newline? " & (if Newline then "yes" else "no"));
          if Newline and State.In_String_State and State.String_Terminator = Characters.LF then
-            return Exit_String_State;
+            Exit_String_State;
+            return;
          elsif Newline then
             State.Line_Number := State.Line_Number + 1;
             Advance (State);
@@ -65,15 +62,16 @@ package body Qweyboard.Languages.Parser is
          elsif Symbol = '.' and not State.In_String_State then
             Enter_String_State (Characters.LF);
             Advance (State);
-            State.Last_Token := (Variant => Token_Period);
-            return State.Last_Token;
+            State.Current_Token := (Variant => Token_Period);
+            return;
          elsif Symbol = State.String_Terminator and State.In_String_State then
-            return Exit_String_State;
+            Exit_String_State;
+            return;
          elsif Symbol = State.String_Terminator then
             Enter_String_State (Characters.LF);
             Advance (State);
-            State.Last_Token := (Variant => Token_Equals);
-            return State.Last_Token;
+            State.Current_Token := (Variant => Token_Equals);
+            return;
          elsif Wide_Wide_Character'Pos (Symbol) > 16#20# then
             if not State.In_String_State then
                Enter_String_State ('=');
@@ -85,26 +83,18 @@ package body Qweyboard.Languages.Parser is
          end if;
       end loop;
       if State.In_String_State then
-         return Exit_String_State;
+         Exit_String_State;
+         return;
       end if;
 
-      raise End_Of_File;
+      State.Current_Token := (Variant => Token_End_Of_File);
    end Next_Token;
-
-   procedure Accept_Token (State : in out Lexer_State) is
-   begin
-      State.Last_Token := (Variant => Token_None);
-   end Accept_Token;
    
    procedure Language_Spec (State : in out Lexer_State) is
    begin
-      loop
-         begin
-            Section (State);
-         exception
-            when End_Of_File =>
-               return;
-         end;
+      Next_Token (State);
+      while State.Current_Token.Variant /= Token_End_Of_File loop
+         Section (State);
       end loop;
    end Language_Spec;
    
@@ -112,7 +102,7 @@ package body Qweyboard.Languages.Parser is
       Unused : Token_Type;
    begin
       Unused := Expecting (State, Token_Period);
-      Accept_Token (State);
+      Next_Token (State);
       begin
          Substitutions (State);
       exception
@@ -121,11 +111,9 @@ package body Qweyboard.Languages.Parser is
       end;
    end Section;
    
-   function New_Section (State : in out Lexer_State) return Boolean is
-      Next : Token_Type;
+   function New_Section (State : Lexer_State) return Boolean is
    begin
-      Next := Next_Token (State);
-      return Next.Variant = Token_Period;
+      return State.Current_Token.Variant = Token_Period;
    end New_Section;
    
    procedure Substitutions (State : in out Lexer_State) is
@@ -135,10 +123,10 @@ package body Qweyboard.Languages.Parser is
       Unused : Token_Type;
    begin
       Position_Name (State, Position);
-      Accept_Token (State);
+      Next_Token (State);
       loop
          Substitution_Body (State, Pattern, Replacement);
-         Accept_Token (State);
+         Next_Token (State);
          User_Language.Add_Substitution (Position, Pattern, Replacement);
          if New_Section (State) then
             exit;
@@ -167,16 +155,15 @@ package body Qweyboard.Languages.Parser is
       Unused : Token_Type;
    begin
       Graphic_String (State, Pattern);
-      Accept_Token (State);
+      Next_Token (State);
       Unused := Expecting (State, Token_Equals);
-      Accept_Token (State);
+      Next_Token (State);
       Graphic_String (State, Replacement);
    end Substitution_Body;
 
    procedure Graphic_String (State : in out Lexer_State; Out_String : out Unbounded_Wide_Wide_String) is
-      Token : Token_Type := Next_Token (State);
+      Token : constant Token_Type := Expecting (State, Token_String);
    begin
-      Token := Expecting (State, Token_String);
       Out_String := Token.String_Value;
    end Graphic_String;
    
@@ -188,10 +175,10 @@ package body Qweyboard.Languages.Parser is
       Next : Token_Type;
    begin
       Key_Name (State, Modifier);
-      Accept_Token (State);
+      Next_Token (State);
       loop
          Keys_Body (State, Key, Symbol);
-         Accept_Token (State);
+         Next_Token (State);
          User_Language.Add_Key (Modifier, Key, Symbol);
          if New_Section (State) then
             exit;
@@ -203,42 +190,40 @@ package body Qweyboard.Languages.Parser is
       Unused : Token_Type;
    begin
       Key_Name (State, Out_Key);
-      Accept_Token (State);
+      Next_Token (State);
       Unused := Expecting (State, Token_Equals);
-      Accept_Token (State);
+      Next_Token (State);
       Graphic_Character (State, Out_Character);
    end Keys_Body;
    
    procedure Key_Name (State : in out Lexer_State; Out_Key : out Softkey) is
-      Key_Name : Token_Type;
+      Key_Name : constant Token_Type := Expecting (State, Token_String);
    begin
-      Key_Name := Expecting (State, Token_String);
-      Out_Key := Softkey'Value (Conversions.To_String (From_Unbounded (Key_Name.String_Value), Substitute => '?'));
+      Out_Key := Softkey'Value (Un_W (From_Unbounded (Key_Name.String_Value)));
    end Key_Name;
 
    procedure Graphic_Character (State : in out Lexer_State; Out_Character : out Wide_Wide_Character) is
-      Token : Token_Type;
+      Token : constant Token_Type := Expecting (State, Token_String);
    begin
-      Token := Expecting (State, Token_String);
-      if Length (Token.String_Value) = 1 then
+      if Length (Token.String_Value) > 1 then
          Out_Character := Element (Token.String_Value, 1);
          return;
+      else
+         raise Parse_Error with
+           "string """ & Un_W (From_Unbounded (Token.String_Value)) &
+           """ does not represent a character";
       end if;
-      raise Parse_Error with
-        "string """ & Conversions.To_String (From_Unbounded (Token.String_Value), Substitute => '?') &
-        """ does not represent a character";
    end Graphic_Character;
 
-   function Expecting (State : in out Lexer_State; Variant : Token_Variant) return Token_Type is
-      Token : Token_Type := Next_Token (State);
+   function Expecting (State : Lexer_State; Variant : Token_Variant) return Token_Type is
    begin
-      if Token.Variant = Variant then
-         return Token;
+      if State.Current_Token.Variant = Variant then
+         return State.Current_Token;
       else
          raise Parse_Error with
            "wrong token type (expected " &
            Token_Variant'Image (Variant) & ", got "
-           & Token_Variant'Image (Token.Variant) & ")";
+           & Token_Variant'Image (State.Current_Token.Variant) & ")";
       end if;
    end Expecting;
 

@@ -20,7 +20,6 @@ package Qweyboard.Languages.Parser is
    
    Unexpected_Symbol : exception;
    Parse_Error : exception;
-   End_Of_File : exception;
    
    procedure Parse (File_Name : String);
 private
@@ -32,9 +31,9 @@ private
      (Token_String,
       Token_Period,
       Token_Equals,
-      Token_None);
+      Token_End_Of_File);
 
-   type Token_Type (Variant : Token_Variant := Token_None) is record
+   type Token_Type (Variant : Token_Variant := Token_End_Of_File) is record
       case Variant is
          when Token_String =>
             String_Value : Unbounded_Wide_Wide_String;
@@ -48,19 +47,18 @@ private
       Buffer : Unbounded_Wide_Wide_String;
       In_String_State : Boolean;
       String_Terminator : Wide_Wide_Character;
-      Last_Token : Token_Type;
+      Current_Token : Token_Type;
       Line_Number : Positive := 1;
    end record;
    procedure Finalize (State : in out Lexer_State);
    
    procedure Advance (State : Lexer_State);
    
-   procedure Accept_Token (State : in out Lexer_State);
-   function Next_Token (State : in out Lexer_State) return Token_Type;
+   procedure Next_Token (State : in out Lexer_State);
 
    procedure Language_Spec (State : in out Lexer_State);
    procedure Section (State : in out Lexer_State);
-   function New_Section (State : in out Lexer_State) return Boolean;
+   function New_Section (State : Lexer_State) return Boolean;
    procedure Substitutions (State : in out Lexer_State);
    procedure Position_Name (State : in out Lexer_State; Position : out Substitution_Type);
    procedure Substitution_Body (State : in out Lexer_State; Pattern : out Unbounded_Wide_Wide_String; Replacement : out Unbounded_Wide_Wide_String);
@@ -69,5 +67,5 @@ private
    procedure Key_Name (State : in out Lexer_State; Out_Key : out Softkey);
    procedure Keys_Body (State : in out Lexer_State; Out_Key : out Softkey; Out_Character : out Wide_Wide_Character);
    procedure Graphic_Character (State : in out Lexer_State; Out_Character : out Wide_Wide_Character);
-   function Expecting (State : in out Lexer_State; Variant : Token_Variant) return Token_Type;
+   function Expecting (State : Lexer_State; Variant : Token_Variant) return Token_Type;
 end Qweyboard.Languages.Parser;

@@ -27,6 +27,10 @@ package Unicode_Strings is
      return Unbounded.Unbounded_Wide_Wide_String
      renames Unbounded.To_Unbounded_Wide_Wide_String;
    
+   function Un_W (Item : Wide_Wide_String)
+     return String
+     is (Conversions.To_String (Item, Substitute => '?'));
+   
    package Characters is
       LF : constant Wide_Wide_Character := Wide_Wide_Character'Val (16#0a#); 
    end Characters;
